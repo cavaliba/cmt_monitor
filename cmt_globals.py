@@ -33,11 +33,12 @@ MAX_EXECUTION_TIME = 50
 # determine if application is a script file or frozen exe from PyInstaller
 if getattr(sys, 'frozen', False):
     HOME_DIR = os.path.dirname(sys.executable)
+    HOME_DIR = "/opt/cmt_monitor"
 elif __file__:
     HOME_DIR = os.path.dirname(__file__)
 
 
-RATE_LIMIT_FILE = os.path.join(HOME_DIR, "alert.last")
+#RATE_LIMIT_FILE = os.path.join(HOME_DIR, "alert.last")
 
 GRAYLOG_HTTP_TIMEOUT = 5 
 

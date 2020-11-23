@@ -43,12 +43,12 @@ def abort(line):
     sys.exit()
 
 def debug(*items):
-    if cmt.ARGS['debug']:
-        print('DEBUG:',' '.join(items))
+    if cmt.ARGS['debug'] or cmt.ARGS['debug2']:
+        print('DEBUG :',' '.join(items))
 
-# def debug2(*items):
-#     if cmt.ARGS['debug2'] or cmt.ARGS['debug']:
-#         print('DEBUG2:',' '.join(items))
+def debug2(*items):
+    if cmt.ARGS['debug2']:
+        print('DEBUG2:',' '.join(items))
 
 # ----------------------------------------------------------
 # Helper functions
@@ -155,8 +155,8 @@ def parse_arguments():
 
     parser.add_argument('--debug', help='verbose/debug output', 
         action='store_true', required=False)
-#    parser.add_argument('--debug2', help='more debug', 
-#        action='store_true', required=False)
+    parser.add_argument('--debug2', help='more debug', 
+        action='store_true', required=False)
 
 
     parser.add_argument('--status','-s', help='compact cli output with status only', 
@@ -182,9 +182,12 @@ def parse_arguments():
 # Configuration management
 # ------------------------------------------------------------
 
-def load_conf():
+def load_conf_master():
+
+    debug("Load master conf")
 
     # TODO : accept config as a parameter, check default locations
+
     if cmt.ARGS['conf']: 
         config_file = cmt.ARGS['conf']    
     else:        
@@ -193,13 +196,25 @@ def load_conf():
     debug("Config file : ", config_file)
 
     if not os.path.exists(config_file):
-        abort('Config file not found : ' + config_file)
+        logit('Config file not found : ' + config_file)
         sys.exit()
 
     # load master conf
     conf = conf_load_file(config_file)
     conf = conf_add_top_entries(conf)
 
+    return conf
+
+
+def load_conf_dirs(conf):
+
+    debug("Load conf dirs")
+
+    # load_confd
+    loadconfd = conf['global'].get("load_confd","no")
+
+    if loadconfd == False or loadconfd =="no" :
+        return conf
 
     # conf.d/*/yml  to ease ansible or modular deployment
     config_dir = os.path.join(cmt.HOME_DIR, "conf.d")
@@ -213,16 +228,32 @@ def load_conf():
     for item in os.scandir(config_dir):
         if item.is_file(follow_symlinks=False):
             if item.name.endswith('.yml'):
-                debug("Additionnal config file found : ",item.path)
+                debug2("Additionnal config file found : ",item.path)
                 conf2 = conf_load_file(item.path)
                 conf2 = conf_add_top_entries(conf2)
                 conf = conf_merge(conf, conf2)
 
+    return conf
 
+
+def load_conf_remote(conf):
+
+    debug("Load remote conf")
+    
     # load remote config from conf_url parameter
     if 'conf_url' in conf['global']:
-        debug("Remote config URL : ", conf['global']['conf_url'])
-        text_conf2 = conf_load_remote(conf['global']['conf_url'])
+                
+        url = conf['global']['conf_url']
+        gro = conf['global'].get("cmt_group","nogroup")
+        nod = conf['global'].get("cmt_node","nonode")
+    
+        if url[-1] == '/':
+            url = url + "{}_{}.txt".format(gro,nod)
+
+        debug("Remote config URL : ", url)
+
+
+        text_conf2 = conf_load_http(url)
         conf2 = yaml.safe_load(text_conf2)
         if conf2 is None:
             conf2={}
@@ -230,7 +261,18 @@ def load_conf():
         conf = conf_merge(conf, conf2)
 
     debug("Configuration loaded")
-    debug(json.dumps(conf, indent=2))
+    debug2(json.dumps(conf, indent=2))
+
+    return conf
+
+
+def load_conf():
+
+    debug("Load conf")
+
+    conf = load_conf_master()
+    conf = load_conf_dirs(conf)
+    conf = load_conf_remote(conf)
     
     return conf
 
@@ -264,7 +306,7 @@ def conf_load_file(config_file):
     return conf
 
 # -----------
-def conf_load_remote(url):
+def conf_load_http(url):
 
         headers = {
             'Content-Type' : 'application/text'
@@ -382,32 +424,16 @@ def teams_test():
 
 def get_last_send():
 
-    
-    t = 0
+    t = cmt.PERSIST.get_key("pager_last_send")
+    if t:
+        return t
+    else:
+        return 0
 
-    cmt.PERSIST.get_key("teams_last_send")
-
-    try:
-        file = open(cmt.RATE_LIMIT_FILE,"r")
-        t = int(file.readline())
-        file.close()
-    except:
-        t = 0
-
-    return t
 
 def set_last_send(t):
 
-    cmt.PERSIST.set_key("teams_last_send",t)
-
-
-    try:
-        file = open(cmt.RATE_LIMIT_FILE,"w")
-        file.write(str(t))
-        file.close()
-    except:
-        pass
-    return
+    cmt.PERSIST.set_key("pager_last_send",t)
 
 
 # ------------------------------------------------------------
@@ -782,7 +808,6 @@ class Report():
 
         # check if Pager enabled globally (global section, master switch)
         tmp = cmt.CONF['global'].get("enable_pager", "no")
-        print(tmp)
         if not is_timeswitch_on(tmp):
             debug("Pager  : disabled/inactive in global config.")
             return

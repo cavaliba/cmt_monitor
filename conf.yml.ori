@@ -10,8 +10,10 @@ global:
   cmt_node: vmpio
   enable: yes
   enable_pager: yes
-  conf_url: http://localhost/cmt/conf1.txt
+  conf_url: http://localhost/cmt/conf/
   pager_rate_limit: 3600
+  max_execution_time: 5
+  load_confd: yes
 
 metrology_servers:
   graylog_test1:
@@ -152,9 +154,9 @@ checks:
 
 
 # ------------------------------------
+# load_confd 
 # conf.d/*.yml also included with :
 # - main conf has higher priority
-# - first level lists merged
 # ------------------------------------
 
 

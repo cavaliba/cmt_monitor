@@ -34,7 +34,8 @@ from cmt_shared import Persist
 # Timeout stop
 # ------------
 def signal_handler(signum, frame):
-    raise Exception("Timed out!")
+    #raise Exception("Timed out!")
+    print("Timed out ! (max_execution_time)")
     sys.exit()
 
 # ------------
@@ -44,9 +45,6 @@ def signal_handler(signum, frame):
 if __name__=="__main__":
 
 
-    # set global timer to limit global duration
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(cmt.MAX_EXECUTION_TIME)   #  seconds
     
     cmt.ARGS = parse_arguments()    
 
@@ -57,15 +55,22 @@ if __name__=="__main__":
     # conf.yml and conf.d/*.yml and remote conf (url)
     cmt.CONF = load_conf()
 
+
+    maxexec = cmt.CONF['global'].get("max_execution_time", cmt.MAX_EXECUTION_TIME)
+    # set global timer to limit global duration
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(maxexec)   #  seconds
+
+
     # Persist
     cmt.PERSIST = Persist(file=cmt.DEFAULT_PERSIST_FILE)
 
-    print("cmt_last_run :", cmt.PERSIST.has_key("cmt_last_run"))
-    lastrun = cmt.PERSIST.get_key("cmt_last_run")
-    print("cmt_mast_run :", lastrun)
-    cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
-    cmt.PERSIST.save()
-    sys.exit()
+    # print("cmt_last_run :", cmt.PERSIST.has_key("cmt_last_run"))
+    # lastrun = cmt.PERSIST.get_key("cmt_last_run")
+    # print("cmt_mast_run :", lastrun)
+    # cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
+    # cmt.PERSIST.save()
+    # sys.exit()
 
     # check config option
     if cmt.ARGS["checkconfig"]:
