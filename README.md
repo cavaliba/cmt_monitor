@@ -12,7 +12,6 @@ CMT Monitor is a simple software agent to  :
 * help troubleshoot outage when run as CLI
 * easy automation and deploy with Ansible ; easy one-file configuration
 
-
 get from github
 ---------------
 
