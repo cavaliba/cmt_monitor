@@ -1,0 +1,70 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# SQLite databases
+*.sqlite
+*.sqlite3
+db.sqlite3
+
+# Virtual environment
+venv
+venv2
+venv2[4567]
+venv3
+venv3[456789]
+
+# Ansible
+*.retry
+
+# Django
+upload/*
+settings.py
+gunicorn.conf.py
+
+# cavaliba
+conf.yml
+conf.d/*.yml
+dist/
+dist/*
+build/
+build/*
+cmt.spec
+cmt
+docs/site/
+docs/site/*
+alert.last
+

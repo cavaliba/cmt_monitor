@@ -1,0 +1,54 @@
+site_name: CMT Monitor Documentation
+copyright: 2020 - cavaliba.com
+
+theme: 
+  name: material
+  font: false
+  language: en
+
+nav:
+  - 'Home': 'index.md'
+#  - 'Quickstart': 'quickstart.md'
+  - 'Download': 'download.md'
+#  - 'Setup': 'setup.md'
+  - 'Configuration': 'config.md'
+#  - 'Datastore / ElasticStack': 'server.md'
+#  - 'FAQ': 'faq.md'
+  - 'Checks': 
+      - 'load': 'check_load.md'
+      - 'cpu': 'check_cpu.md'
+      - 'memory': 'check_memory.md'
+      - 'boot time': 'check_boottime.md'
+      - 'swap': 'check_swap.md'
+      - 'disks': 'check_disks.md'
+      - 'mounts': 'check_mounts.md'
+      - 'process': 'check_process.md'
+      - 'urls': 'check_urls.md'
+      - 'folders': 'check_folders.md'
+      - 'pings': 'check_pings.md'
+#  - 'Dev / How to extend': 'extend.md'
+  - 'License': license.md
+  - 'Visit cavaliba.com': 'http://www.cavaliba.com'
+#- revision / versions
+#- upgrade
+#- full configuration
+#- ansible
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+      #clickable_checkbox: true
+  - pymdownx.critic
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.smartsymbols
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      

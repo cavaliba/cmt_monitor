@@ -1,0 +1,3 @@
+Put additional .yml files in conf.d/
+subdirs and non .yml files will be ignored.
+

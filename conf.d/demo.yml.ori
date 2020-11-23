@@ -1,0 +1,9 @@
+---
+
+checks:
+  demo.cavaliba.com:
+    module: url
+    url: http://demo.cavaliba.com/
+    pattern: "SIRENE"
+    allow_redirects: yes
+    ssl_verify: yes

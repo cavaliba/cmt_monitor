@@ -1,0 +1,71 @@
+---
+# tasks file for cmt_centos7
+
+- name: debug
+  debug: msg="Start CMT deployment"
+
+- name: CMT - copy folder to /opt/cmt_monitor
+  copy:
+    src: cmt_monitor
+    dest: /opt/
+    owner: clevansible
+    group: clevansible
+    mode: '0644'
+  tags: role_cmt
+
+- name: CMT - install python requirements
+  become: no
+  pip:
+    requirements: /opt/cmt_monitor/requirements.txt
+    executable: pip3.6
+    extra_args: --user
+  tags: role_cmt, pip
+
+
+- name: CMT - create conf.yml
+  template:
+    src: templates/cmt_conf.yml.j2
+    dest: /opt/cmt_monitor/conf.yml
+    owner: clevansible
+    group: clevansible
+    mode: '0640'
+    backup: yes
+  tags: role_cmt, conf
+
+- name: CMT - create conf.d/ host specific config
+  template:
+    src: files/cmt_{{ inventory_hostname }}.yml
+    dest: /opt/cmt_monitor/conf.d/{{ inventory_hostname }}.yml
+    owner: clevansible
+    group: clevansible
+    mode: '0640'
+    backup: yes
+  tags: role_cmt, conf
+
+- name: CMT - create /var/log/cmt
+  file:
+    path: /var/log/cmt
+    state: directory
+    mode: "0755"
+    owner: clevansible
+    group: clevansible
+  tags: role_cmt, log
+
+- name: CMT - install logrotate
+  copy:
+    src: cmt_logrotate
+    dest: /etc/logrotate.d/cmt
+    owner: root
+    group: root
+    mode: '0644'
+  tags: role_cmt, logrotate
+
+
+- name: CMT - install crontab
+  cron:
+    name: cmt_monitor cavaliba
+    state: present
+    user: clevansible
+    job: "/usr/bin/python3 /opt/cmt_monitor/cmt.py --report >> /var/log/cmt/cmt.log 2>&1"
+  tags: role_cmt, crontab
+

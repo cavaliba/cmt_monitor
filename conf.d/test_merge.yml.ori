@@ -1,0 +1,32 @@
+---
+
+# check conf merge
+
+global:
+  pager_rate_limit: 7200
+  enabled: after 2020-11-10
+
+metrology_servers:
+  graylog_merge:
+      type: graylog_udp_gelf
+      host: 10.10.10.13
+      port: 12201
+      enable: no
+      
+pagers:
+  team_merge:
+    type: team_channel
+    url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
+    enable: yes
+
+
+modules:
+  tutu:
+    enable: no
+
+checks:
+#mount
+  mount_merge:
+    module: mount
+    path: /merge    
+

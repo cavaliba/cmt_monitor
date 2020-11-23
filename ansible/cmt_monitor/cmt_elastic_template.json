@@ -1,0 +1,50 @@
+{
+  "template": "graylog_*",
+  "mappings" : {
+    "message" : {
+      "properties" : {
+        "cmt_load1" : {
+          "type" : "float"
+        },
+        "cmt_load5" : {
+          "type" : "float"
+        },
+        "cmt_load15" : {
+          "type" : "float"
+        },
+        "cmt_cpu" : {
+          "type" : "float"
+        },
+        "cmt_memory_percent" : {
+          "type" : "float"
+        },
+        "cmt_memory_available" : {
+          "type" : "long"
+        },
+        "cmt_memory_used" : {
+          "type" : "long"
+        },
+        "cmt_swap_used" : {
+          "type" : "long"
+        },
+        "cmt_swap_percent" : {
+          "type" : "float"
+        },
+        "cmt_disk_percent" : {
+          "type" : "float"
+        },
+        "cmt_disk_used" : {
+          "type" : "long"
+        },
+        "cmt_disk_free" : {
+          "type" : "long"
+        },
+        "cmt_disk_total" : {
+          "type" : "long"
+        }
+
+
+      }
+    }
+  }
+}

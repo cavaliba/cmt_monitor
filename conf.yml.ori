@@ -1,0 +1,160 @@
+---
+# Cavaliba / cmt_monitor / conf.yml
+# V1.0.beta
+
+# Global
+# ------
+
+global:
+  cmt_group: cmtdev
+  cmt_node: vmpio
+  enable: yes
+  enable_pager: yes
+  conf_url: http://localhost/cmt/conf1.txt
+  pager_rate_limit: 3600
+
+metrology_servers:
+  graylog_test1:
+      type: graylog_udp_gelf
+      host: 10.10.10.13
+      port: 12201
+  graylog_test2:
+      type: graylog_http_gelf
+      url: http://10.10.10.13:8080/gelf
+
+pagers:
+  alert:
+    type: team_channel
+    url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
+    enable: yes
+  test:
+    type: team_channel
+    url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
+    enable: no
+     
+# Modules
+# -------
+modules:
+  load:
+    enable: yes
+  cpu:
+    enable: yes
+  memory:
+    enable: yes
+  swap:
+    enable: yes
+  boottime:
+    enable: yes
+  ntp:
+    enable: yes
+  disk:
+    enable: yes
+  url:
+    enable: yes
+  mount:
+    enable: yes
+  process:
+    enable: yes
+  ping:
+    enable: yes
+  folder:
+    enable: yes
+
+
+# checks
+# ------
+
+checks:
+
+# load
+  load:
+    module: load
+
+# disk  
+  disk_root:
+    module: disk
+    path: /
+    alert: 80
+  disk_boot:
+    module: disk
+    path: /boot
+    alert: 90
+
+# url
+  www.cavaliba.com:
+    module: url
+    enabled: after 2020-01-01
+    url: https://www.cavaliba.com/
+    pattern: "Cavaliba"
+    allow_redirects: yes
+    ssl_verify: yes
+
+#mount
+  mount_root:
+    module: mount
+    path: /
+  mount_mnt:
+    module: mount
+    path: /mnt
+
+# process
+  redis:
+    module: process
+    psname: redis
+  apache:
+    module: process
+    psname: httpd
+  cron:
+    module: process
+    psname: cron
+  ssh:
+    module: process
+    psname: sshd
+  ntp:
+    module: process
+    psname: ntpd
+  mysql:
+    module: process
+    psname: mysqld
+  php-fpm:
+    module: process
+    psname: php-fpm
+    
+# ping
+  ping_vm1:
+    module: ping
+    host: 192.168.0.1
+  ping_locahost:
+    module: ping
+    host: localhost
+  www.google.com:
+    module: ping
+    host: www.google.com
+
+# folder
+  folder_mytmp:
+    module: folder
+    path: /tmp
+    target:
+       is_blabla:
+       #age_min: 1000
+       #age_max: 300
+       #files_min: 3
+       #files_max: 10
+       #size_min: 100000
+       #size_max: 10
+       has_files:
+            - secret.pdf
+            - secret2.pdf
+  folder_number2:
+    module: folder
+    path: /missing
+
+
+# ------------------------------------
+# conf.d/*.yml also included with :
+# - main conf has higher priority
+# - first level lists merged
+# ------------------------------------
+
+

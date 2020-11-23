@@ -1,0 +1,89 @@
+---
+# Cavaliba.com / cmt_monitor / global conf.yml
+
+# -----------------------------
+# Global
+# -----------------------------
+
+cmt_group: {{ cmt_group }}
+cmt_node: {{ inventory_hostname }}
+
+# -----------------------------
+# GELF servers for data reports
+# -----------------------------
+
+graylog_udp_gelf_servers:
+  - name: graylog1
+    host: graylog1.cavaliba.com
+    port: 12201
+
+graylog_http_gelf_servers:
+  - name: graylog2
+    url: https://graylog2.cavaliba.com/gelf/
+
+# ---------------------------
+# Teams channels for alerts
+# ---------------------------
+
+teams_channel:
+   - name: alert
+     url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   - name: test
+     url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Rate limit message to Teams to max one every XX seconds
+teams_rate_limit: 1800
+
+# ------------------------
+# Available checks
+# ------------------------
+
+checks:
+  - load
+  - cpu
+  - memory
+  - swap
+  - boottime
+#  - ntp
+  - disks
+  - urls
+#  - mounts
+
+# ----------------------------
+# Parameters for checks
+# ----------------------------
+
+
+
+disks:
+  - path: /
+    alert: 96
+#  - path: /var/www
+#    alert: 90
+#  - path: /var/log
+#    alert: 95
+#  - path: /home
+#    alert: 95
+
+
+urls:
+  - url: http://www.cavaliba.com/
+    name: cavaliba
+    pattern: "Welcome"
+#  - url: http://demo.cavaliba.com/
+#    name: demo
+#    pattern: "Demo"
+
+
+mounts:
+  - /
+  - /boot
+
+
+# ------------------------------------
+# conf.d/*.yml also included with :
+# - main conf has higher priority
+# - first level lists merged
+# ------------------------------------
+
+

@@ -1,0 +1,7 @@
+---
+
+urls:
+  - url: http://demo.cavaliba.com/
+    name: demo.cavaliba.com
+    pattern: "SIRENE"
+
