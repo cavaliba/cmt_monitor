@@ -6,7 +6,7 @@ from cmt_shared import Check, CheckItem
 
 
 
-def check_cpu(c, conf):
+def check_cpu(c):
 
     '''Get CPU percentage. No alert. Send cpu float value.'''
 

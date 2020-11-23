@@ -4,7 +4,7 @@ import cmt_globals as cmt
 from cmt_shared import Check, CheckItem
 
 
-def check_process(c,conf):
+def check_process(c):
 
     # --available option ?
     if cmt.ARGS["available"]:
@@ -24,7 +24,7 @@ def check_process(c,conf):
     # real check
 
     name = c.name
-    psname = conf['psname']
+    psname = c.conf['psname']
 
     #{'name': 'python3', 'cpu_times': pcputimes(user=0.39, system=0.3, 
     #    children_user=0.0, children_system=0.0), 

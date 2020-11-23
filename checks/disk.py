@@ -4,11 +4,11 @@ import cmt_globals as cmt
 from cmt_shared import Check, CheckItem
 
 # df -k
-def check_disk(c,conf):
+def check_disk(c):
 
     #c = Check(module='disk') 
-    path = conf['path']
-    alert_threshold = int(conf['alert'])
+    path = c.conf['path']
+    alert_threshold = int(c.conf['alert'])
 
     # sdiskusage(total=21378641920, used=4809781248, free=15482871808, percent=22.5)
     disk=psutil.disk_usage(path)

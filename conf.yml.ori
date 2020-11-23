@@ -34,8 +34,9 @@ pagers:
     url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
     enable: no
      
-# Modules
+
 # -------
+
 modules:
   load:
     enable: yes
@@ -47,8 +48,8 @@ modules:
     enable: yes
   boottime:
     enable: yes
-  ntp:
-    enable: yes
+#  ntp:
+#    enable: yes
   disk:
     enable: yes
   url:
@@ -63,7 +64,6 @@ modules:
     enable: yes
 
 
-# checks
 # ------
 
 checks:
@@ -71,6 +71,32 @@ checks:
 # load
   load:
     module: load
+    enable: yes
+    alert_max_level: alert
+
+# cpu
+  cpu:
+    module: cpu
+    enable: yes
+    alert_max_level: alert
+
+# memory
+  memory:
+    module: memory
+    enable: yes
+    alert_max_level: alert
+
+# boottime
+  boottime:
+    module: boottime
+    enable: yes
+    alert_max_level: alert
+
+# swap
+  swap:
+    module: swap
+    enable: yes
+    alert_max_level: alert
 
 # disk  
   disk_root:

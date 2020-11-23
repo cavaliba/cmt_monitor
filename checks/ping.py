@@ -6,7 +6,7 @@ import subprocess
 from cmt_shared import Check, CheckItem
 
 
-def check_ping(c,conf):
+def check_ping(c):
 
     '''Ping a remote host and return availability'''
 
@@ -14,7 +14,7 @@ def check_ping(c,conf):
     # cmt_ping_status
 
     #c = Check(module='ping') 
-    host = conf['host']
+    host = c.conf['host']
 
     ci = CheckItem('ping',host)
     c.add_item(ci)

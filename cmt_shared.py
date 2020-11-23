@@ -459,7 +459,7 @@ def build_gelf_message(check):
     graylog_data += '"cmt_id":"{}",'.format(check.get_id())
 
     # cmt_message  : Check name + check.message + all items.alert_message
-    m ="cmt_check {}".format(check.module)
+    m ="{} - ".format(check.module)
     m = m + check.get_message_as_str()
     graylog_data += '"short_message":"{}",'.format(m)
     graylog_data += '"cmt_message":"{}",'.format(m)
@@ -540,13 +540,11 @@ class Persist():
     def has_key(self,key):
         return key in self.dict
 
-    def get_key(self,key):
-        print("get_key", key)
-        return self.dict.get(key,None)
+    def get_key(self,key , value = None):
+        return self.dict.get(key,value)
 
 
     def set_key(self, key, value):
-        print("set_key",key,value)
         self.dict[key]=value
 
 
@@ -625,7 +623,7 @@ class Check():
        - Pager alerts are sent globally at the Report level.
     '''
 
-    def __init__(self, module="nomodule", name="noname"):
+    def __init__(self, module="nomodule", name="noname", conf = {}):
 
         self.group = cmt.CONF['global'].get('cmt_group','nogroup')
         self.node = cmt.CONF['global'].get('cmt_node', 'nonode')
@@ -638,6 +636,28 @@ class Check():
         self.warn = 0
         self.notice = 0
         self.checkitems=[]    
+
+        # fields from conf
+        self.conf = conf
+        
+        # compute alert_max_level
+        self.alert_max_level = "alert"   # DEFAULT
+        # check level ?
+        a = conf.get('alert_max_level','')
+        if a in ['alert','notice','warn']:
+            self.alert_max_level = a
+        else:
+            # module level ?
+            b = cmt.CONF['modules'][self.module].get('alert_max_level','')
+            if b in ['alert','notice','warn']:
+                self.alert_max_level = b
+            else:
+                # global level
+                c = cmt.CONF['global'].get('alert_max_level','')
+                if c in ['alert','notice','warn']:
+                    self.alert_max_level = c
+
+
 
     def add_message(self, m):
 
@@ -661,11 +681,44 @@ class Check():
             v = v + mm 
         return v
 
-    def print_to_cli(self):
 
-        if not cmt.ARGS['status']:
-            print()
-            print(bcolors.OKBLUE + bcolors.BOLD + "Check", self.module, bcolors.ENDC)
+    def adjust_alert_max_level(self):
+
+        debug("adjust alert_max_level to : ", self.alert_max_level)
+
+        if self.alert_max_level == "alert":
+            return
+        
+        if self.alert_max_level == "warn":
+            self.notice = self.warn
+            self.warn = self.alert
+            self.alert = 0
+            return
+        
+        if self.alert_max_level == "notice":
+            self.notice = self.alert
+            self.alert = 0
+            self.warn = 0
+
+
+    def print_to_cli_status(self):
+
+        head = bcolors.OKGREEN     + "OK     " + bcolors.ENDC
+
+        if self.alert > 0:
+            head = bcolors.FAIL    + "NOK    " + bcolors.ENDC
+        elif self.warn > 0:
+            head = bcolors.WARNING + "WARN   " + bcolors.ENDC
+        elif self.notice > 0:
+            head = bcolors.OKBLUE  + "NOTICE " + bcolors.ENDC
+
+        print(head, self.get_message_as_str())
+        
+
+    def print_to_cli_detail(self):
+       
+        print()
+        print(bcolors.OKBLUE + bcolors.BOLD + "Check", self.module, bcolors.ENDC)        
 
         for i in self.checkitems:    
 
@@ -673,27 +726,20 @@ class Check():
             if len (i.description) > 0:
                 v = v + ' - ' + i.description
 
-            # special *_status lines : color + messages
-            is_status = False
-
-            if i.name.endswith("_status"):
-                is_status = True
-
-                if i.value == "ok":
-                    v = bcolors.OKGREEN + "OK " + bcolors.ENDC
-                else:
-                    v = bcolors.FAIL + "NOK " + bcolors.ENDC
-                
-                # if len(self.message) > 0:
-                #     v = v + " - " + self.message
-                # for mm in self.message:
-                #     if len(v) > 0:
-                #         v = v + " ; "
-                v = v + self.get_message_as_str()
-
-            if not cmt.ARGS['status'] or is_status:
-                print("cmt_{:18} {}".format(i.name, v))
+            print("cmt_{:18} {}".format(i.name, v))
         
+
+        head = bcolors.OKGREEN     + "OK     " + bcolors.ENDC
+
+        if self.alert > 0:
+            head = bcolors.FAIL    + "NOK    " + bcolors.ENDC
+        elif self.warn > 0:
+            head = bcolors.WARNING + "WARN   " + bcolors.ENDC
+        elif self.notice > 0:
+            head = bcolors.OKBLUE  + "NOTICE " + bcolors.ENDC
+
+        print("{:31} {}".format(head, self.get_message_as_str()))        
+
 
     def send_metrology(self):
         
@@ -757,14 +803,14 @@ class Report():
     def print_alerts_to_cli(self):
         ''' print pager/alerts to CLI '''
 
-
+        print()
+        print("Alerts / Warnings / Notice")
+        print("--------------------------")
         print()
         if self.notice == 0:
-            print(bcolors.OKGREEN + bcolors.BOLD + "No notice", bcolors.ENDC)
-            print('---------')
+            print(bcolors.OKBLUE + bcolors.BOLD + "No notice", bcolors.ENDC)
         else:
             print(bcolors.OKBLUE + bcolors.BOLD + "Notice :", bcolors.ENDC)
-            print('-----------')
             for c in self.checks:
                     if c.notice > 0:
                         print ("{:15s} : {}".format(c.module, c.get_message_as_str()))
@@ -772,22 +818,16 @@ class Report():
         print()
         if self.warn == 0:
             print(bcolors.OKGREEN + bcolors.BOLD + "No warnings", bcolors.ENDC)
-            print('-----------')
         else:
-
             print(bcolors.WARNING + bcolors.BOLD + "Warnings :", bcolors.ENDC)
-            print('-----------')
             for c in self.checks:
                     if c.warn > 0:
                         print ("{:15s} : {}".format(c.module, c.get_message_as_str()))
         print()
         if self.alert == 0:
             print(bcolors.OKGREEN + bcolors.BOLD + "No alerts", bcolors.ENDC)
-            print('-----------')
         else:
-
             print(bcolors.FAIL + bcolors.BOLD + "Alerts :", bcolors.ENDC)
-            print('--------')
             for c in self.checks:
                     if c.alert > 0:
                         print ("{:15s} : {}".format(c.module, c.get_message_as_str()))

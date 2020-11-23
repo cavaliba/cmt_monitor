@@ -31,7 +31,7 @@ def scanNoRecurse(path):
     except:
         pass
 
-def check_folder(c,conf):
+def check_folder(c):
 
     '''Check for various folder attributes '''
 
@@ -39,17 +39,17 @@ def check_folder(c,conf):
 
     #c = Check(module='folder') 
 
-    path = conf['path']
+    path = c.conf['path']
 
     name = path
-    if 'name' in conf:
-        name = conf['name']
+    if 'name' in c.conf:
+        name = c.conf['name']
 
-    recursive = conf.get("recursive",False) == True
+    recursive = c.conf.get("recursive",False) == True
 
     targets = []
-    if 'target' in conf:
-        targets = conf['target']
+    if 'target' in c.conf:
+        targets = c.conf['target']
         #print(targets)
 
     ci = CheckItem('folder_path',path)

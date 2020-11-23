@@ -5,7 +5,7 @@ import os
 from cmt_shared import Check, CheckItem
 
 
-def check_load(c, conf):
+def check_load(c):
     
 
     # (1.17, 0.86, 0.52)

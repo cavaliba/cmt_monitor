@@ -3,7 +3,7 @@ import psutil
 #import cmt_globals as cmt
 from cmt_shared import Check, CheckItem
 
-def check_swap(c, conf):
+def check_swap(c):
 
     # sswap(total=2147479552, used=0, free=2147479552, percent=0.0, sin=0, sout=0)
     swap = psutil.swap_memory()

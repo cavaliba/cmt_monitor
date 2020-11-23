@@ -152,25 +152,30 @@ if __name__=="__main__":
             continue
 
         # create check object
-        check_result = Check(module=modulename, name=checkname)
+        check_result = Check(module=modulename, name=checkname, conf = checkconf)
 
         # TODO : get Persist
         # TODO : Prepare Module Conf, Global Conf, Check Conf
 
         # TODO : if --available, call diffrent function
 
-
+        # TODO : remove checkconf , already in check_result.conf
         # perform check
-        check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result, checkconf)
+        check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
 
         #  TODO done / no output ; available results only
         if cmt.ARGS["available"]:
             break
 
         # TODO : adjust level / pager active/inactive for Check
-        # here
+        # alert_max_level]        : alert, warn, notice   ; lower priority ;
+        check_result.adjust_alert_max_level()
 
-        check_result.print_to_cli()
+        
+        if cmt.ARGS['status']:
+            check_result.print_to_cli_status()
+        else:
+            check_result.print_to_cli_detail()
         
         if cmt.ARGS["report"]:            
             check_result.send_metrology()

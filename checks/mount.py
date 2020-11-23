@@ -4,7 +4,7 @@ import cmt_globals as cmt
 from cmt_shared import Check, CheckItem
 
 
-def check_mount(c,conf):
+def check_mount(c):
     
     '''Checks mount points'''
 
@@ -29,7 +29,7 @@ def check_mount(c,conf):
     #sdiskpart(device='/dev/sda1', mountpoint='/', fstype='ext4', 
     #               opts='rw,relatime,errors=remount-ro,data=ordered')
     
-    path = conf['path']
+    path = c.conf['path']
 
     ci = CheckItem('mount',path)
     c.add_item(ci)

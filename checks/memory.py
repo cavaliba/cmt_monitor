@@ -4,7 +4,7 @@ import psutil
 from cmt_shared import Check, CheckItem
 
 
-def check_memory(c, conf):
+def check_memory(c):
 
     '''Collect memory percent, used, free, available'''
       

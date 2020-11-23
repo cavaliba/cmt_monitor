@@ -9,7 +9,7 @@ requests.packages.urllib3.disable_warnings()
 import cmt_globals as cmt
 from cmt_shared import Check, CheckItem
 
-def check_url(c,conf):
+def check_url(c):
 
     '''Get a URL and check response code and pattern in the response body.'''
 
@@ -22,10 +22,10 @@ def check_url(c,conf):
     #c = Check(module='url') 
 
     name         = c.name
-    url          = conf['url']
-    pattern      = conf['pattern']
-    my_redirects = conf.get("allow_redirects",False) == True
-    my_sslverify = conf.get("ssl_verify",False) == True
+    url          = c.conf['url']
+    pattern      = c.conf['pattern']
+    my_redirects = c.conf.get("allow_redirects",False) == True
+    my_sslverify = c.conf.get("ssl_verify",False) == True
 
     
     ci = CheckItem('url_name',name,'')
