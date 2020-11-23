@@ -60,6 +60,13 @@ if __name__=="__main__":
     # Persist
     cmt.PERSIST = Persist(file=cmt.DEFAULT_PERSIST_FILE)
 
+    print("cmt_last_run :", cmt.PERSIST.has_key("cmt_last_run"))
+    lastrun = cmt.PERSIST.get_key("cmt_last_run")
+    print("cmt_mast_run :", lastrun)
+    cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
+    cmt.PERSIST.save()
+    sys.exit()
+
     # check config option
     if cmt.ARGS["checkconfig"]:
         logit("config OK. use --debug to see full config.")
@@ -177,5 +184,6 @@ if __name__=="__main__":
         report.send_alerts_to_pager()
 
 
-
+    # Save Persistance
+    cmt.PERSIST.save()
 

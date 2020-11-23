@@ -78,7 +78,7 @@ GLOBAL_MODULE_MAP = {
 
 ARGS={}
 CONF={}
-PERSIST=""
+PERSIST={}
 
 # can be switched to True if no response during current RUN
 # TODO : move to run-context ...

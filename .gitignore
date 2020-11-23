@@ -67,4 +67,4 @@ cmt
 docs/site/
 docs/site/*
 alert.last
-
+persist.json

@@ -226,7 +226,6 @@ def load_conf():
         conf2 = yaml.safe_load(text_conf2)
         if conf2 is None:
             conf2={}
-        print(type(conf2),conf2)
         conf2 = conf_add_top_entries(conf2)
         conf = conf_merge(conf, conf2)
 
@@ -356,15 +355,6 @@ def teams_send(url=None, color="0000FF",title="CMT Alert", message="n/a", origin
     except:
         return 0
 
-
-# def teams_is_channel_enabled(channel="test"):
-#     for item in cmt.CONF['teams_channel']:
-#         if item['name'] == channel:
-#             tmp = item.get("enable", "no")
-#             if is_timeswitch_on(tmp):
-#                 return True
-#     return False
-
 def teams_get_url(channel="test"):
     url = ""
     for item in cmt.CONF['teams_channel']:
@@ -392,6 +382,7 @@ def teams_test():
 
 def get_last_send():
 
+    
     t = 0
 
     cmt.PERSIST.get_key("teams_last_send")
@@ -521,27 +512,44 @@ class Persist():
         self.load()
 
     def has_key(self,key):
-        pass
+        return key in self.dict
 
     def get_key(self,key):
         print("get_key", key)
-        pass
+        return self.dict.get(key,None)
 
-    def set_key(self,key, value):
+
+    def set_key(self, key, value):
         print("set_key",key,value)
-        pass
+        self.dict[key]=value
 
     def delete_key(self,key, value):
         pass
 
-    def read(self):
-        pass
-
     def load(self):
-        pass
+        debug("Persist.load() : ", self.file)
+        data = ""
+        try:
+            with open(self.file,"r") as fi:
+                data=fi.read()            
+        except:
+            debug("ERROR - Persist() : couldn't read file {}".format(self.file))
+        # decoding the JSON to dictionay
+        try:
+            self.dict = json.loads(data)
+        except:
+            debug("ERROR - Persist() : couldn't decode data")
+
 
     def save(self):
-        pass
+        debug("Persist.write() : ", self.file)
+        data = json.dumps(self.dict, indent=2)
+        try:
+            with open(self.file,"w") as fi:
+                fi.write(data)
+        except:
+            debug("ERROR - Persist() : couldn't write file {}".format(self.file))
+
 
     
 
