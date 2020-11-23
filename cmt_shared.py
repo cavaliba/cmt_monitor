@@ -523,8 +523,10 @@ class Persist():
         print("set_key",key,value)
         self.dict[key]=value
 
-    def delete_key(self,key, value):
-        pass
+
+    def delete_key(self,key):
+        self.dict.pop(key, None)
+
 
     def load(self):
         debug("Persist.load() : ", self.file)
