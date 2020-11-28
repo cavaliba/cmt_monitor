@@ -12,6 +12,8 @@ def check_cpu(c):
 
     cpu = psutil.cpu_percent(interval=2)
 
+    # c.persist['cpu'] = cpu
+
     i  = CheckItem('cpu',cpu,"CPU Percentage", unit='%')   
     c.add_item(i)
 

@@ -144,35 +144,46 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='CMT - Cavaliba Monitoring')
 
     #parser.add_argument('--conf', dest="config_file", type=str ,help="configuration file")
-    parser.add_argument('--report', help='send data to Graylog/Gelf servers', 
+    
+    parser.add_argument('--report', help='send events to Metrology servers', 
         action='store_true', required=False)
-    parser.add_argument('--alert', help='send alerts to Teams', 
+    parser.add_argument('--pager', help='send alerts to Pagers', 
         action='store_true', required=False)
-    parser.add_argument('--teamstest', help='send test message to teams and exit', 
+    parser.add_argument('--persist', help='persist data accross CMT runs (use in cron)',
         action='store_true', required=False)
+
+    parser.add_argument('--conf', help='specify alternate yaml config file', 
+        action='store', required=False)
+
+    parser.add_argument('modules', nargs='*',  
+        action='append', help='modules to check')
+    
+    parser.add_argument('--pagertest', help='send test message to teams and exit', 
+        action='store_true', required=False)
+    parser.add_argument('--no-pager-rate-limit', help='disable pager rate limit', 
+        action='store_true', required=False)  
+
+
     parser.add_argument('--checkconfig', help='checkconfig and exit', 
         action='store_true', required=False)
 
+    parser.add_argument('--version', '-v', help='display current version', 
+        action='store_true', required=False)
     parser.add_argument('--debug', help='verbose/debug output', 
         action='store_true', required=False)
     parser.add_argument('--debug2', help='more debug', 
         action='store_true', required=False)
 
-
-    parser.add_argument('--status','-s', help='compact cli output with status only', 
+    parser.add_argument('--short','-s', help='short compact cli output', 
         action='store_true', required=False)
     parser.add_argument('--devmode', help='dev mode, no pager, no remote metrology', 
         action='store_true', required=False)    
-    parser.add_argument('modules', nargs='*',  
-        action='append', help='modules to check')
-    parser.add_argument('--version', '-v', help='display current version', 
-        action='store_true', required=False)
+
+
     parser.add_argument('--listmodules', help='display available modules', 
         action='store_true', required=False)
     parser.add_argument('--available', help='display available entries found for modules (manual run on target)', 
         action='store_true', required=False)
-    parser.add_argument('--conf', help='specify alternate yaml config file', 
-        action='store', required=False)
 
 
     return vars(parser.parse_args())
@@ -216,7 +227,7 @@ def load_conf_dirs(conf):
     if loadconfd == False or loadconfd =="no" :
         return conf
 
-    # conf.d/*/yml  to ease ansible or modular deployment
+    # conf.d/*/yml  to ease ansible or modular configuration
     config_dir = os.path.join(cmt.HOME_DIR, "conf.d")
 
     # check if conf.d exists
@@ -397,43 +408,24 @@ def teams_send(url=None, color="0000FF",title="CMT Alert", message="n/a", origin
     except:
         return 0
 
-def teams_get_url(channel="test"):
-    url = ""
-    for item in cmt.CONF['teams_channel']:
-        if item['name'] == channel:
-            url = item['url']
-    return url
 
+def pager_test():
 
-def teams_test():
-    url = teams_get_url(channel="test")
-    origin = cmt.CONF['cmt_group'] + '/' + cmt.CONF['cmt_node']
+    pagerconf = cmt.CONF['pagers'].get('test')
+    url = pagerconf.get('url')
+    debug ("pager url :", url)
+
+    origin = cmt.CONF['global']['cmt_group'] + '/' + cmt.CONF['global']['cmt_node']
     color="0000FF"
     title = "TEST TEST from " + origin
     message = "Test message to Teams. Please ignore."
     if cmt.ARGS['devmode']:
-        print("DEVMODE : ",url, title, message, color, origin)
+        # DEVMODE to stdout
+        print("DEVMODE : url=({}), title=({}), message=({}), color=({}), origin=({})".format(url, title, message, color, origin))
         return
     # REAL
     r = teams_send(url=url, title=title, message=message ,color=color, origin=origin)
     logit("Teams test : " + str(r) )
-
-# -----------------------
-# Pager ALERT rate limit
-# -----------------------
-
-def get_last_send():
-
-    t = cmt.PERSIST.get_key("pager_last_send")
-    if t:
-        return t
-    else:
-        return 0
-
-
-def set_last_send(t):
-
-    cmt.PERSIST.set_key("pager_last_send",t)
 
 
 # ------------------------------------------------------------
@@ -568,6 +560,11 @@ class Persist():
 
 
     def save(self):
+
+        if not cmt.ARGS['persist']:
+            debug("Persist.save : disable (cli / no arg)")            
+            return
+
         debug("Persist.write() : ", self.file)
         data = json.dumps(self.dict, indent=2)
         try:
@@ -585,7 +582,7 @@ class Persist():
 
 class CheckItem():
 
-    ''' Store one single data point with optional status/alert/info.'''
+    ''' Store one single data point '''
 
     def __init__(self, name, value, description="", unit=''):
         self.name = name
@@ -637,8 +634,16 @@ class Check():
         self.notice = 0
         self.checkitems=[]    
 
+        # set by framework after Check is performed, if pager_enable and alert>0
+        self.pager = False
+
         # fields from conf
         self.conf = conf
+        
+        
+        # persist values from previous run for same get_id()
+        id = self.get_id()
+        self.persist = cmt.PERSIST.get_key(id,{})
         
         # compute alert_max_level
         self.alert_max_level = "alert"   # DEFAULT
@@ -701,7 +706,7 @@ class Check():
             self.warn = 0
 
 
-    def print_to_cli_status(self):
+    def print_to_cli_short(self):
 
         head = bcolors.OKGREEN     + "OK     " + bcolors.ENDC
 
@@ -791,6 +796,7 @@ class Report():
         self.warn = 0
         self.notice = 0
 
+        self.pager = False
 
     def add_check(self, c):
 
@@ -799,6 +805,9 @@ class Report():
         self.warn += c.warn
         self.notice += c.notice
 
+        # propagate Pager from check to report
+        if c.pager:
+            self.pager = True
 
     def print_alerts_to_cli(self):
         ''' print pager/alerts to CLI '''
@@ -835,15 +844,13 @@ class Report():
 
 
 
-    
-
     def send_alerts_to_pager(self):
 
         ''' Send alerts to Pagers '''
 
         # check if alert exists
-        if self.alert == 0:
-            debug("Alerts : no alerts to be sent.")
+        if not self.pager:
+            debug("Pager : no Pager to be fired")
             return
 
         # check if Pager enabled globally (global section, master switch)
@@ -851,8 +858,6 @@ class Report():
         if not is_timeswitch_on(tmp):
             debug("Pager  : disabled/inactive in global config.")
             return
-
-        # TODO send_alerts_to_metrology : additionnal "pager"
 
         # Find 'Alert' Pager         
         if not 'alert' in cmt.CONF['pagers']:
@@ -867,14 +872,12 @@ class Report():
             debug("Pager  : alert pager disbled in conf.")
             return
 
-        # TODO : replace by Persist()
-
         # check rate_limit
-        t1 = int(get_last_send())
+        t1 = int (cmt.PERSIST.get_key("pager_last_send", 0))
         t2 = int(time.time())
         rate = int (cmt.CONF['global'].get("pager_rate_limit",7200))
 
-        if not cmt.ARGS['devmode']:
+        if not cmt.ARGS['no_pager_rate_limit']:
             if t2-t1 <= rate:
                 logit("Alerts : too many alerts (rate-limit) - no alert sent to Pager")
                 return
@@ -891,8 +894,19 @@ class Report():
         message = ""
         for c in self.checks:
                 if c.alert > 0:
+                    message += 'ALERT: '
                     message += c.get_message_as_str()
                     message += '<br>\n'
+                if c.warn > 0:
+                    message += 'WARN: '
+                    message += c.get_message_as_str()
+                    message += '<br>\n'
+                if c.notice > 0:
+                    message += 'NOTICE: '
+                    message += c.get_message_as_str()
+                    message += '<br>\n'
+
+
         debug("Pager Message : ",message)              
         
         # send alert
@@ -903,7 +917,8 @@ class Report():
             logit("Alerts : couldn't send alert to Teams - response  " + str(r))
 
         # update rate_limit
-        set_last_send(t2)
+        cmt.PERSIST.set_key("pager_last_send",t2)
+
 
 
 

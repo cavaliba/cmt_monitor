@@ -22,7 +22,7 @@ from cmt_shared import logit, debug, abort, bcolors
 from cmt_shared import parse_arguments
 from cmt_shared import load_conf
 from cmt_shared import display_version, display_modules
-from cmt_shared import teams_test
+from cmt_shared import pager_test
 from cmt_shared import is_module_active_in_conf
 from cmt_shared import is_module_allowed_in_args
 from cmt_shared import is_timeswitch_on
@@ -84,8 +84,8 @@ if __name__=="__main__":
         sys.exit()
 
     # Send test message to Teams
-    if cmt.ARGS["teamstest"]:
-        teams_test()
+    if cmt.ARGS["pagertest"]:
+        pager_test()
         sys.exit()
 
     # TODO : list modules
@@ -104,8 +104,8 @@ if __name__=="__main__":
     print("cmt_group : ", cmt.CONF['global']['cmt_group'])
     print("cmt_node  : ", cmt.CONF['global']['cmt_node'])
     print()
-    if cmt.ARGS['status']:
-        print(bcolors.OKBLUE + bcolors.BOLD + "Status (short)", bcolors.ENDC)
+    if cmt.ARGS['short']:
+        print(bcolors.OKBLUE + bcolors.BOLD + "Short output", bcolors.ENDC)
         print("--------------")
 
 
@@ -154,26 +154,35 @@ if __name__=="__main__":
         # create check object
         check_result = Check(module=modulename, name=checkname, conf = checkconf)
 
-        # TODO : get Persist
-        # TODO : Prepare Module Conf, Global Conf, Check Conf
+        # HERE / Future : give check_result the needed Module Conf, Global Conf ...
 
         # TODO : if --available, call diffrent function
 
-        # TODO : remove checkconf , already in check_result.conf
-        # perform check
+        # ---------------
+        # perform check !
+        # ---------------
         check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
 
-        #  TODO done / no output ; available results only
+        # keep returned Persist structure in check_result
+        cmt.PERSIST.set_key(check_result.get_id(), check_result.persist)
+
+
+        # TODO done / no output ; available results only
         if cmt.ARGS["available"]:
             break
 
-        # TODO : adjust level / pager active/inactive for Check
-        # alert_max_level]        : alert, warn, notice   ; lower priority ;
+        # apply alert_max_level for this check
         check_result.adjust_alert_max_level()
 
+        # If pager enabled (at check level), and alert exists : set pager True
+        if check_result.alert > 0:
+            tr =  checkconf.get('enable_pager', "no")
+            if is_timeswitch_on(tr):
+                debug("pager for check ", check_result.get_id())
+                check_result.pager = True
         
-        if cmt.ARGS['status']:
-            check_result.print_to_cli_status()
+        if cmt.ARGS['short']:
+            check_result.print_to_cli_short()
         else:
             check_result.print_to_cli_detail()
         
@@ -190,7 +199,7 @@ if __name__=="__main__":
     # --------------------------------
     report.print_alerts_to_cli()
 
-    if cmt.ARGS["alert"]:
+    if cmt.ARGS["pager"]:
         report.send_alerts_to_pager()
 
 

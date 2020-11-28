@@ -33,7 +33,7 @@ MAX_EXECUTION_TIME = 50
 # determine if application is a script file or frozen exe from PyInstaller
 if getattr(sys, 'frozen', False):
     HOME_DIR = os.path.dirname(sys.executable)
-    HOME_DIR = "/opt/cmt_monitor"
+    HOME_DIR = "/opt/cmt"
 elif __file__:
     HOME_DIR = os.path.dirname(__file__)
 
