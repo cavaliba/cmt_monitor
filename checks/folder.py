@@ -37,8 +37,6 @@ def check_folder(c):
 
     global s_dirs
 
-    #c = Check(module='folder') 
-
     path = c.conf['path']
 
     name = path
@@ -50,17 +48,13 @@ def check_folder(c):
     targets = []
     if 'target' in c.conf:
         targets = c.conf['target']
-        #print(targets)
 
     ci = CheckItem('folder_path',path)
     c.add_item(ci)
     ci = CheckItem('folder_name',name)
     c.add_item(ci)
 
-    if not os.path.exists(path):
-        ci = CheckItem('folder_status',"","ok/nok", unit="")
-        ci.value="nok"
-        c.add_item(ci)        
+    if not os.path.exists(path):      
         c.alert += 1
         c.add_message("{} missing".format(path))       
         return c
@@ -122,15 +116,12 @@ def check_folder(c):
 
     # Target checks
     # --------------
-    ci = CheckItem('folder_status',"","ok/nok", unit="")
     tgcount = 0
 
     # target : files_min: 4
     if 'files_min' in targets:
         tgcount += 1
         if s_count < targets['files_min']:
-            ci.value="nok"
-            c.add_item(ci)
             c.alert += 1
             c.add_message ("{} :  too few files ({})".format(path,s_count))
             return c
@@ -139,8 +130,6 @@ def check_folder(c):
     if 'files_max' in targets:
         tgcount += 1
         if s_count > targets['files_max']:
-            ci.value="nok"
-            c.add_item(ci)
             c.alert += 1
             c.add_message ("{} : too many files ({})".format(path,s_count))
             return c
@@ -149,8 +138,6 @@ def check_folder(c):
     if 'size_max' in targets:
         tgcount += 1
         if s_size > targets['size_max']:
-            ci.value="nok"
-            c.add_item(ci)
             c.alert += 1
             c.add_message("{} : too big ({})".format(path,s_size))
             return c            
@@ -159,8 +146,6 @@ def check_folder(c):
     if 'size_min' in targets:
         tgcount += 1
         if s_size < targets['size_min']:
-            ci.value="nok"
-            c.add_item(ci)
             c.alert += 1
             c.add_message("{} : too small ({})".format(path,s_size))
             return c            
@@ -170,8 +155,6 @@ def check_folder(c):
         tgcount += 1
         if s_minage != -1:
             if int(now - s_minage) > targets ['age_max']:
-                ci.value="nok"
-                c.add_item(ci)
                 c.alert += 1
                 c.add_message("{} : some files too old ({} sec)".format(path,int(now - s_minage)))
                 return c                
@@ -181,8 +164,6 @@ def check_folder(c):
         tgcount += 1
         if s_maxage != 0:
             if int(now - s_maxage) < targets ['age_min']:
-                ci.value="nok"
-                c.add_item(ci)
                 c.alert += 1
                 c.add_message("{} : some files too young ({} sec)".format(path,int(now - s_maxage)))
                 return c   
@@ -193,14 +174,9 @@ def check_folder(c):
         flist = targets['has_files']
         for f in flist:
             if f not in s_files:
-                ci.value="nok"
-                c.add_item(ci)
                 c.alert += 1
                 c.add_message("{} : expected file not found ({})".format(path,f))
                 return c
-
-    ci = CheckItem('folder_status',"ok","check if targets are met.", unit="ok/nok")
-    c.add_item(ci)
 
     c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes - {} targets OK".format(name, path, s_count, s_dirs, s_size, tgcount))
     return c

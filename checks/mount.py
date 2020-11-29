@@ -6,13 +6,10 @@ from cmt_shared import Check, CheckItem
 
 def check_mount(c):
     
-    '''Checks mount points'''
-
-    # OUTPUT
-    # cmt_mount
-    # cmt_mount_status
-
-    #c = Check(module='mount') 
+    '''Checks mount points
+       OUTPUT
+         - cmt_mount
+    '''
 
     partitions=psutil.disk_partitions(all=False)
 
@@ -33,18 +30,11 @@ def check_mount(c):
 
     ci = CheckItem('mount',path)
     c.add_item(ci)
-
-    ci = CheckItem('mount_status',"","ok/nok", unit="")
     
     for part in partitions:
         if part.mountpoint == path:
-            ci.value="ok"
-            c.add_item(ci)
             c.add_message("path {} found".format(path))
             return c
-
-    ci.value = "nok"
-    c.add_item(ci)
     
     c.alert += 1
     c.add_message("path {} not found".format(path))

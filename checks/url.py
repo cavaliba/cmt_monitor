@@ -17,17 +17,13 @@ def check_url(c):
     # cmt_url
     # cmt_url_name
     # cmt_url_msec
-    # cmt_url_status
-
-    #c = Check(module='url') 
 
     name         = c.name
     url          = c.conf['url']
-    pattern      = c.conf['pattern']
+    pattern      = c.conf.get('pattern',"")
     my_redirects = c.conf.get("allow_redirects",False) == True
     my_sslverify = c.conf.get("ssl_verify",False) == True
 
-    
     ci = CheckItem('url_name',name,'')
     c.add_item(ci)
 
@@ -40,9 +36,6 @@ def check_url(c):
     try:
         resp = requests.get(url, timeout=5, verify=my_sslverify, allow_redirects = my_redirects)
     except:
-        ci = CheckItem('url_status','nok','')
-        ci.description = 'no response to query'
-        c.add_item(ci)
         c.alert += 1
         c.add_message("{} - {} - no response to query".format(name,url))
         return c
@@ -52,9 +45,6 @@ def check_url(c):
     c.add_item(ci) 
 
     if resp.status_code != 200:
-        ci = CheckItem('url_status','nok','')
-        ci.description = 'bad response code : ' + str(resp.status_code)
-        c.add_item(ci) 
         c.alert += 1
         c.add_message("{} - {} - bad http code response ({})".format(name,url, resp.status_code))
         return c
@@ -62,15 +52,9 @@ def check_url(c):
     # check pattern
     mysearch = re.search(pattern,resp.text)
     if not mysearch:
-        ci = CheckItem('url_status','nok','')
-        c.add_item(ci) 
-        ci.description = 'expected pattern not found'
         c.alert += 1
         c.add_message("expected pattern not found for {} ({})".format(name, url))
         return c
-
-    ci = CheckItem('url_status','ok','')
-    c.add_item(ci) 
 
     c.add_message("{} - {} - http={} - {} ms ; pattern OK".format(name, url, resp.status_code, elapsed_time))
     return c

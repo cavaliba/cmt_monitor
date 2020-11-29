@@ -36,7 +36,6 @@ def check_process(c):
     ci = CheckItem('process_name',name,"")
     c.add_item(ci)
 
-    ci = CheckItem('process_status',"","ok/nok", unit="")
     
     for proc in psutil.process_iter():
 
@@ -51,14 +50,11 @@ def check_process(c):
         # pinfo = proc.as_dict(attrs=['name','pid','memory_info','cpu_times'])
         if processName  == psname:
 
-            ci.value="ok"
-            c.add_item(ci)
 
             mem = proc.memory_info().rss
             ci = CheckItem('process_memory',mem,"rss", unit="bytes")
             h_mem = ci.human()
             c.add_item(ci)
-            #print (proc.memory_info().rss)
             
             cpu = proc.cpu_times().user
             ci = CheckItem('process_cpu',cpu,"cpu time, user", unit='seconds')
@@ -66,9 +62,6 @@ def check_process(c):
 
             c.add_message("{} found ({}) - memory rss {} - cpu {} sec.".format(name, psname, h_mem, cpu ))
             return c
-
-    ci.value = "nok"
-    c.add_item(ci)
 
     c.alert += 1
     c.add_message("{} missing ({})".format(name, psname))
