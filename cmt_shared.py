@@ -497,14 +497,14 @@ def build_gelf_message(check):
         has_alert = "yes"
     else:
         has_alert= "no"
-    graylog_data += '"cmt_alert":"{}"'.format(has_alert)
+    graylog_data += '"cmt_alert":"{}",'.format(has_alert)
 
     # cmt_warn ?
     if check.warn > 0:
         has_warn = "yes"
     else:
         has_warn= "no"
-    graylog_data += '"cmt_warning":"{}"'.format(has_warn)
+    graylog_data += '"cmt_warning":"{}",'.format(has_warn)
 
     # cmt_notice ?
     if check.notice > 0:
