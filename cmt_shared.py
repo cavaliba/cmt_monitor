@@ -192,6 +192,18 @@ def parse_arguments():
 # ------------------------------------------------------------
 # Configuration management
 # ------------------------------------------------------------
+def load_conf():
+
+    debug("Load conf")
+
+    conf = load_conf_master()
+    conf = conf_add_default_modules(conf)
+    conf = load_conf_dirs(conf)
+    conf = load_conf_remote(conf)
+    
+    return conf
+
+
 
 def load_conf_master():
 
@@ -274,15 +286,13 @@ def load_conf_remote(conf):
 
     return conf
 
+# -----------
+def conf_add_default_modules(conf):
 
-def load_conf():
-
-    debug("Load conf")
-
-    conf = load_conf_master()
-    conf = load_conf_dirs(conf)
-    conf = load_conf_remote(conf)
-    
+    for key in cmt.GLOBAL_MODULE_MAP:
+        #print("  - ", key )
+        if key not in conf['modules']:
+            conf['modules'][key] = {}            
     return conf
 
 # -----------
@@ -358,7 +368,8 @@ def is_module_active_in_conf(module):
 
     if not module in cmt.CONF['modules']:
         debug("module not in conf :", module)
-        return False
+        # DEFAULT : True
+        return True
 
     timerange = cmt.CONF['modules'][module].get("enable", "yes")
     

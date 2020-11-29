@@ -1,28 +1,45 @@
 ---
 # Cavaliba / cmt_monitor / conf.yml
-# V1.0.beta
+# V 1.0.0
 
-# Global
-# ------
+# this is the main config file
+
+# Global Section
+# --------------
 
 global:
-  cmt_group: cmtdev
-  cmt_node: vmpio
+  cmt_group: cavaliba
+  cmt_node: vmxupm
+  cmt_node_env: dev
+  cmt_node_role: dev_cmt
+  cmt_node_location: Ladig
   enable: yes
   enable_pager: yes
   conf_url: http://localhost/cmt/conf/
   pager_rate_limit: 3600
-  max_execution_time: 5
+  max_execution_time: 10
   load_confd: yes
+  alert_max_level: alert
+  alert_delay: 90
+
+# Remote metrology servers
+# ------------------------
+# to store and present data, with alert/warning/notice infos
 
 metrology_servers:
   graylog_test1:
       type: graylog_udp_gelf
       host: 10.10.10.13
       port: 12201
+      enable: yes
   graylog_test2:
       type: graylog_http_gelf
       url: http://10.10.10.13:8080/gelf
+      enable: yes
+
+# Pager services
+# --------------
+# to send live alerts to human
 
 pagers:
   alert:
@@ -34,12 +51,13 @@ pagers:
     url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
     enable: no
      
-
-# -------
-
+# List of enabled modules
+# -----------------------
 modules:
   load:
     enable: yes
+    alert_max_level: notice
+
   cpu:
     enable: yes
   memory:
@@ -48,40 +66,45 @@ modules:
     enable: yes
   boottime:
     enable: yes
-#  ntp:
-#    enable: yes
+  ntp:
+    enable: yes
   disk:
     enable: yes
   url:
     enable: yes
   mount:
     enable: yes
+    alert_max_level: notice    
   process:
     enable: yes
   ping:
     enable: yes
+    alert_max_level: warn    
   folder:
     enable: yes
+    #alert_delay: 70
+    #alert_max_level: alert
 
 
-# ------
+# List of checks to perform each time
+# -----------------------------------
 
 checks:
 
 # load
-  load:
+  my_load:
     module: load
     enable: yes
     alert_max_level: alert
 
 # cpu
-  cpu:
+  my_cpu:
     module: cpu
     enable: yes
     alert_max_level: alert
 
 # memory
-  memory:
+  my_memory:
     module: memory
     enable: yes
     alert_max_level: alert
@@ -93,35 +116,42 @@ checks:
     alert_max_level: alert
 
 # swap
-  swap:
+  my_swap:
     module: swap
     enable: yes
     alert_max_level: alert
 
 # disk  
-  disk_root:
+  my_disk_root:
     module: disk
     path: /
     alert: 80
-  disk_boot:
+  my_disk_boot:
     module: disk
     path: /boot
     alert: 90
 
 # url
-  www.cavaliba.com:
+  main_website:
     module: url
     enabled: after 2020-01-01
     url: https://www.cavaliba.com/
     pattern: "Cavaliba"
     allow_redirects: yes
     ssl_verify: yes
+    #host: toto
+  www_non_existing_for_test:
+    module: url
+    enabled: after 2020-01-01
+    url: http://www.nonexisting/
+    #pattern: ""
+
 
 #mount
-  mount_root:
+  my_mount_root:
     module: mount
     path: /
-  mount_mnt:
+  my_mount_mnt:
     module: mount
     path: /mnt
 
@@ -129,6 +159,7 @@ checks:
   redis:
     module: process
     psname: redis
+    enable_pager: no
   apache:
     module: process
     psname: httpd
@@ -147,7 +178,8 @@ checks:
   php-fpm:
     module: process
     psname: php-fpm
-    
+    enable_pager: yes
+
 # ping
   ping_vm1:
     module: ping
@@ -155,14 +187,22 @@ checks:
   ping_locahost:
     module: ping
     host: localhost
-  www.google.com:
+  ping_google:
     module: ping
     host: www.google.com
-
+  wwwtest:
+    module: ping
+    host: www.test.com    
+  badname:
+    module: ping
+    host: www.averybadnammme_indeed.com  
+    
 # folder
   folder_mytmp:
     module: folder
     path: /tmp
+    alert_max_level: alert
+    #alert_delay: 30
     target:
        is_blabla:
        #age_min: 1000
@@ -173,16 +213,14 @@ checks:
        #size_max: 10
        has_files:
             - secret.pdf
-            - secret2.pdf
+            #- secret2.pdf
   folder_number2:
     module: folder
     path: /missing
 
 
-# ------------------------------------
-# load_confd 
-# conf.d/*.yml also included with :
-# - main conf has higher priority
-# ------------------------------------
+# ---------------------------------------------------------
+# if set so in global conf.d/*.yml also included and merged
+# ---------------------------------------------------------
 
 
