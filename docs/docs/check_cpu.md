@@ -8,12 +8,20 @@ title: check_cpu
 
 ## Enable the module
 
-Enable de `cpu` module in the configuration :
+Enable de module in the configuration :
 
     # conf.yml
 
-	checks:
-  	  - cpu
+	Module:
+  	  cpu:
+  	     enable: yes
+
+### Add a check
+
+	  mycpucheck:
+	    module: cpu
+	    enable: yes
+	    alert_max_level: notice
 
 ## Additional parameters
 
@@ -36,16 +44,10 @@ This module sends one message with the following fields:
 ## CLI usage and output
 
 	/dev/cmt_monitor$ ./cmt.py cpu
-	--------------------------------------------------
-	CMT - Version 0.9 - (c) Cavaliba.com - 2020/10/20
-	2020/10/25 - 17:27:16 : Starting ...
-	--------------------------------------------------
-	cmt_group :  cmtdev
-	cmt_node  :  vmpio
 
 	Check cpu 
-	cmt_cpu                11.8 %                        
+	cmt_cpu                13.5 % ()  - CPU Percentage
+	OK                     usage : 13.5 %
 
-	No alerts. 
 
 

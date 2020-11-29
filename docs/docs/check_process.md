@@ -7,34 +7,46 @@ title: check_process
 **PROCESS** checks if one or more process is running.
 
 
-## Enable the check
+## Enable the module
 
-Enable de `process` check in the configuration :
+Enable de module in the configuration :
 
     # conf.yml
-	checks:
-  	  - process
+
+	Module:
+  	  process:
+  	     enable: yes
 
 ## Additional parameters
 
 This check requires additional parameters to define each disk to be checked :
 
-	# conf.py
-	process:
-	  - name: redis
+
+	# process
+	  redis:
+	    module: process
 	    psname: redis
-	  - name: apache2
+	    enable_pager: no
+	  apache:
+	    module: process
 	    psname: httpd
-	  - name: cron
+	  cron:
+	    module: process
 	    psname: cron
-	  - name: sshd
+	  ssh:
+	    module: process
 	    psname: sshd
-	  - name: ntp
-	    psname: chronyd
-	  - name: mysqld
+	  ntp:
+	    module: process
+	    psname: ntpd
+	  mysql:
+	    module: process
 	    psname: mysqld
-	  - name: php-fpm
-	    psname: php72-fpm
+	  php-fpm:
+	    module: process
+	    psname: php-fpm
+	    enable_pager: yes
+
 
 
 The first parameter is the name of the process to be reported to cental server.
@@ -44,10 +56,6 @@ The second parameter is the exact process name to be checked in the process list
 
 This check sends an alert and adds alert fields if a process is not running.
 
-output:
-
-	cmt_alert: yes
-	cmt_alert_message: string
 
 
 ## Output to ElasticSearch
@@ -64,53 +72,41 @@ This module sends one message for each mount point, with the following fields:
 ## CLI usage and output
 
 	$ ./cmt.py process
-	--------------------------------------------------
-	CMT - Version 0.9 - (c) Cavaliba.com - 2020/10/20
-	2020/10/25 - 20:33:22 : Starting ...
-	--------------------------------------------------
-	cmt_group :  cmtdev
-	cmt_node  :  vmpio
 
 	Check process 
-	cmt_process_name       redis                         
-	cmt_process_status     NOK                  
+	cmt_process_name       redis  () 
+	NOK                    redis missing (redis)
 
 	Check process 
-	cmt_process_name       apache2                        
-	cmt_process_status     NOK                  
+	cmt_process_name       apache  () 
+	NOK                    apache missing (httpd)
 
 	Check process 
-	cmt_process_name       cron                          
-	cmt_process_status     OK                   
-	cmt_process_memory     618496 bytes (618.5 KB)       
-	cmt_process_cpu        0.07 seconds                  
+	cmt_process_name       cron  () 
+	cmt_process_memory     2899968 bytes (2.9 MB)  - rss
+	cmt_process_cpu        0.04 seconds (0:00:00)  - cpu time, user
+	OK                     cron found (cron) - memory rss 2.9 MB - cpu 0.04 sec.
 
 	Check process 
-	cmt_process_name       sshd                          
-	cmt_process_status     OK                   
-	cmt_process_memory     2772992 bytes (2.8 MB)        
-	cmt_process_cpu        0.02 seconds                  
+	cmt_process_name       ssh  () 
+	cmt_process_memory     3899392 bytes (3.9 MB)  - rss
+	cmt_process_cpu        0.05 seconds (0:00:00)  - cpu time, user
+	OK                     ssh found (sshd) - memory rss 3.9 MB - cpu 0.05 sec.
 
 	Check process 
-	cmt_process_name       ntp                          
-	cmt_process_status     NOK                  
+	cmt_process_name       ntp  () 
+	NOK                    ntp missing (ntpd)
 
 	Check process 
-	cmt_process_name       mysqld                        
-	cmt_process_status     OK                   
-	cmt_process_memory     0 bytes (0.0 B)               
-	cmt_process_cpu        11.71 seconds                 
+	cmt_process_name       mysql  () 
+	cmt_process_memory     56307712 bytes (56.3 MB)  - rss
+	cmt_process_cpu        20.76 seconds (0:00:20)  - cpu time, user
+	OK                     mysql found (mysqld) - memory rss 56.3 MB - cpu 20.76 sec.
 
 	Check process 
-	cmt_process_name       php72-fpm                       
-	cmt_process_status     NOK                  
+	cmt_process_name       php-fpm  () 
+	NOK                    php-fpm missing (php-fpm)
 
-	Alerts : 
-	--------
-	check_process - redis missing (redis)
-	check_process - apache missing (httpd)
-	check_process - ntpd missing (ntpd)
-	check_process - php-fpm missing (php-fpm)
 
 
 

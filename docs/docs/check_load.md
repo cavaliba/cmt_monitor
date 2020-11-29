@@ -9,12 +9,13 @@ title: check_load
 
 ## Enable the module
 
-Enable de `load` module in the configuration :
+Enable de module in the configuration :
 
     # conf.yml
 
-	checks:
-  	  - load
+	Module:
+  	  load:
+  	     enable: yes
 
 ## Additional parameters
 
@@ -41,17 +42,10 @@ This module sends one message with the following fields:
 
 	/dev/cmt_monitor$ ./cmt.py load
 
-	--------------------------------------------------
-	CMT - Version 0.9 - (c) Cavaliba.com - 2020/10/20
-	2020/10/25 - 17:24:04 : Starting ...
-	--------------------------------------------------
-	cmt_group :  cmtdev
-	cmt_node  :  vmpio
-
 	Check load 
-	cmt_load1              0.48                          
-	cmt_load5              0.43                          
-	cmt_load15             0.35                          
+	cmt_load1              0.55  ()  - CPU Load Average, one minute
+	cmt_load5              0.57  ()  - CPU Load Average, 5 minutes
+	cmt_load15             0.6  ()  - CPU Load Average, 15 minutes
+	OK                     1/5/15 min : 0.55  0.57  0.6
 
-	No alerts. 
 

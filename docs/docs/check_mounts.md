@@ -6,33 +6,32 @@ title: check_mounts
 
 **Mounts** checks if one or more mount point in Linux filesystem are present.
 
-## Enable the check
+## Enable the module
 
-Enable de `mounts` check in the configuration :
+Enable de module in the configuration :
 
     # conf.yml
-	checks:
-  	  - mounts
+
+	Module:
+  	  mount:
+  	     enable: yes
 
 ## Additional parameters
 
 This check requires additional parameters to define each mount point to be checked :
 
-	# conf.py
-	mounts:
-	  - /
-	  - /boot
-	  - /mnt/export
-	  - /home
+	#mount
+	  mount_root:
+	    module: mount
+	    path: /
+	  mount_mnt:
+	    module: mount
+	    path: /mnt
+
 
 ## Alerts
 
 This check sends an alert and adds alert fields if a mount point is not present.
-
-output:
-
-	cmt_alert: yes
-	cmt_alert_message: string
 
 
 ## Output to ElasticSearch
@@ -47,24 +46,19 @@ This module sends one message for each mount point, with the following fields:
 ## CLI usage and output
 
 	$ ./cmt.py mounts
-	--------------------------------------------------
-	CMT - Version 0.9 - (c) Cavaliba.com - 2020/10/20
-	2020/10/25 - 20:18:27 : Starting ...
-	--------------------------------------------------
-	cmt_group :  cmtdev
-	cmt_node  :  vmpio
 
 	Check mount 
-	cmt_mount              /                             
-	cmt_mount_status       OK                   
+	cmt_mount              /  () 
+	OK                     path / found
 
 	Check mount 
-	cmt_mount              /boot                         
-	cmt_mount_status       NOK                  
+	cmt_mount              /mnt  () 
+	NOTICE                 path /mnt not found
 
-	Alerts : 
-	--------
-	check_mount - /boot not found
+	Check mount 
+	cmt_mount              /merge  () 
+	NOTICE                 path /merge not found
+
 
 
 

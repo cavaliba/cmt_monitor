@@ -2,42 +2,51 @@
 title: check_urls
 ---
 
-# Urls
+# Url
 
-**URLS** checks if one or more *Url* can 
+**URL** checks if one or more *Url* can 
 
 - be contacted before a timeout, 
--  provides an http response code of 200 (OK)
--  contains a specific pattern / string in the body of the response.
+- provides an http response code of 200 (OK)
+- contains a specific pattern / string in the body of the response.
 
 It can verify TLS/SSL certificates.
 It can follow redirets.
 It reports URL response time.
+It can pass a Host header to query specfic virtual-host.
 
 This check can be used from a remote server to monitor various URL and Webservices. It can also be configured locally on a single Webserver to monitor a local single instance. If the provided URL is an application status (e.g. php-fpm /status with pattern "pong"), you can have a basic (or not so basic) application monitor.
 
-## Enable the check
+## Enable the module
 
-Enable de `urls` check in the configuration :
+Enable de module in the configuration :
 
     # conf.yml
-	checks:
-  	  - urls
+
+	Module:
+  	  url:
+  	     enable: yes
 
 ## Additional parameters
 
 This check requires additional parameters to define each URL to be checked :
 
 	# conf.py
-	urls:
-	  - url: https://www.cavaliba.com/
-	    name: www.cavaliba.com
+	# url
+	  www.cavaliba.com:
+	    module: url
+	    enabled: after 2020-01-01
+	    url: https://www.cavaliba.com/
 	    pattern: "Cavaliba"
 	    allow_redirects: yes
 	    ssl_verify: yes
-	  - url: http://demo.cavaliba.com/
-	    name: demo.cavaliba.com
-	    pattern: "SIRENE"
+	    #host: toto
+	  www_non_existing:
+	    module: url
+	    enabled: after 2020-01-01
+	    url: http://www.nonexisting/
+	    #pattern: ""
+
 
 pattern: 
 	
@@ -55,11 +64,6 @@ ssl_verify:
 ## Alerts
 
 This check sends an alert and adds alert fields if an URL isn't responding properly.
-
-output:
-
-	cmt_alert: yes
-	cmt_alert_message: string
 
 Alert message:
 
@@ -81,20 +85,24 @@ This module sends one message for each mount point, with the following fields:
 ## CLI usage and output
 
 	$ ./cmt.py urls
-	--------------------------------------------------
-	CMT - Version 0.9 - (c) Cavaliba.com - 2020/10/20
-	2020/10/25 - 20:40:36 : Starting ...
-	--------------------------------------------------
-	cmt_group :  cmtdev
-	cmt_node  :  vmpio
 
 	Check url 
-	cmt_url_name           demo.cavaliba.com             
-	cmt_url                http://demo.cavaliba.com/     
-	cmt_url_msec           227 ms                        
-	cmt_url_status         OK                   
+	cmt_url_name           www.cavaliba.com  () 
+	cmt_url                https://www.cavaliba.com/  () 
+	cmt_url_msec           96 ms () 
+	OK                     www.cavaliba.com - https://www.cavaliba.com/ [Host: ] - http=200 - 96 ms ; pattern OK
 
-	No alerts. 
+	Check url 
+	cmt_url_name           www_non_existing  () 
+	cmt_url                http://www.nonexisting/  () 
+	NOK                    www_non_existing - http://www.nonexisting/ [Host: ] - no response to query
+
+	Check url 
+	cmt_url_name           demo.cavaliba.com  () 
+	cmt_url                http://demo.cavaliba.com/  () 
+	cmt_url_msec           187 ms () 
+	OK                     demo.cavaliba.com - http://demo.cavaliba.com/ [Host: ] - http=200 - 187 ms ; pattern OK
+
 
 
 

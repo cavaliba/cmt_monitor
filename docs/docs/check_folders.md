@@ -9,13 +9,15 @@ title: check_folders
 It can check for existence, size, number of files, file size, file age, or existing filenames inside the folders. It can scan recursively subfolders.
 
 
-## Enable the check
+## Enable the module
 
-Enable de `folders` check in the configuration :
+Enable de module in the configuration :
 
     # conf.yml
-	checks:
-  	  - folders
+
+	Module:
+  	  folder:
+  	     enable: yes
 
 ## Additional parameters
 
@@ -67,10 +69,6 @@ Targets define the desired state of a folder.
 
 This check sends an alert and adds alert fields if a folder doesn't match its target state.
 
-output:
-
-	cmt_alert: yes
-	cmt_alert_message: string
 
 Alert message:
 
@@ -103,38 +101,22 @@ This module sends one message for each mount point, with the following fields:
 ## CLI usage and output
 
 	$ ./cmt.py folders
-	--------------------------------------------------
-	CMT - Version 0.9 - (c) Cavaliba.com - 2020/10/20
-	2020/10/25 - 21:08:44 : Starting ...
-	--------------------------------------------------
-	cmt_group :  cmtdev
-	cmt_node  :  vmpio
 
 	Check folder 
-	cmt_folder_path        /tmp                          
-	cmt_folder_name        mytmp                         
-	cmt_folder_files       3                             
-	cmt_folder_dirs        21                            
-	cmt_folder_size        409 bytes (409.0 B)           
-	cmt_folder_age_min     1017   sec                    
-	cmt_folder_age_max     101134 sec                    
-	cmt_folder_status      NOK                  
+	cmt_folder_path        /tmp  () 
+	cmt_folder_name        /tmp  () 
+	cmt_folder_files       3 files ()  - Number of files in folder /tmp
+	cmt_folder_dirs        15 dirs ()  - Number of dirs/subdirs in folder /tmp
+	cmt_folder_size        425 bytes (425.0 B)  - Total Size (bytes)
+	cmt_folder_age_min     84283 sec ()  - Min age (seconds)
+	cmt_folder_age_max     84478 sec ()  - Max age (seconds)
+	NOK                    /tmp : expected file not found (secret.pdf)
 
 	Check folder 
-	cmt_folder_path        /tmp/absent                   
-	cmt_folder_name        numbertwo                     
-	cmt_folder_status      NOK                  
+	cmt_folder_path        /missing  () 
+	cmt_folder_name        /missing  () 
+	NOK                    /missing missing
 
-	Check folder 
-	cmt_folder_path        /tmp/empty                    
-	cmt_folder_name        number3                       
-	cmt_folder_status      NOK                  
-
-	Alerts : 
-	--------
-	check_folder - /tmp : expected file not found (aaa.txt)
-	check_folder - /tmp/absent missing
-	check_folder - /tmp/empty missing
 
 
 

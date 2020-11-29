@@ -8,12 +8,13 @@ title: check_memory
 
 ## Enable the module
 
-Enable de `memory` check in the configuration :
+Enable de module in the configuration :
 
     # conf.yml
 
-	checks:
-  	  - memory
+	Module:
+  	  memory:
+  	     enable: yes
 
 ## Additional parameters
 
@@ -38,19 +39,14 @@ This module sends one message with the following fields:
 ## CLI usage and output
 
 	$ ./cmt.py memory
-	--------------------------------------------------
-	CMT - Version 0.9 - (c) Cavaliba.com - 2020/10/20
-	2020/10/25 - 20:10:56 : Starting ...
-	--------------------------------------------------
-	cmt_group :  cmtdev
-	cmt_node  :  vmpio
-
+	
 	Check memory 
-	cmt_memory_percent     85.8 %                        
-	cmt_memory_used        1557790720 bytes (1.6 GB)     
-	cmt_memory_available   296288256 bytes (296.3 MB)    
+	cmt_memory_percent     86.1 % ()  - Memory used (percent)
+	cmt_memory_used        2031271936 bytes (2.0 GB)  - Memory used (bytes)
+	cmt_memory_available   382902272 bytes (382.9 MB)  - Memory available (bytes)
+	cmt_memory_total       2749349888 bytes (2.7 GB)  - Memory total (bytes)
+	OK                     used 86.1 % - used 2.0 GB - avail 382.9 MB - total 2.7 GB
 
-	No alerts. 
 
 
 
