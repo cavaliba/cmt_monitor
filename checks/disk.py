@@ -17,18 +17,24 @@ def check_disk(c):
     c.add_item(ci)
 
     ci = CheckItem('disk_total',disk[0],"Total (Bytes)", unit='bytes')
+    h_total = ci.human()
+    c.add_item(ci)
+
+    ci = CheckItem('disk_used',disk[1],"Used (Bytes)", unit='bytes')
+    h_used = ci.human()
     c.add_item(ci)
 
     ci = CheckItem('disk_free',disk[2],"Free (Bytes)", unit='bytes')
+    h_free = ci.human()
     c.add_item(ci)
 
     ci = CheckItem('disk_percent',disk[3],"Used (percent)", unit='%')
     if disk[3] > alert_threshold:
         c.alert += 1
-        c.add_message("Disk {} - critical capacity ({} %)".format(path,disk[3]))
+        c.add_message("path : {} - critical capacity ({} %)".format(path,disk[3]))
 
     else:
-        c.add_message("Disk {} - bytes free {}/{}  -  used percent {} %".format(path, disk[2], disk[0], disk[3]))
+        c.add_message("path : {} - used: {} % - used: {} - free: {} - total: {} ".format(path, disk[3],h_used, h_free,h_total))
     
     c.add_item(ci)
 

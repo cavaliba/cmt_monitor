@@ -18,11 +18,18 @@ def check_memory(c):
     c.add_item(m1)
 
     m2  = CheckItem('memory_used',memory.used,"Memory used (bytes)", unit='bytes')
+    h_used = m2.human()
     c.add_item(m2)
 
     m3  = CheckItem('memory_available',memory.available,"Memory available (bytes)", unit='bytes')
+    h_avail = m3.human()
     c.add_item(m3)
 
-    c.add_message("memory : used {} % - used {} bytes - avail {} bytes ".format(memory.percent, memory.used, memory.available) )
+    m4  = CheckItem('memory_total',memory.total,"Memory total (bytes)", unit='bytes')
+    h_total = m4.human()
+    c.add_item(m4)
+
+
+    c.add_message("used {} % - used {} - avail {} - total {}".format(memory.percent, h_used, h_avail, h_total) )
 
     return c

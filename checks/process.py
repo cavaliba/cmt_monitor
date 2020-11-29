@@ -54,21 +54,24 @@ def check_process(c):
             ci.value="ok"
             c.add_item(ci)
 
-            ci = CheckItem('process_memory',proc.memory_info().rss,"rss", unit="bytes")
+            mem = proc.memory_info().rss
+            ci = CheckItem('process_memory',mem,"rss", unit="bytes")
+            h_mem = ci.human()
             c.add_item(ci)
             #print (proc.memory_info().rss)
             
-            ci = CheckItem('process_cpu',proc.cpu_times().user,"cpu time, user", unit='seconds')
+            cpu = proc.cpu_times().user
+            ci = CheckItem('process_cpu',cpu,"cpu time, user", unit='seconds')
             c.add_item(ci)
 
-            c.add_message("process {} found ({})".format(name, psname))
+            c.add_message("{} found ({}) - memory rss {} - cpu {} sec.".format(name, psname, h_mem, cpu ))
             return c
 
     ci.value = "nok"
     c.add_item(ci)
 
     c.alert += 1
-    c.add_message("process {} missing ({})".format(name, psname))
+    c.add_message("{} missing ({})".format(name, psname))
 
     return c
 

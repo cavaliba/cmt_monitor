@@ -24,7 +24,13 @@
         "cmt_memory_used" : {
           "type" : "long"
         },
+        "cmt_memory_total" : {
+          "type" : "long"
+        },
         "cmt_swap_used" : {
+          "type" : "long"
+        },
+        "cmt_swap_total" : {
           "type" : "long"
         },
         "cmt_swap_percent" : {

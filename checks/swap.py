@@ -12,7 +12,13 @@ def check_swap(c):
     c.add_item(m1)
 
     m2 = CheckItem('swap_used',swap.used,'Swap used (bytes)', unit = 'bytes')
+    h_used = m2.human()
     c.add_item(m2)
 
-    c.add_message("swap used : {} % ".format(swap.percent))
+    m3 = CheckItem('swap_total',swap.total,'Swap total (bytes)', unit = 'bytes')
+    h_total = m3.human()
+    c.add_item(m3)
+
+
+    c.add_message("used: {} % /  {} - total {}".format(swap.percent, h_used, h_total))
     return c

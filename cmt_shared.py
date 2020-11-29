@@ -372,6 +372,24 @@ def is_module_active_in_conf(module):
     return False
 
 
+def conf_get_hysteresis(check):
+    ''' return configuration for alert_delay, resume_delay 
+        with inheritance: check, module, global, DEFAULT.
+    '''
+
+    alert_delay = 0
+
+    if "alert_delay" in check.conf:
+        alert_delay = int(check.conf["alert_delay"])
+
+    elif "alert_delay" in cmt.CONF['modules'][check.module]:
+        alert_delay =  int(cmt.CONF['modules'][check.module]['alert_delay'])
+
+    else:
+        alert_delay = cmt.CONF['global'].get("alert_delay", cmt.DEFAULT_HYSTERESIS_ALERT_DELAY)
+
+    return alert_delay
+
 # ------------------------------------------------------------
 #  Pager  TEAMS
 # ------------------------------------------------------------
@@ -445,9 +463,13 @@ def build_gelf_message(check):
     # common values
     graylog_data += '"cmt_group":"{}",'.format(check.group)
     graylog_data += '"cmt_node":"{}",'.format(check.node)
+
+    graylog_data += '"cmt_node_env":"{}",'.format(check.node_env)
+    graylog_data += '"cmt_node_role":"{}",'.format(check.node_role)
+    graylog_data += '"cmt_node_location":"{}",'.format(check.node_location)
+
     graylog_data += '"cmt_module":"{}",'.format(check.module)
-    # previous version : check (== module)
-    graylog_data += '"cmt_check":"{}",'.format(check.module)
+    graylog_data += '"cmt_check":"{}",'.format(check.module)    # deprecated
     graylog_data += '"cmt_id":"{}",'.format(check.get_id())
 
     # cmt_message  : Check name + check.message + all items.alert_message
@@ -455,6 +477,7 @@ def build_gelf_message(check):
     m = m + check.get_message_as_str()
     graylog_data += '"short_message":"{}",'.format(m)
     graylog_data += '"cmt_message":"{}",'.format(m)
+    #print("ooo    ",m)
 
     # check items key/values
     for item in check.checkitems:
@@ -590,19 +613,25 @@ class CheckItem():
         self.description = description
         self.unit = unit
 
-    def sizeof_fmt(self,num, suffix='B'):
+    def fmt_bytes(self,num, suffix='B'):
         for unit in ['','K','M','G','T','P','E','Z']:
             if abs(num) < 1000.0:
                 return "%3.1f %s%s" % (num, unit, suffix)
             num /= 1000.0
         return "%.1f %s%s" % (num, 'Y', suffix)
 
+    def fmt_hms(self, sec):
+        a = datetime.timedelta(seconds = sec)
+        return str(a)
 
     def human(self):
         '''Build an optional ()  human formatted string for some units values'''
         if self.unit == 'bytes':
-            x = self.sizeof_fmt(int(self.value))
-            return '(' + str( x )  + ')'
+            x = self.fmt_bytes(int(self.value))
+            return str(x)
+        elif self.unit == 'seconds':
+            x = self.fmt_hms(int(self.value))
+            return x
         else:
             return ''
 
@@ -624,6 +653,9 @@ class Check():
 
         self.group = cmt.CONF['global'].get('cmt_group','nogroup')
         self.node = cmt.CONF['global'].get('cmt_node', 'nonode')
+        self.node_env = cmt.CONF['global'].get('cmt_node_env', 'noenv')
+        self.node_role = cmt.CONF['global'].get('cmt_node_role', 'norole')
+        self.node_location = cmt.CONF['global'].get('cmt_node_location', 'nolocation')
         self.module = module
         self.name = name
 
@@ -687,23 +719,78 @@ class Check():
         return v
 
 
-    def adjust_alert_max_level(self):
+    def adjust_alert_max_level(self, level = ""):
 
-        debug("adjust alert_max_level to : ", self.alert_max_level)
+        if level == "":
+            level = self.alert_max_level
 
-        if self.alert_max_level == "alert":
+        debug("adjust alert_max_level to : ", level)
+
+        if level == "alert":
             return
         
-        if self.alert_max_level == "warn":
+        if level == "warn":
             self.notice = self.warn
             self.warn = self.alert
             self.alert = 0
             return
         
-        if self.alert_max_level == "notice":
+        if level == "notice":
             self.notice = self.alert
             self.alert = 0
             self.warn = 0
+
+
+    def  hysteresis_filter(self):
+
+        ''' Apply Hystereris up/down to alerts for this check :
+            - consecutive alerts (duration) needed to define real alert
+            - consecutire no_alert (idem) needed to define return to noalert
+        '''
+
+        # seconds for state transition normal to alert (if alert)
+        alert_delay = conf_get_hysteresis(self)
+
+        hystpersist = cmt.PERSIST.get_key("hysteresis", {})        
+        id = self.get_id()
+        hystpersist_item = hystpersist.get(id,{})
+
+        hystlastrun = hystpersist_item.get('lastrun',0)
+        now = int(time.time())
+        delta = int ( now - hystlastrun )
+        
+        duration_alert = hystpersist_item.get('duration_alert',0)
+        oldstate = hystpersist_item.get('state','normal')
+        
+        newstate = oldstate
+
+        #print("Hysteresis", duration_alert, delta, alert_delay)
+        
+        if self.alert > 0 :
+            if oldstate == "normal":
+                duration_alert += delta
+                if duration_alert > alert_delay:
+                    # transition to up
+                    debug2("Transition to alert", duration_alert, delta, alert_delay)
+                    newstate = "alert"
+        else:
+            newstate = "normal"
+            duration_alert = 0
+
+        # state transition from normal to alert : real alert ?
+        if newstate == "normal":
+            # adjust to warn ; not a transition
+            self.adjust_alert_max_level("warn")
+
+        # write to Persist   
+        # lastrun   
+        # BUG
+        hystpersist_item['lastrun'] = now
+        hystpersist_item['duration_alert'] = duration_alert
+        hystpersist_item['state'] = newstate
+        hystpersist[id] = hystpersist_item
+        cmt.PERSIST.set_key("hysteresis",hystpersist)
+
 
 
     def print_to_cli_short(self):
@@ -717,8 +804,8 @@ class Check():
         elif self.notice > 0:
             head = bcolors.OKBLUE  + "NOTICE " + bcolors.ENDC
 
-        print(head, self.get_message_as_str())
-        
+        #print(head, self.get_message_as_str())
+        print("{:12} {:10} {}".format(head, self.module, self.get_message_as_str()))
 
     def print_to_cli_detail(self):
        
@@ -727,7 +814,7 @@ class Check():
 
         for i in self.checkitems:    
 
-            v = str (i.value) + ' ' + str(i.unit) + ' ' + i.human()
+            v = str (i.value) + ' ' + str(i.unit) + ' (' + i.human() + ') '
             if len (i.description) > 0:
                 v = v + ' - ' + i.description
 
@@ -813,13 +900,13 @@ class Report():
         ''' print pager/alerts to CLI '''
 
         print()
-        print("Alerts / Warnings / Notice")
-        print("--------------------------")
+        print("Notification Summary")
+        print("--------------------")
         print()
         if self.notice == 0:
             print(bcolors.OKBLUE + bcolors.BOLD + "No notice", bcolors.ENDC)
         else:
-            print(bcolors.OKBLUE + bcolors.BOLD + "Notice :", bcolors.ENDC)
+            print(bcolors.OKBLUE + bcolors.BOLD + "Notice", bcolors.ENDC)
             for c in self.checks:
                     if c.notice > 0:
                         print ("{:15s} : {}".format(c.module, c.get_message_as_str()))
@@ -828,7 +915,7 @@ class Report():
         if self.warn == 0:
             print(bcolors.OKGREEN + bcolors.BOLD + "No warnings", bcolors.ENDC)
         else:
-            print(bcolors.WARNING + bcolors.BOLD + "Warnings :", bcolors.ENDC)
+            print(bcolors.WARNING + bcolors.BOLD + "Warnings", bcolors.ENDC)
             for c in self.checks:
                     if c.warn > 0:
                         print ("{:15s} : {}".format(c.module, c.get_message_as_str()))
@@ -836,7 +923,7 @@ class Report():
         if self.alert == 0:
             print(bcolors.OKGREEN + bcolors.BOLD + "No alerts", bcolors.ENDC)
         else:
-            print(bcolors.FAIL + bcolors.BOLD + "Alerts :", bcolors.ENDC)
+            print(bcolors.FAIL + bcolors.BOLD + "Alerts", bcolors.ENDC)
             for c in self.checks:
                     if c.alert > 0:
                         print ("{:15s} : {}".format(c.module, c.get_message_as_str()))

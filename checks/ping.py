@@ -37,12 +37,12 @@ def check_ping(c):
     if response == 0:
         ci.value = "ok"
         c.add_item(ci)
-        c.add_message("ping to {} ok".format(host))
+        c.add_message("{} ok".format(host))
 
     else:
         ci.value = "nok"
         c.add_item(ci)
         c.alert += 1
-        c.add_message("check_ping - {} not responding".format(host))
+        c.add_message("{} not responding".format(host))
 
     return c

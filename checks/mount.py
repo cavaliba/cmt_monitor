@@ -40,12 +40,13 @@ def check_mount(c):
         if part.mountpoint == path:
             ci.value="ok"
             c.add_item(ci)
-            c.add_message("mount for {} found".format(path))
+            c.add_message("path {} found".format(path))
             return c
 
     ci.value = "nok"
     c.add_item(ci)
+    
     c.alert += 1
-    c.add_message("mount for {} not found".format(path))
+    c.add_message("path {} not found".format(path))
 
     return c

@@ -72,6 +72,6 @@ def check_url(c):
     ci = CheckItem('url_status','ok','')
     c.add_item(ci) 
 
-    c.add_message("{} - {} - http={} - {}ms ; pattern OK".format(name, url, resp.status_code, elapsed_time))
+    c.add_message("{} - {} - http={} - {} ms ; pattern OK".format(name, url, resp.status_code, elapsed_time))
     return c
 

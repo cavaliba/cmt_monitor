@@ -66,7 +66,7 @@ if __name__=="__main__":
     cmt.PERSIST = Persist(file=cmt.DEFAULT_PERSIST_FILE)
 
     # print("cmt_last_run :", cmt.PERSIST.has_key("cmt_last_run"))
-    # lastrun = cmt.PERSIST.get_key("cmt_last_run")
+    lastrun = cmt.PERSIST.get_key("cmt_last_run", 0)
     # print("cmt_mast_run :", lastrun)
     # cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
     # cmt.PERSIST.save()
@@ -101,12 +101,14 @@ if __name__=="__main__":
     print('-' * 60)
     logit("Starting ...")
 
-    print("cmt_group : ", cmt.CONF['global']['cmt_group'])
-    print("cmt_node  : ", cmt.CONF['global']['cmt_node'])
+    print("cmt_group      : ", cmt.CONF['global']['cmt_group'])
+    print("cmt_node       : ", cmt.CONF['global']['cmt_node'])
+
     print()
     if cmt.ARGS['short']:
-        print(bcolors.OKBLUE + bcolors.BOLD + "Short output", bcolors.ENDC)
-        print("--------------")
+        print("Short output")
+        print("------------")
+        print()
 
 
     report = Report()
@@ -163,13 +165,13 @@ if __name__=="__main__":
         # ---------------
         check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
 
-        # keep returned Persist structure in check_result
-        cmt.PERSIST.set_key(check_result.get_id(), check_result.persist)
-
 
         # TODO done / no output ; available results only
         if cmt.ARGS["available"]:
             break
+
+        # Hysteresis / alert upd & own
+        check_result.hysteresis_filter()
 
         # apply alert_max_level for this check
         check_result.adjust_alert_max_level()
@@ -180,6 +182,11 @@ if __name__=="__main__":
             if is_timeswitch_on(tr):
                 debug("pager for check ", check_result.get_id())
                 check_result.pager = True
+
+
+        # keep returned Persist structure in check_result
+        cmt.PERSIST.set_key(check_result.get_id(), check_result.persist)
+
         
         if cmt.ARGS['short']:
             check_result.print_to_cli_short()
@@ -204,5 +211,7 @@ if __name__=="__main__":
 
 
     # Save Persistance
+    cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
     cmt.PERSIST.save()
 
+    logit("Done.")
