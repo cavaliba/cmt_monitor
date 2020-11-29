@@ -23,6 +23,7 @@ def check_url(c):
     pattern      = c.conf.get('pattern',"")
     my_redirects = c.conf.get("allow_redirects",False) == True
     my_sslverify = c.conf.get("ssl_verify",False) == True
+    my_host      = c.conf.get("host","")
 
     ci = CheckItem('url_name',name,'')
     c.add_item(ci)
@@ -33,11 +34,15 @@ def check_url(c):
 
     start_time = time.time()
 
+    headers = {}
+    if my_host != "":
+        headers['Host'] = my_host
+
     try:
-        resp = requests.get(url, timeout=5, verify=my_sslverify, allow_redirects = my_redirects)
+        resp = requests.get(url, headers = headers, timeout=5, verify=my_sslverify, allow_redirects = my_redirects)
     except:
         c.alert += 1
-        c.add_message("{} - {} - no response to query".format(name,url))
+        c.add_message("{} - {} [Host: {}] - no response to query".format(name,url, my_host))
         return c
 
     elapsed_time = int ( 1000 * (time.time() - start_time) )
@@ -46,16 +51,16 @@ def check_url(c):
 
     if resp.status_code != 200:
         c.alert += 1
-        c.add_message("{} - {} - bad http code response ({})".format(name,url, resp.status_code))
+        c.add_message("{} - {} [Host: {}]- bad http code response ({})".format(name,url, my_host, resp.status_code))
         return c
 
     # check pattern
     mysearch = re.search(pattern,resp.text)
     if not mysearch:
         c.alert += 1
-        c.add_message("expected pattern not found for {} ({})".format(name, url))
+        c.add_message("expected pattern not found for {} ({} [Host: {}])".format(name, url, my_sslverify))
         return c
 
-    c.add_message("{} - {} - http={} - {} ms ; pattern OK".format(name, url, resp.status_code, elapsed_time))
+    c.add_message("{} - {} [Host: {}] - http={} - {} ms ; pattern OK".format(name, url, my_host, resp.status_code, elapsed_time))
     return c
 

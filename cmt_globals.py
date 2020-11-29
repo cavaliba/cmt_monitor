@@ -24,7 +24,7 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - Version 1.0.0.RC - (c) Cavaliba.com - 2020/11/24"
+VERSION = "CMT - Version 1.0.0 - (c) Cavaliba.com - 2020/11/29"
 
 MAX_EXECUTION_TIME = 50
 
@@ -57,6 +57,8 @@ DEFAULT_HYSTERESIS_NORMAL_DELAY = 120
 # persist
 DEFAULT_PERSIST_FILE = os.path.join(HOME_DIR, "persist.json")
 
+# Used to load / merge config 
+DEFAULT_CONF_TOP_ENTRIES = ['global','modules','checks','metrology_servers', 'pagers']
 
 # =====================================================================
 # Checks list & MAPs : map Check names to python functions

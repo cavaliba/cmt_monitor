@@ -17,6 +17,5 @@ def check_boottime(c):
     m2 = CheckItem('boottime_days',days,'Days since last reboot', unit='days')
     c.add_item(m2)
 
-    # TODO add human format (j/h/m/s)
     c.add_message("days since last reboot : {} days - {} sec.".format(days,h_sec))
     return c

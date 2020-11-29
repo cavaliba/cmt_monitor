@@ -88,7 +88,6 @@ if __name__=="__main__":
         pager_test()
         sys.exit()
 
-    # TODO : list modules
     if cmt.ARGS["listmodules"]:
         display_modules()
         sys.exit()
@@ -165,8 +164,6 @@ if __name__=="__main__":
         # ---------------
         check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
 
-
-        # TODO done / no output ; available results only
         if cmt.ARGS["available"]:
             break
 

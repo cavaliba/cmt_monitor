@@ -197,8 +197,6 @@ def load_conf_master():
 
     debug("Load master conf")
 
-    # TODO : accept config as a parameter, check default locations
-
     if cmt.ARGS['conf']: 
         config_file = cmt.ARGS['conf']    
     else:        
@@ -291,8 +289,7 @@ def load_conf():
 def conf_add_top_entries(conf):
 
     # add missing top entries
-    # TODO : move list to DEFAULTs
-    for item in ['global','modules','checks','metrology_servers', 'pagers']:
+    for item in cmt.DEFAULT_CONF_TOP_ENTRIES:
         if not item in conf:
             debug("No {} entry in config ; added automatically.".format(item))
             conf[item] = {}
@@ -339,7 +336,7 @@ def conf_load_http(url):
 def conf_merge(conf1, conf2):
 
     debug("merge conf ")
-    for topitem in ['global','modules','checks','metrology_servers', 'pagers']:
+    for topitem in cmt.DEFAULT_CONF_TOP_ENTRIES:
         #print("  topitem = ", topitem,  "conf2 = " , conf2[topitem], type)
         #print (type(conf2[topitem]))
         for k in conf2[topitem]:
