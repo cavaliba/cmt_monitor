@@ -54,40 +54,51 @@ pagers:
 # List of enabled modules
 # -----------------------
 modules:
+
   load:
     enable: yes
     alert_max_level: notice
 
   cpu:
     enable: yes
+
   memory:
     enable: yes
+
   swap:
     enable: yes
+
   boottime:
     enable: yes
+
   ntp:
     enable: yes
+
   disk:
     enable: yes
+
   url:
     enable: yes
+
   mount:
     enable: yes
     alert_max_level: notice    
+
   process:
     enable: yes
+
   ping:
     enable: yes
     alert_max_level: warn    
+
   folder:
     enable: yes
     #alert_delay: 70
     #alert_max_level: alert
 
 
-# List of checks to perform each time
-# -----------------------------------
+# List of checks to perform 
+# --------------------------
 
 checks:
 
@@ -220,7 +231,7 @@ checks:
 
 
 # ---------------------------------------------------------
-# if set so in global conf.d/*.yml also included and merged
+# if set global,  conf.d/*.yml also included and merged
 # ---------------------------------------------------------
 
 
