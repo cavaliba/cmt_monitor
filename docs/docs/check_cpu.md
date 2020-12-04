@@ -8,7 +8,7 @@ title: check_cpu
 
 ## Enable the module
 
-Enable de module in the configuration :
+Enable the module in the configuration :
 
     # conf.yml
 

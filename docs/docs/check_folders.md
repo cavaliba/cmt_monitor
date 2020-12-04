@@ -11,7 +11,7 @@ It can check for existence, size, number of files, file size, file age, or exist
 
 ## Enable the module
 
-Enable de module in the configuration :
+Enable the module in the configuration :
 
     # conf.yml
 
