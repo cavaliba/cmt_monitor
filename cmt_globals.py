@@ -25,7 +25,7 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - Version 1.0.0 - (c) Cavaliba.com - 2020/11/29"
+VERSION = "CMT - Version 1.1.0 - (c) Cavaliba.com - 2020/12/06"
 
 MAX_EXECUTION_TIME = 50
 
@@ -92,6 +92,6 @@ CONF={}
 PERSIST={}
 
 # can be switched to True if no response during current RUN
-# TODO : move to run-context ...
+# TODO : move to run-context / persist
 GRAYLOG_HTTP_SUSPENDED = False
 
