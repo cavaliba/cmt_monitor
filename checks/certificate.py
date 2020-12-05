@@ -2,7 +2,9 @@ import sys
 import ssl
 import socket
 import datetime
-from cmt_shared import Check, CheckItem, parse_duration
+
+from cmt_shared import Check, CheckItem
+from helpers import parse_duration
 
 
 def check_certificate(c):
