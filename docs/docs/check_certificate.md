@@ -1,5 +1,5 @@
 Opens a socket to `hostname:port` and retrieve certificate information (with
-`.getpeercert()`).
+[`ssl.SSLSocket.getpeercert()`](https://docs.python.org/3/library/ssl.html#ssl.SSLSocket.getpeercert)).
 
 ### Add a check
 
@@ -9,20 +9,22 @@ Opens a socket to `hostname:port` and retrieve certificate information (with
       port: 2718                 # defaults to 443 if not specified
       alert_expires_in: 1 week
 
+hostname (string) and port (integer):
 
-- `hostname`: the hostname
-- `port`: the port to connect the socket to
-- `alert_expires_in`: [`<duration>`](duration.md), sends an alert if
-  expiry date (`notAfter` field) is less that `<duration>` away.
+    the hostname:port pair to connect the socket to
+
+alert_expires_in ([`duration`](duration.md)):
+
+    sends an alert if expiry date (`notAfter` field) is less that <duration> away.
 
 ## Alerts
 
-Sends an alert if a certificate is invalid, that is, one of these condition
+Sends an alert if a certificate is invalid, that is, one of these conditions
 matches:
 
 1. `expiry date - now < alert_expires_in`
-2. `now < notBefore` (notBefore is the timestamp at which the certificate will
-   become valid)
+2. `now < notBefore` (notBefore is the timestamp at which the certificate
+   becomes valid)
 3. No certificate is found
 4. The connection to `hostname:port` can't be established.
 

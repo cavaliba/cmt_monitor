@@ -19,7 +19,7 @@ nav:
 #  - 'FAQ': 'faq.md'
   - 'CLI': 'cli.md'
   - 'Cron / Automatic run' : 'cron.md'
-  - 'Checks': 
+  - 'Checks':
       - 'load': 'check_load.md'
       - 'cpu': 'check_cpu.md'
       - 'memory': 'check_memory.md'
@@ -31,6 +31,9 @@ nav:
       - 'urls': 'check_urls.md'
       - 'folders': 'check_folders.md'
       - 'pings': 'check_pings.md'
+      - certificate: check_certificate.md
+  - 'Custom formats':
+    - Duration: duration.md
   - 'Data model' : 'data_model.md'
 #  - 'Dev / How to extend': 'extend.md'
   - 'License': license.md
@@ -57,4 +60,3 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
-      
