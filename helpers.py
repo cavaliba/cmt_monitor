@@ -4,8 +4,8 @@ import datetime
 def parse_duration(string):
     """parse something like "1 day 2 hours".
 
-    Units can be singular or plural. Supported units are days, months, weeks and hours. A
-    months is equivalent to 30 days.
+    Units can be singular or plural. Supported units are years, months, weeks, days and
+    hours. A months is equivalent to 30 days. A year is 365 days.
 
     Negatives values aren't supported.
     """
@@ -22,7 +22,11 @@ def parse_duration(string):
                 quantifier = int(word)
             except ValueError:
                 # for better context (both exceptions will be printed though)
-                raise ValueError("Failed parsing duration {!r}".format(string))
+                raise ValueError(
+                    "failed parsing quantifier {!r} in duration {!r}".format(
+                        word, string
+                    )
+                )
 
             if quantifier < 0:
                 raise ValueError("don't use negative values {!r}".format(string))
@@ -32,7 +36,7 @@ def parse_duration(string):
             if not word.endswith("s"):
                 word += "s"
 
-            if word not in ("weeks", "days", "months", "hours"):
+            if word not in ("years", "weeks", "days", "months", "hours"):
                 raise ValueError("invalid unit {!r} in {!r}".format(word, string))
 
             if word in kwargs:
@@ -49,10 +53,15 @@ def parse_duration(string):
             )
         )
 
-    # dealing with the variations in the number of days of each months would be an
+    # dealing with the variations in the number of days of each months/year would be an
     # overkill here
+
     if "months" in kwargs:
         kwargs["days"] = kwargs.get("days", 0) + 30 * kwargs["months"]
         del kwargs["months"]
+
+    if "years" in kwargs:
+        kwargs["days"] = kwargs.get("days", 0) + 365 * kwargs["years"]
+        del kwargs["years"]
 
     return datetime.timedelta(**kwargs)

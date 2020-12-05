@@ -57,8 +57,13 @@ def test_simple_durations():
     assert parse_duration("1 days") == datetime.timedelta(days=1)
     assert parse_duration("2 days") == datetime.timedelta(days=2)
 
+    assert parse_duration("1 year") == datetime.timedelta(days=1 * 365)
+    assert parse_duration("2 year") == datetime.timedelta(days=2 * 365)
+    assert parse_duration("1 years") == datetime.timedelta(days=1 * 365)
+    assert parse_duration("2 years") == datetime.timedelta(days=2 * 365)
+
 
 def test_composite():
-    assert parse_duration("3 month 78 weeks 12 days 314 hours") == datetime.timedelta(
-        days=3 * 30 + 78 * 7 + 12, hours=314
+    assert parse_duration("27 years 3 month 78 weeks 12 days 314 hours") == datetime.timedelta(
+        days=27 * 365 + 3 * 30 + 78 * 7 + 12, hours=314
     )

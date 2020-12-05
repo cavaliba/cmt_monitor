@@ -15,6 +15,7 @@ def check_certificate(c):
     # get every settings at the start so that we don't crash mid-check if a key
     # is missing
     hostname = c.conf["hostname"]
+    # should there be a default value?
     threshold = parse_duration(c.conf["alert_expires_in"])
     port = c.conf.get("port", 443)
 
