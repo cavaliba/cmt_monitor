@@ -230,6 +230,23 @@ checks:
     path: /missing
 
 
+# Certificate
+  google:
+    module: certificate
+    hostname: google.com
+    alert_expires_in: 6 months 3 days
+
+  duck:
+    module: certificate
+    hostname: duckduckgo.com
+    alert_expires_in: 1 week
+
+  broken:
+    module: certificate
+    hostname: duckduckgo.com
+    port: 80
+    alert_expires_in: 2 week
+
 # ---------------------------------------------------------
 # if set global,  conf.d/*.yml also included and merged
 # ---------------------------------------------------------
