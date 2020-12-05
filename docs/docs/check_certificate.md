@@ -12,7 +12,7 @@ Opens a socket to `hostname:port` and retrieve certificate information (with
 
 - `hostname`: the hostname
 - `port`: the port to connect the socket to
-- `alert_expires_in`: [`<duration>`](/docs/duration.md), sends an alert if
+- `alert_expires_in`: [`<duration>`](duration.md), sends an alert if
   expiry date (`notAfter` field) is less that `<duration>` away.
 
 ## Alerts

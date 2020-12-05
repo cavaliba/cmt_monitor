@@ -2,7 +2,7 @@ import datetime
 
 
 def parse_duration(string):
-    """parse something like "1 day 2 hours".
+    """parse a duration like "1 day 2 hours".
 
     Units can be singular or plural. Supported units are years, months, weeks, days and
     hours. A months is equivalent to 30 days. A year is 365 days.
