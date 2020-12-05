@@ -22,7 +22,12 @@ def check_certificate(c):
     c.add_item(CheckItem("certificate_hostname", hostname, "Hostname"))
     c.add_item(CheckItem("certificate_port", port, "Port"))
 
-    cert_infos = get_certificate_infos(hostname, port)
+    try:
+        cert_infos = get_certificate_infos(hostname, port)
+    except ValueError as e:
+        c.alert += 1
+        c.add_message("hostname {}:{} - no certificate found {}".format(hostname, port, e))
+        return c
 
     # certificate dates are in utc. Just reading the warning from the documentation,
     # it seems like Python's datetime modules is pretty bad when it comes to managing
@@ -86,12 +91,17 @@ def check_certificate(c):
 def get_certificate_infos(hostname, port):
     context = ssl.create_default_context()
 
-    with socket.create_connection((hostname, 443)) as sock:
-        with context.wrap_socket(sock, server_hostname=hostname) as ssock:
-            cert = ssock.getpeercert()
+    try:
+        with socket.create_connection((hostname, port)) as sock:
+            with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+                cert = ssock.getpeercert()
+    except ConnectionRefusedError as e:
+        raise ValueError("no connection ({})".format(e))
+    except ssl.SSLError as e:
+        raise ValueError("no ssl connection ({})".format(e))
 
     if cert is None:
-        raise ValueError(f"no certificate found ({cert})")
+        raise ValueError("no certificate found")
 
     todatetime = lambda x: datetime.datetime.fromtimestamp(
         ssl.cert_time_to_seconds(x), tz=datetime.timezone.utc
