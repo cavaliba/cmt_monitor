@@ -12,7 +12,8 @@ from helpers import parse_duration
 def check_certificate(c):
     # if this assertion fails, then we have to be even more careful of timezones.
     # ref ssl.cert_time_to_seconds
-    assert sys.version_info >= (3, 5), "Python interpreter is too old"
+    
+    #assert sys.version_info >= (3, 5), "Python interpreter is too old"
 
     # get every settings at the start so that we don't crash mid-check if a key
     # is missing
