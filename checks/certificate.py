@@ -1,3 +1,5 @@
+# by math2001 - dec 2020
+
 import sys
 import ssl
 import socket
@@ -71,12 +73,9 @@ def check_certificate(c):
 
     if expires_in < threshold_alert:
         c.alert += 1
-        print("alert")
     elif expires_in < threshold_warning:
         c.warn += 1
-        print("warn")
     elif expires_in < threshold_notice:
-        print("notice")
         c.notice += 1        
 
 

@@ -828,7 +828,7 @@ class Check():
             head = bcolors.OKBLUE  + "NOTICE " + bcolors.ENDC
 
         #print(head, self.get_message_as_str())
-        print("{:12} {:10} {}".format(head, self.module, self.get_message_as_str()))
+        print("{:12} {:12} {}".format(head, self.module, self.get_message_as_str()))
 
 
     def print_to_cli_detail(self):
