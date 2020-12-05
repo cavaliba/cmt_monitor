@@ -1,4 +1,4 @@
-# cavaliba.com - 2020 - CMT_monitor - cmt.py 
+# cavaliba.com - 2020 - CMT_monitor - cmt.py
 # cmt_shared.py
 #    - common functions, class and structures
 
@@ -16,7 +16,7 @@ import requests
 requests.packages.urllib3.disable_warnings()
 
 import cmt_globals as cmt
-from cmt_globals import *
+# from cmt_globals import *
 
 
 # ----------------------------------------------------------
@@ -75,10 +75,10 @@ def is_timeswitch_on(myconfig):
 
     if myconfig == "False" or myconfig =="no"  or myconfig == "false":
         return False
-    
+
     myarray = myconfig.split()
     action = myarray.pop(0)
-    
+
     if action  == "after":
         mynow = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
         target = ' '.join(myarray)
@@ -120,6 +120,7 @@ def is_timeswitch_on(myconfig):
     # default, unknown / no match
     return False
 
+
 # -----------------------------------------------------
 # short commands
 # -----------------------------------------------------
@@ -134,7 +135,7 @@ def display_modules():
 
     for key in cmt.GLOBAL_MODULE_MAP:
         print("  - ", key )
-    
+
 
 # ----------------------------------------------------------
 # Args on CLI
@@ -144,45 +145,45 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='CMT - Cavaliba Monitoring')
 
     #parser.add_argument('--conf', dest="config_file", type=str ,help="configuration file")
-    
-    parser.add_argument('--report', help='send events to Metrology servers', 
+
+    parser.add_argument('--report', help='send events to Metrology servers',
         action='store_true', required=False)
-    parser.add_argument('--pager', help='send alerts to Pagers', 
+    parser.add_argument('--pager', help='send alerts to Pagers',
         action='store_true', required=False)
     parser.add_argument('--persist', help='persist data accross CMT runs (use in cron)',
         action='store_true', required=False)
 
-    parser.add_argument('--conf', help='specify alternate yaml config file', 
+    parser.add_argument('--conf', help='specify alternate yaml config file',
         action='store', required=False)
 
-    parser.add_argument('modules', nargs='*',  
+    parser.add_argument('modules', nargs='*',
         action='append', help='modules to check')
-    
-    parser.add_argument('--pagertest', help='send test message to teams and exit', 
+
+    parser.add_argument('--pagertest', help='send test message to teams and exit',
         action='store_true', required=False)
-    parser.add_argument('--no-pager-rate-limit', help='disable pager rate limit', 
-        action='store_true', required=False)  
+    parser.add_argument('--no-pager-rate-limit', help='disable pager rate limit',
+        action='store_true', required=False)
 
 
-    parser.add_argument('--checkconfig', help='checkconfig and exit', 
+    parser.add_argument('--checkconfig', help='checkconfig and exit',
         action='store_true', required=False)
 
-    parser.add_argument('--version', '-v', help='display current version', 
+    parser.add_argument('--version', '-v', help='display current version',
         action='store_true', required=False)
-    parser.add_argument('--debug', help='verbose/debug output', 
+    parser.add_argument('--debug', help='verbose/debug output',
         action='store_true', required=False)
-    parser.add_argument('--debug2', help='more debug', 
+    parser.add_argument('--debug2', help='more debug',
         action='store_true', required=False)
 
-    parser.add_argument('--short','-s', help='short compact cli output', 
+    parser.add_argument('--short','-s', help='short compact cli output',
         action='store_true', required=False)
-    parser.add_argument('--devmode', help='dev mode, no pager, no remote metrology', 
-        action='store_true', required=False)    
+    parser.add_argument('--devmode', help='dev mode, no pager, no remote metrology',
+        action='store_true', required=False)
 
 
-    parser.add_argument('--listmodules', help='display available modules', 
+    parser.add_argument('--listmodules', help='display available modules',
         action='store_true', required=False)
-    parser.add_argument('--available', help='display available entries found for modules (manual run on target)', 
+    parser.add_argument('--available', help='display available entries found for modules (manual run on target)',
         action='store_true', required=False)
 
 
@@ -200,7 +201,7 @@ def load_conf():
     conf = conf_add_default_modules(conf)
     conf = load_conf_dirs(conf)
     conf = load_conf_remote(conf)
-    
+
     return conf
 
 
@@ -209,11 +210,11 @@ def load_conf_master():
 
     debug("Load master conf")
 
-    if cmt.ARGS['conf']: 
-        config_file = cmt.ARGS['conf']    
-    else:        
-        config_file = os.path.join(cmt.HOME_DIR, "conf.yml")    
-    
+    if cmt.ARGS['conf']:
+        config_file = cmt.ARGS['conf']
+    else:
+        config_file = os.path.join(cmt.HOME_DIR, "conf.yml")
+
     debug("Config file : ", config_file)
 
     if not os.path.exists(config_file):
@@ -260,14 +261,14 @@ def load_conf_dirs(conf):
 def load_conf_remote(conf):
 
     debug("Load remote conf")
-    
+
     # load remote config from conf_url parameter
     if 'conf_url' in conf['global']:
-                
+
         url = conf['global']['conf_url']
         gro = conf['global'].get("cmt_group","nogroup")
         nod = conf['global'].get("cmt_node","nonode")
-    
+
         if url[-1] == '/':
             url = url + "{}_{}.txt".format(gro,nod)
 
@@ -292,7 +293,7 @@ def conf_add_default_modules(conf):
     for key in cmt.GLOBAL_MODULE_MAP:
         #print("  - ", key )
         if key not in conf['modules']:
-            conf['modules'][key] = {}            
+            conf['modules'][key] = {}
     return conf
 
 # -----------
@@ -309,13 +310,13 @@ def conf_add_top_entries(conf):
 # -----------
 # load a single file
 def conf_load_file(config_file):
-    
+
     with open(config_file) as f:
         conf = yaml.load(f, Loader=yaml.SafeLoader)
         #print(CONF)
         #print(json.dumps(CONF, indent=2))
 
-    # # verify content  
+    # # verify content
     if conf is None:
         return {}
     #    abort("Bad config; Exiting.")
@@ -372,16 +373,16 @@ def is_module_active_in_conf(module):
         return True
 
     timerange = cmt.CONF['modules'][module].get("enable", "yes")
-    
+
     if is_timeswitch_on(timerange):
         return True
-    
+
     debug("module not enabled in conf : ", module)
     return False
 
 
 def conf_get_hysteresis(check):
-    ''' return configuration for alert_delay, resume_delay 
+    ''' return configuration for alert_delay, resume_delay
         with inheritance: check, module, global, DEFAULT.
     '''
 
@@ -455,7 +456,7 @@ def pager_test():
 
 
 # ------------------------------------------------------------
-# Metrology Servers 
+# Metrology Servers
 # ------------------------------------------------------------
 
 
@@ -465,7 +466,7 @@ def pager_test():
 def build_gelf_message(check):
     '''Prepare a GELF JSON message suitable to be sent to a Graylog GELF server.'''
 
-    graylog_data = '"version":"1.1",' 
+    graylog_data = '"version":"1.1",'
     graylog_data += '"host":"{}_{}",'.format(check.group, check.node)
 
     # common values
@@ -515,13 +516,13 @@ def build_gelf_message(check):
 
 
     graylog_data = '{' + graylog_data + '}'
-    
+
     return graylog_data
 
 
 
 def graylog_send_http_gelf(url, data=""):
-    
+
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
     if cmt.GRAYLOG_HTTP_SUSPENDED:
@@ -533,7 +534,7 @@ def graylog_send_http_gelf(url, data=""):
         return
 
     try:
-        r = cmt.SESSION.post(url, data=data, headers=headers, timeout = cmt.GRAYLOG_HTTP_TIMEOUT)    
+        r = cmt.SESSION.post(url, data=data, headers=headers, timeout = cmt.GRAYLOG_HTTP_TIMEOUT)
         debug("Message sent to graylog(http/gelf) ; status = " + str(r.status_code))
     except:
         logit("Error - couldn't send graylog message (http/gelf) to " + str(url))
@@ -543,7 +544,7 @@ def graylog_send_http_gelf(url, data=""):
 def graylog_send_udp_gelf(host, port=12201, data=""):
 
     #data = '"demo":"42"'
-    #mess = '{ "version":"1.1", "host":"host-test", "short_message":"CMT gelf test", ' + data + ' }'  
+    #mess = '{ "version":"1.1", "host":"host-test", "short_message":"CMT gelf test", ' + data + ' }'
 
 
     if cmt.ARGS['devmode']:
@@ -569,7 +570,7 @@ def graylog_send_udp_gelf(host, port=12201, data=""):
 class Persist():
     ''' Implement a persistent on-disk key/value structure, between cmt runs'''
 
-    def __init__(self, file = None):    
+    def __init__(self, file = None):
         self.file = file
         self.dict = {}
         self.load()
@@ -594,7 +595,7 @@ class Persist():
         data = ""
         try:
             with open(self.file,"r") as fi:
-                data=fi.read()            
+                data=fi.read()
         except:
             debug("ERROR - Persist() : couldn't read file {}".format(self.file))
         # decoding the JSON to dictionay
@@ -607,7 +608,7 @@ class Persist():
     def save(self):
 
         if not cmt.ARGS['persist']:
-            debug("Persist.save : disable (cli / no arg)")            
+            debug("Persist.save : disable (cli / no arg)")
             return
 
         debug("Persist.write() : ", self.file)
@@ -619,7 +620,7 @@ class Persist():
             debug("ERROR - Persist() : couldn't write file {}".format(self.file))
 
 
-    
+
 
 # ----------------------------------------------------------
 # Class CheckItem
@@ -657,7 +658,7 @@ class CheckItem():
         else:
             return ''
 
-    
+
 # ----------------------------------------------------------
 # Class Check
 # ----------------------------------------------------------
@@ -686,19 +687,19 @@ class Check():
         self.alert = 0
         self.warn = 0
         self.notice = 0
-        self.checkitems=[]    
+        self.checkitems=[]
 
         # set by framework after Check is performed, if pager_enable and alert>0
         self.pager = False
 
         # fields from conf
         self.conf = conf
-        
-        
+
+
         # persist values from previous run for same get_id()
         id = self.get_id()
         self.persist = cmt.PERSIST.get_key(id,{})
-        
+
         # compute alert_max_level
         self.alert_max_level = "alert"   # DEFAULT
         # check level ?
@@ -725,7 +726,7 @@ class Check():
 
     def add_item(self, item):
         ''' add a CheckItem instance to the Check items list '''
-        self.checkitems.append(item)          
+        self.checkitems.append(item)
 
     def get_id(self):
         ''' Returns unique check id '''
@@ -737,7 +738,7 @@ class Check():
         for mm in self.message:
             if len(v) > 0:
                 v = v + " ; "
-            v = v + mm 
+            v = v + mm
         return v
 
 
@@ -750,13 +751,13 @@ class Check():
 
         if level == "alert":
             return
-        
+
         if level == "warn":
             self.notice = self.warn
             self.warn = self.alert
             self.alert = 0
             return
-        
+
         if level == "notice":
             self.notice = self.alert
             self.alert = 0
@@ -773,21 +774,21 @@ class Check():
         # seconds for state transition normal to alert (if alert)
         alert_delay = conf_get_hysteresis(self)
 
-        hystpersist = cmt.PERSIST.get_key("hysteresis", {})        
+        hystpersist = cmt.PERSIST.get_key("hysteresis", {})
         id = self.get_id()
         hystpersist_item = hystpersist.get(id,{})
 
         hystlastrun = hystpersist_item.get('lastrun',0)
         now = int(time.time())
         delta = int ( now - hystlastrun )
-        
+
         duration_alert = hystpersist_item.get('duration_alert',0)
         oldstate = hystpersist_item.get('state','normal')
-        
+
         newstate = oldstate
 
         #print("Hysteresis", duration_alert, delta, alert_delay)
-        
+
         if self.alert > 0 :
             if oldstate == "normal":
                 duration_alert += delta
@@ -804,8 +805,8 @@ class Check():
             # adjust to warn ; not a transition
             self.adjust_alert_max_level("warn")
 
-        # write to Persist   
-        # lastrun   
+        # write to Persist
+        # lastrun
         # BUG
         hystpersist_item['lastrun'] = now
         hystpersist_item['duration_alert'] = duration_alert
@@ -830,18 +831,18 @@ class Check():
         print("{:12} {:10} {}".format(head, self.module, self.get_message_as_str()))
 
     def print_to_cli_detail(self):
-       
-        print()
-        print(bcolors.OKBLUE + bcolors.BOLD + "Check", self.module, bcolors.ENDC)        
 
-        for i in self.checkitems:    
+        print()
+        print(bcolors.OKBLUE + bcolors.BOLD + "Check", self.module, bcolors.ENDC)
+
+        for i in self.checkitems:
 
             v = str (i.value) + ' ' + str(i.unit) + ' (' + i.human() + ') '
             if len (i.description) > 0:
                 v = v + ' - ' + i.description
 
             print("cmt_{:18} {}".format(i.name, v))
-        
+
 
         head = bcolors.OKGREEN     + "OK     " + bcolors.ENDC
 
@@ -852,17 +853,17 @@ class Check():
         elif self.notice > 0:
             head = bcolors.OKBLUE  + "NOTICE " + bcolors.ENDC
 
-        print("{:31} {}".format(head, self.get_message_as_str()))        
+        print("{:31} {}".format(head, self.get_message_as_str()))
 
 
     def send_metrology(self):
-        
-        ''' Send Check results (event, multiple CheckItems) 
+
+        ''' Send Check results (event, multiple CheckItems)
             to metrology servers.
         '''
 
-        graylog_data = build_gelf_message(self)  
-        
+        graylog_data = build_gelf_message(self)
+
         for metro in cmt.CONF['metrology_servers']:
 
 
@@ -893,7 +894,7 @@ class Check():
 # ----------------------------------------------------------
 
 class Report():
-    
+
     '''A Report stores all the Checks from a single run of CMT.
        Pager alerts are sent to Pager targets at the end of the run.
     '''
@@ -968,7 +969,7 @@ class Report():
             debug("Pager  : disabled/inactive in global config.")
             return
 
-        # Find 'Alert' Pager         
+        # Find 'Alert' Pager
         if not 'alert' in cmt.CONF['pagers']:
             debug("No alert pager configured.")
             return
@@ -999,7 +1000,7 @@ class Report():
         origin = cmt.CONF['global']['cmt_group'] + '/' + cmt.CONF['global']['cmt_node']
         color = "FF0000"
         title = "ALERT from " + origin
-        
+
         message = ""
         for c in self.checks:
                 if c.alert > 0:
@@ -1016,8 +1017,8 @@ class Report():
                     message += '<br>\n'
 
 
-        debug("Pager Message : ",message)              
-        
+        debug("Pager Message : ",message)
+
         # send alert
         r = teams_send(url=url, title=title, message=message ,color=color, origin=origin)
         if r == 200:

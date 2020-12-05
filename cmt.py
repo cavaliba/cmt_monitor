@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-# cavaliba.com - 2020 - CMT_monitor - cmt.py 
-
+# cavaliba.com - 2020 - CMT_monitor - cmt.py
 
 import os
 import sys
@@ -14,8 +13,6 @@ import requests
 
 # global variables
 import cmt_globals as cmt
-
-
 
 # shared functions and class
 from cmt_shared import logit, debug, abort, bcolors
@@ -45,8 +42,8 @@ def signal_handler(signum, frame):
 if __name__=="__main__":
 
 
-    
-    cmt.ARGS = parse_arguments()    
+
+    cmt.ARGS = parse_arguments()
 
     if cmt.ARGS["version"]:
         display_version()
@@ -141,7 +138,7 @@ if __name__=="__main__":
         # no info
         if ts_check == "n/a":
             # module level ?
-            if not is_module_active_in_conf(modulename):  
+            if not is_module_active_in_conf(modulename):
                 debug("  module disabled in conf")
                 continue #no
         elif not is_timeswitch_on(ts_check):
@@ -184,16 +181,16 @@ if __name__=="__main__":
         # keep returned Persist structure in check_result
         cmt.PERSIST.set_key(check_result.get_id(), check_result.persist)
 
-        
+
         if cmt.ARGS['short']:
             check_result.print_to_cli_short()
         else:
             check_result.print_to_cli_detail()
-        
-        if cmt.ARGS["report"]:            
+
+        if cmt.ARGS["report"]:
             check_result.send_metrology()
 
-        
+
         # add Check to report
         report.add_check(check_result)
 

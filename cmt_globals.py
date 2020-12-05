@@ -1,4 +1,4 @@
-# cavaliba.com - 2020 - CMT_monitor - cmt.py 
+# cavaliba.com - 2020 - CMT_monitor - cmt.py
 
 # cmt_globals
 
@@ -18,6 +18,7 @@ from checks.url import check_url
 from checks.process import check_process
 from checks.ping import check_ping
 from checks.folder import check_folder
+from checks.certificate import check_certificate
 
 
 requests.packages.urllib3.disable_warnings()
@@ -40,7 +41,7 @@ elif __file__:
 
 #RATE_LIMIT_FILE = os.path.join(HOME_DIR, "alert.last")
 
-GRAYLOG_HTTP_TIMEOUT = 5 
+GRAYLOG_HTTP_TIMEOUT = 5
 
 # http access to remote url for additional config
 REMOTE_CONFIG_TIMEOUT = 3
@@ -57,7 +58,7 @@ DEFAULT_HYSTERESIS_NORMAL_DELAY = 120
 # persist
 DEFAULT_PERSIST_FILE = os.path.join(HOME_DIR, "persist.json")
 
-# Used to load / merge config 
+# Used to load / merge config
 DEFAULT_CONF_TOP_ENTRIES = ['global','modules','checks','metrology_servers', 'pagers']
 
 # =====================================================================
@@ -65,17 +66,18 @@ DEFAULT_CONF_TOP_ENTRIES = ['global','modules','checks','metrology_servers', 'pa
 # =====================================================================
 
 GLOBAL_MODULE_MAP = {
-    "load"     : {"check": check_load     },
-    "cpu"      : {"check": check_cpu      },
-    "memory"   : {"check": check_memory   },
-    "swap"     : {"check": check_swap     },
-    "boottime" : {"check": check_boottime },
-    "mount"    : {"check": check_mount    },
-    "disk"     : {"check": check_disk     },
-    "url"      : {"check": check_url      },
-    "process"  : {"check": check_process  },
-    "ping"     : {"check": check_ping     },
-    "folder"   : {"check": check_folder   },
+    "load"       : {"check": check_load        },
+    "cpu"        : {"check": check_cpu         },
+    "memory"     : {"check": check_memory      },
+    "swap"       : {"check": check_swap        },
+    "boottime"   : {"check": check_boottime    },
+    "mount"      : {"check": check_mount       },
+    "disk"       : {"check": check_disk        },
+    "url"        : {"check": check_url         },
+    "process"    : {"check": check_process     },
+    "ping"       : {"check": check_ping        },
+    "folder"     : {"check": check_folder      },
+    "certificate": {"check": check_certificate }
 }
 
 
