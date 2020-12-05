@@ -6,7 +6,8 @@ from cmt_shared import Check, CheckItem, parse_duration
 
 
 def check_certificate(c):
-
+    # if this assertion fails, then we have to be even more careful of timezones.
+    # ref ssl.cert_time_to_seconds
     assert sys.version_info >= (3, 5), "Python interpreter is too old"
 
     # get every settings at the start so that we don't crash mid-check if a key
@@ -27,14 +28,14 @@ def check_certificate(c):
     if now > cert_infos["notAfter"]:
         c.alert += 1
         c.add_message(
-            "hostname: {}:{} - certifcate expired by {}".format(
+            "hostname: {}:{} - certificate expired by {}".format(
                 hostname, port, now - cert_infos["notAfter"]
             )
         )
     elif now < cert_infos["notBefore"]:
         c.alert += 1
         c.add_message(
-            "hostname: {}:{} - certifcate not yet valid (will be valid in {})".format(
+            "hostname: {}:{} - certificate not yet valid (will be valid in {})".format(
                 hostname, port, cert_infos["notBefore"] - now
             )
         )
