@@ -57,6 +57,7 @@ gunicorn.conf.py
 
 # cavaliba
 conf.yml
+conf-mini.yml
 conf.d/*.yml
 dist/
 dist/*

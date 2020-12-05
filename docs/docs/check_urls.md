@@ -19,7 +19,7 @@ This check can be used from a remote server to monitor various URL and Webservic
 
 ## Enable the module
 
-Enable de module in the configuration :
+Enable the module in the configuration :
 
     # conf.yml
 
