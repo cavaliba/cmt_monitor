@@ -164,8 +164,13 @@ if __name__=="__main__":
         if cmt.ARGS["available"]:
             break
 
+        print(check_result.alert, check_result.warn, check_result.notice)
+
         # Hysteresis / alert upd & own
         check_result.hysteresis_filter()
+
+        print(check_result.alert, check_result.warn, check_result.notice)
+
 
         # apply alert_max_level for this check
         check_result.adjust_alert_max_level()

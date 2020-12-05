@@ -14,19 +14,33 @@ def check_certificate(c):
 
     # get every settings at the start so that we don't crash mid-check if a key
     # is missing
+
     hostname = c.conf["hostname"]
+
     # should there be a default value?
-    threshold = parse_duration(c.conf["alert_expires_in"])
+    DEFAULT_ALERT   = "4 days"
+    DEFAULT_WARNING = "2 weeks"
+    DEFAULT_NOTICE  = "2 months"
+
+    threshold_alert = parse_duration(c.conf.get("alert_in", DEFAULT_ALERT))
+    threshold_warning = parse_duration(c.conf.get("warning_in", DEFAULT_WARNING))
+    threshold_notice = parse_duration(c.conf.get("notice_in", DEFAULT_NOTICE))
+
     port = c.conf.get("port", 443)
 
-    c.add_item(CheckItem("certificate_hostname", hostname, "Hostname"))
-    c.add_item(CheckItem("certificate_port", port, "Port"))
+    hostdisplay = "{}:{}".format(hostname,port)
+
+    c.add_item(CheckItem("certificate_name", c.name, unit=""))
+
+    c.add_item(CheckItem("certificate_host", hostdisplay, ""))
+    #c.add_item(CheckItem("certificate_port", port, ""))
 
     try:
         cert_infos = get_certificate_infos(hostname, port)
     except ValueError as e:
         c.alert += 1
-        c.add_message("hostname {}:{} - no certificate found {}".format(hostname, port, e))
+        c.add_message("no certificate found for {}".format(hostdisplay))
+        #c.add_message("no certificate found for {}:{} - err = {}".format(hostname, port, e))
         return c
 
     # certificate dates are in utc. Just reading the warning from the documentation,
@@ -36,54 +50,59 @@ def check_certificate(c):
     if now > cert_infos["notAfter"]:
         c.alert += 1
         c.add_message(
-            "hostname: {}:{} - certificate expired by {}".format(
-                hostname, port, now - cert_infos["notAfter"]
+            "hostname: {} - certificate expired by {}".format(
+                hostdisplay, now - cert_infos["notAfter"]
             )
         )
     elif now < cert_infos["notBefore"]:
         c.alert += 1
         c.add_message(
-            "hostname: {}:{} - certificate not yet valid (will be valid in {})".format(
-                hostname, port, cert_infos["notBefore"] - now
+            "hostname: {} - certificate not yet valid (will be valid in {})".format(
+                hostdisplay, cert_infos["notBefore"] - now
             )
         )
 
     expires_in = cert_infos["notAfter"] - now
-    if expires_in < threshold:
-        c.alert += 1
-        c.add_message(
-            "hostname: {}:{} - certificate will expire soon (in {})".format(
-                hostname, port, expires_in
-            )
-        )
+    expires_sec = int(round(expires_in.total_seconds()))
+    expires_day = int(expires_sec / 86400)
 
+    c.add_item(CheckItem("certificate_seconds", expires_sec, unit="seconds"))
+    c.add_item(CheckItem("certificate_days", expires_day, unit="days"))
+
+    if expires_in < threshold_alert:
+        c.alert += 1
+        print("alert")
+    elif expires_in < threshold_warning:
+        c.warn += 1
+        print("warn")
+    elif expires_in < threshold_notice:
+        print("notice")
+        c.notice += 1        
+
+
+    # c.add_item(
+    #     CheckItem("certificate_issuer_common_name", cert_infos["issuer"]["commonName"])
+    # )
+    # c.add_item(
+    #     CheckItem(
+    #         "certificate_issuer_organization_name",
+    #         cert_infos["issuer"]["organizationName"],
+    #     )
+    # )
     c.add_item(
         CheckItem(
-            "certificate_expires_in",
-            int(round(expires_in.total_seconds())),
-            unit="seconds",
+            "certificate_subject", cert_infos["subject"]["commonName"]
         )
     )
-    c.add_item(
-        CheckItem("certificate_issuer_common_name", cert_infos["issuer"]["commonName"])
-    )
-    c.add_item(
-        CheckItem(
-            "certificate_issuer_organization_name",
-            cert_infos["issuer"]["organizationName"],
-        )
-    )
-    c.add_item(
-        CheckItem(
-            "certificate_subject_common_name", cert_infos["subject"]["commonName"]
-        )
-    )
-    c.add_item(
-        CheckItem(
-            "certificate_subject_organization_name",
-            cert_infos["subject"]["organizationName"],
-        )
-    )
+
+    # c.add_item(
+    #     CheckItem(
+    #         "certificate_subject_organization_name",
+    #         cert_infos["subject"]["organizationName"],
+    #     )
+    # )
+
+    c.add_message("{} day(s) left for SSL certificate {}".format(expires_day, hostdisplay))
 
     return c
 

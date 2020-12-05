@@ -800,8 +800,8 @@ class Check():
             newstate = "normal"
             duration_alert = 0
 
-        # state transition from normal to alert : real alert ?
-        if newstate == "normal":
+        # not yet a real alert
+        if self.alert > 0 and newstate == "normal":
             # adjust to warn ; not a transition
             self.adjust_alert_max_level("warn")
 
@@ -830,6 +830,7 @@ class Check():
         #print(head, self.get_message_as_str())
         print("{:12} {:10} {}".format(head, self.module, self.get_message_as_str()))
 
+
     def print_to_cli_detail(self):
 
         print()
@@ -837,11 +838,15 @@ class Check():
 
         for i in self.checkitems:
 
-            v = str (i.value) + ' ' + str(i.unit) + ' (' + i.human() + ') '
+            v = str (i.value) 
+            if len(str(i.unit)) > 0:
+                v = v + ' ' + str(i.unit) + ' '
+            if len (str(i.human())) > 0:
+                v = v + ' [' + i.human() + ']'
             if len (i.description) > 0:
                 v = v + ' - ' + i.description
 
-            print("cmt_{:18} {}".format(i.name, v))
+            print("cmt_{:20} {}".format(i.name, v))
 
 
         head = bcolors.OKGREEN     + "OK     " + bcolors.ENDC
@@ -853,7 +858,7 @@ class Check():
         elif self.notice > 0:
             head = bcolors.OKBLUE  + "NOTICE " + bcolors.ENDC
 
-        print("{:31} {}".format(head, self.get_message_as_str()))
+        print("{:33} {}".format(head, self.get_message_as_str()))
 
 
     def send_metrology(self):

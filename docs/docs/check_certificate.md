@@ -1,13 +1,32 @@
-Opens a socket to `hostname:port` and retrieve certificate information (with
+---
+title: check_certificate
+---
+
+# Certificate
+
+**Certificate** opens a socket to `hostname:port` and retrieve certificate information (with
 [`ssl.SSLSocket.getpeercert()`](https://docs.python.org/3/library/ssl.html#ssl.SSLSocket.getpeercert)).
+
+
+## Enable the module
+
+Enable de module in the configuration :
+
+    # conf.yml
+
+  Module:
+      certificate:
+         enable: yes
 
 ### Add a check
 
-    certificate_db:
+    a_certificate:
       module: certificate
       hostname: hostname.com
-      port: 2718                 # defaults to 443 if not specified
-      alert_expires_in: 1 week
+      port: 2718                    # defaults to 443 if not specified
+      alert_in:   1 week            # DEFAULT 3 days ; format  X years Y months ... weeks, days, hours"
+      warning_in: 1 month           # DEFAULT 2 weeks
+      notice_in:  3 months          # DEFAULT 2 months
 
 hostname (string) and port (integer):
 
@@ -29,14 +48,10 @@ matches:
 4. The connection to `hostname:port` can't be established.
 
 
-## Output to ElasticSearch
+## Output to Metrology Servers
 
-    cmt_certificate_hostname                 string
-    cmt_certificate_port                     int
-    certificate_expires_in                   int (seconds)
-
-    certificate_issuer_common_name           string
-    certificate_issuer_organization_name     string
-
-    certificate_subject_common_name          string
-    certificate_subject_organization_name    string
+    cmt_certificate_name                     string         # entry name in conf.yml
+    cmt_certificate_host                     string         # host:port
+    cmt_certificate_seconds                  int (seconds)
+    cmt_certificate_days                     int (days)
+    cmt_certificate_subject                  string         # domain/subject name

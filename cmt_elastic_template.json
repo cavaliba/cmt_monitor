@@ -82,6 +82,13 @@
         "cmt_folder_age_min" : {
           "type" : "long"
         },
+        
+        "cmt_certificate_seconds" : {
+          "type" : "long"
+        },
+        "cmt_certificate_days" : {
+          "type" : "long"
+        },
 
         "cmt_process_cpu" : {
           "type" : "float"
