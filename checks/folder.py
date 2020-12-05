@@ -36,14 +36,16 @@ def check_folder(c):
     '''Check for various folder attributes '''
 
     global s_dirs
+    s_dirs = 0
 
     path = c.conf['path']
 
-    name = path
-    if 'name' in c.conf:
-        name = c.conf['name']
+    name = c.name
 
     recursive = c.conf.get("recursive",False) == True
+
+    no_store = c.conf.get("no_store",False) == True
+
 
     targets = []
     if 'target' in c.conf:
@@ -67,28 +69,42 @@ def check_folder(c):
     s_maxage = 0
     s_files = []
     
-    #for entry in os.scandir(path):
-    if recursive:
-        for entry in scanRecurse(path):
-                s_files.append(entry.name)
-                s_count += 1
-                statinfo = os.stat(entry.path)
-                s_size += statinfo.st_size
-                if statinfo.st_mtime > s_maxage:
-                    s_maxage = statinfo.st_mtime
-                if statinfo.st_mtime < s_minage or s_minage == -1 :
-                    s_minage = statinfo.st_mtime
-    else:
-        for entry in scanNoRecurse(path):
-                s_files.append(entry.name)
-                s_count += 1
-                statinfo = os.stat(entry.path)
-                s_size += statinfo.st_size
-                if statinfo.st_mtime > s_maxage:
-                    s_maxage = statinfo.st_mtime
-                if statinfo.st_mtime < s_minage or s_minage == -1 :
-                    s_minage = statinfo.st_mtime
+    if os.path.isfile(path):
+        statinfo = os.stat(path)
+        s_size = statinfo.st_size
+        s_count = 1
+        s_maxage = statinfo.st_mtime
+        s_minage = statinfo.st_mtime
 
+    elif os.path.isdir(path):
+        #for entry in os.scandir(path):
+        if recursive:
+            for entry in scanRecurse(path):
+                    s_count += 1
+                    if not no_store:
+                        s_files.append(entry.name)
+                    statinfo = os.stat(entry.path)
+                    s_size += statinfo.st_size
+                    if statinfo.st_mtime > s_maxage:
+                        s_maxage = statinfo.st_mtime
+                    if statinfo.st_mtime < s_minage or s_minage == -1 :
+                        s_minage = statinfo.st_mtime
+        else:
+            for entry in scanNoRecurse(path):
+                    s_count += 1
+                    if not no_store:
+                        s_files.append(entry.name)
+                    statinfo = os.stat(entry.path)
+                    s_size += statinfo.st_size
+                    if statinfo.st_mtime > s_maxage:
+                        s_maxage = statinfo.st_mtime
+                    if statinfo.st_mtime < s_minage or s_minage == -1 :
+                        s_minage = statinfo.st_mtime
+
+    else:
+        c.warn = 1
+        c.add_message("{} ({}) is not a dir / nor a file".format(name, path))
+        return c
 
     # file count
     ci = CheckItem('folder_files', s_count, "Number of files in folder " + name, unit="files")
@@ -114,9 +130,11 @@ def check_folder(c):
         c.add_item(ci)
 
 
+
     # Target checks
     # --------------
     tgcount = 0
+    tgtotal = len(targets)
 
     # target : files_min: 4
     if 'files_min' in targets:
@@ -168,6 +186,12 @@ def check_folder(c):
                 c.add_message("{} : some files too young ({} sec)".format(path,int(now - s_maxage)))
                 return c   
 
+    if no_store:
+        c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes - targets OK ({} / {}) ; no-store mode".format(
+            name, path, s_count, s_dirs, s_size, tgcount, tgtotal ))
+        return c
+
+    # NEED flist to be stored at scan time
     # target : has_file: filename
     if 'has_files' in targets:
         tgcount += 1
@@ -178,5 +202,6 @@ def check_folder(c):
                 c.add_message("{} : expected file not found ({})".format(path,f))
                 return c
 
-    c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes - {} targets OK".format(name, path, s_count, s_dirs, s_size, tgcount))
+    c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes - targets OK ({} / {})".format(
+        name, path, s_count, s_dirs, s_size, tgcount, tgtotal))
     return c
