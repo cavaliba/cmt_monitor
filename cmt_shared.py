@@ -146,6 +146,10 @@ def parse_arguments():
 
     #parser.add_argument('--conf', dest="config_file", type=str ,help="configuration file")
 
+    parser.add_argument('--cron', help='equiv to report, alert, persist, short output',
+        action='store_true', required=False)
+
+
     parser.add_argument('--report', help='send events to Metrology servers',
         action='store_true', required=False)
     parser.add_argument('--pager', help='send alerts to Pagers',
@@ -158,33 +162,31 @@ def parse_arguments():
 
     parser.add_argument('modules', nargs='*',
         action='append', help='modules to check')
+    parser.add_argument('--listmodules', help='display available modules',
+        action='store_true', required=False)
+    parser.add_argument('--available', help='display available entries found for modules (manual run on target)',
+        action='store_true', required=False)
+
 
     parser.add_argument('--pagertest', help='send test message to teams and exit',
         action='store_true', required=False)
     parser.add_argument('--no-pager-rate-limit', help='disable pager rate limit',
         action='store_true', required=False)
 
-
     parser.add_argument('--checkconfig', help='checkconfig and exit',
         action='store_true', required=False)
-
     parser.add_argument('--version', '-v', help='display current version',
         action='store_true', required=False)
     parser.add_argument('--debug', help='verbose/debug output',
         action='store_true', required=False)
     parser.add_argument('--debug2', help='more debug',
         action='store_true', required=False)
-
-    parser.add_argument('--short','-s', help='short compact cli output',
-        action='store_true', required=False)
     parser.add_argument('--devmode', help='dev mode, no pager, no remote metrology',
         action='store_true', required=False)
-
-
-    parser.add_argument('--listmodules', help='display available modules',
+    
+    parser.add_argument('--short','-s', help='short compact cli output',
         action='store_true', required=False)
-    parser.add_argument('--available', help='display available entries found for modules (manual run on target)',
-        action='store_true', required=False)
+
 
 
     return vars(parser.parse_args())
@@ -607,10 +609,6 @@ class Persist():
 
     def save(self):
 
-        if not cmt.ARGS['persist']:
-            debug("Persist.save : disable (cli / no arg)")
-            return
-
         debug("Persist.write() : ", self.file)
         data = json.dumps(self.dict, indent=2)
         try:
@@ -958,6 +956,26 @@ class Report():
         print()
 
 
+    def print_recap(self):
+        ''' display one line with number of checks, alert, warn, notice.'''
+        pass
+        ck = 0
+        alert = 0
+        warn = 0
+        notice = 0
+        for c in self.checks:
+            ck += 1
+            if c.alert > 0:
+                alert += 1
+            if c.warn > 0:
+                warn += 1
+            if c.notice > 0:
+                notice += 1
+        nok = alert + warn + notice
+        ok = ck - nok
+        logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
+            ck, ok, nok, alert,warn,notice,
+            ))
 
     def send_alerts_to_pager(self):
 

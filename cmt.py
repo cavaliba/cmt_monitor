@@ -15,7 +15,7 @@ import requests
 import cmt_globals as cmt
 
 # shared functions and class
-from cmt_shared import logit, debug, abort, bcolors
+from cmt_shared import logit, debug, debug2, abort, bcolors
 from cmt_shared import parse_arguments
 from cmt_shared import load_conf
 from cmt_shared import display_version, display_modules
@@ -42,7 +42,6 @@ def signal_handler(signum, frame):
 if __name__=="__main__":
 
 
-
     cmt.ARGS = parse_arguments()
 
     if cmt.ARGS["version"]:
@@ -62,12 +61,7 @@ if __name__=="__main__":
     # Persist
     cmt.PERSIST = Persist(file=cmt.DEFAULT_PERSIST_FILE)
 
-    # print("cmt_last_run :", cmt.PERSIST.has_key("cmt_last_run"))
     lastrun = cmt.PERSIST.get_key("cmt_last_run", 0)
-    # print("cmt_mast_run :", lastrun)
-    # cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
-    # cmt.PERSIST.save()
-    # sys.exit()
 
     # check config option
     if cmt.ARGS["checkconfig"]:
@@ -92,20 +86,18 @@ if __name__=="__main__":
 
     # -----------------
 
-    print('-' * 60)
-    display_version()
-    print('-' * 60)
-    logit("Starting ...")
-
-    print("cmt_group      : ", cmt.CONF['global']['cmt_group'])
-    print("cmt_node       : ", cmt.CONF['global']['cmt_node'])
-
-    print()
-    if cmt.ARGS['short']:
-        print("Short output")
-        print("------------")
+    if cmt.ARGS['cron']:
+        print("-" * 60)    
+        logit("Starting ...")    
+    
+    else:
+        print('-' * 60)
+        display_version()
+        print('-' * 60)
+        print("cmt_group      : ", cmt.CONF['global']['cmt_group'])
+        print("cmt_node       : ", cmt.CONF['global']['cmt_node'])
         print()
-
+    
 
     report = Report()
 
@@ -149,6 +141,8 @@ if __name__=="__main__":
         if not is_module_allowed_in_args(modulename):
             continue
 
+        # TODO : verify frequency
+
         # create check object
         check_result = Check(module=modulename, name=checkname, conf = checkconf)
 
@@ -181,13 +175,14 @@ if __name__=="__main__":
         # keep returned Persist structure in check_result
         cmt.PERSIST.set_key(check_result.get_id(), check_result.persist)
 
-
-        if cmt.ARGS['short']:
+        # Print to CLI
+        if cmt.ARGS['cron'] or cmt.ARGS['short']:
             check_result.print_to_cli_short()
         else:
             check_result.print_to_cli_detail()
 
-        if cmt.ARGS["report"]:
+        # Metrology
+        if cmt.ARGS['cron'] or cmt.ARGS["report"]:
             check_result.send_metrology()
 
 
@@ -195,17 +190,23 @@ if __name__=="__main__":
         report.add_check(check_result)
 
 
+    # -- end of check loop --
 
-    # Handle alerts after all modules
-    # --------------------------------
-    report.print_alerts_to_cli()
+    # Alerts : CLI & Pager
+    if not cmt.ARGS['cron'] and not cmt.ARGS['short']:
+        report.print_alerts_to_cli()
+        print()
 
-    if cmt.ARGS["pager"]:
+    if cmt.ARGS['cron'] or cmt.ARGS["pager"]:
         report.send_alerts_to_pager()
 
-
     # Save Persistance
-    cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
-    cmt.PERSIST.save()
+    if cmt.ARGS['persist']:
+        cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
+        cmt.PERSIST.save()
+        debug2("Persist saved")
+    else:
+        debug2("Persist: save disabled")
 
-    logit("Done.")
+    
+    report.print_recap()
