@@ -174,7 +174,6 @@ Available Modules
       -  socket
 
 
-
 REFERENCE
 ---------
 See included file REFERENCE.txt
@@ -233,10 +232,30 @@ REVISION
     2020-11-24 - 1.0.0.RC - new configuration structure
 
     2020-11-29 - 1.0.0
+        conf : conf.d on/off : global load_confd yes/no
+        remote conf : send group.node as parameters (or as file.txt )  
+        ARG : --debug2
+        ARG : --no-pager-rate-limit
+        ARG : --persist
+        give persist to modules
+        default homedir = /opt/cmt
+        conf: enable_pager for check
+        Pager events contain all alert/warn/notice messages
+        hysteresis up (alert_delay in global/module/check)
+        cmt_node_env [prod,form, pre,qual, test, dev]
+        cmt_node_role: string
+        cmt_node_location
+        Pattern optionnal in module URL
+        removed module_*_status checkItems (not needed any more ; use alert/warning/notice)
+        module url : add "host" option (virtualhost header)
 
     2020-12-06 - 1.1.0
-        module : check_certificate
-        module : check_socket
+        module_certificate
+        module_folder :bug in dir count ; option no_store ; handle single_file
+        ARG : --cron
+        nicer output (summary, humanize)
+        CONF : frequency (--cron) for module and checks
+        module socket
 
 COPYRIGHT
 ---------

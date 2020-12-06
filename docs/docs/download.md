@@ -9,12 +9,5 @@ title: Download
 
 ## Binary 
 
-### Version 1.0.0 - 2020/11/29 - Stable
+* [Download](http://www.cavaliba.com/download/cmt/)
 
-* [Debian 9+ - Ubuntu(s) 16+ - 64bits](http://www.cavaliba.com/download/cmt/cmt-1.0.0-deb64.bin)
-* [RHEL/Centos 7+ - 64 bits](http://www.cavaliba.com/download/cmt/cmt-1.0.0-centos64.bin)
-* Debian 8- 64bits - to be done
-
-### Version 0.9 - 2020/09 - Deprecated
-
-*not available*

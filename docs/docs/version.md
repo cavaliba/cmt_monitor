@@ -2,13 +2,17 @@
 title: version
 ---
 
-# Versions and Releases
+# Releases
 
 
-## Next / Roadmap
+## 1.1.0 - 2020/12/06
 
-    x module : socket
-    x module : ssl certificate
+    x module_certificate
+    x module_folder :bug in dir count ; option no_store ; handle single_file
+    x ARG : --cron
+    x nicer output (summary, humanize)
+    x CONF : frequency (--cron) for module and checks
+    x module socket
 
 
 ## 1.0.0 - 2020/11/29
