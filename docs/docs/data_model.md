@@ -121,12 +121,40 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     2020/10/07 - v0.7
     2020/10/20 - v0.9 : + recursive: yes/no
 
-    cmt_folder_name: name
-    cmt_folder_path: path
-    cmt_folder_files: #count
-    cmt_folder_dirs: #count
-    cmt_folder_size: #bytes
-    cmt_folder_size_max: #bytes (folder)
-    cmt_folder_size_min: #bytes (folder)
-    cmt_folder_age_min:
-    cmt_folder_age_max:
+    cmt_folder_name            : name
+    cmt_folder_path            : path
+    cmt_folder_files           : #count
+    cmt_folder_dirs            : #count
+    cmt_folder_size            : #bytes
+    cmt_folder_size_max        : #bytes (folder)
+    cmt_folder_size_min        : #bytes (folder)
+    cmt_folder_age_min         :
+    cmt_folder_age_max         :
+
+    -------------------------------------------
+    Module: certificate
+    -------------------------------------------
+    2020/12/05 - V1.1
+
+    cmt_certificate_name          string         # entry name in conf.yml
+    cmt_certificate_host          string         # host:port
+    cmt_certificate_seconds       int (seconds)  # seconds before expiration
+    cmt_certificate_days          int (days)     # days before expiration
+    cmt_certificate_subject       string         # domain/subject name
+
+    -------------------------------------------
+    Module: socket
+    -------------------------------------------
+    2020/12/06 - V1.1
+
+
+    cmt_socket_name      : string
+    cmt_socket_type      : local/remote
+    cmt_socket_proto     : tcp/udp
+    cmt_socket_host      : host:port
+    cmt_socket_count     : int (established)
+    cmt_socket_alive     : yes/no  [LISTEN]
+    cmt_socket_ping      : ok/nok
+
+
+    

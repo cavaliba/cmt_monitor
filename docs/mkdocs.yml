@@ -32,6 +32,7 @@ nav:
       - 'folders': 'check_folders.md'
       - 'pings': 'check_pings.md'
       - certificate: check_certificate.md
+      - socket: check_socket.md
   - 'Advanced':
       - 'Data model' : 'data_model.md'
       - 'Duration item': duration.md

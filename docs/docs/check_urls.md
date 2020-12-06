@@ -73,7 +73,7 @@ Alert message:
 
 ## Output to ElasticSearch
 
-This module sends one message for each mount point, with the following fields:
+This module sends one message for each URL, with the following fields:
 
 	cmt_check: url
 	+

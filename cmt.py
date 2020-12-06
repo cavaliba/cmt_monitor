@@ -88,7 +88,8 @@ if __name__=="__main__":
 
     if cmt.ARGS['cron']:
         print("-" * 60)    
-        logit("Starting ...")    
+        logit("Starting ...")
+        print() 
     
     else:
         print('-' * 60)
@@ -141,10 +142,14 @@ if __name__=="__main__":
         if not is_module_allowed_in_args(modulename):
             continue
 
-        # TODO : verify frequency
-
+        
         # create check object
         check_result = Check(module=modulename, name=checkname, conf = checkconf)
+
+        # verify frequency in cron mode
+        if cmt.ARGS['cron']:
+            if not check_result.frequency():
+                continue
 
         # HERE / Future : give check_result the needed Module Conf, Global Conf ...
 
@@ -201,7 +206,7 @@ if __name__=="__main__":
         report.send_alerts_to_pager()
 
     # Save Persistance
-    if cmt.ARGS['persist']:
+    if cmt.ARGS['cron'] or cmt.ARGS['persist']:
         cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
         cmt.PERSIST.save()
         debug2("Persist saved")

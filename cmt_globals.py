@@ -19,6 +19,7 @@ from checks.process import check_process
 from checks.ping import check_ping
 from checks.folder import check_folder
 from checks.certificate import check_certificate
+from checks.socket import check_socket
 
 
 requests.packages.urllib3.disable_warnings()
@@ -78,7 +79,8 @@ GLOBAL_MODULE_MAP = {
     "process"    : {"check": check_process     },
     "ping"       : {"check": check_ping        },
     "folder"     : {"check": check_folder      },
-    "certificate": {"check": check_certificate }
+    "certificate": {"check": check_certificate },
+    "socket"     : {"check": check_socket      },
 }
 
 

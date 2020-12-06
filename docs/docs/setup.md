@@ -13,7 +13,6 @@ title: setup
 
 
 
-
 ## from a github / zip download
 
 * check prerequisite : python3.6+, 
@@ -50,7 +49,7 @@ title: setup
 
 ## Next
 
-* use CLI mode to configure
-* use --available option to identify items to monnitor
+* use CLI mode to test and configure
+* use --available option to identify items to monitor
 * configure crontab
 * watch for event in your elastic/graylog/kibana server

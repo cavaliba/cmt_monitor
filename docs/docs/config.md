@@ -49,7 +49,7 @@ The complete configuration for a CMT run has 5 sections :
 1. a global section (global)
 2. a metrology server section
 3. a pager servers section
-4. a module secion  to enable/disable various modules
+4. a module section  to enable/disable various modules
 5. a checks section with all  individual checks parameters (module dependent)
 
 
@@ -145,7 +145,7 @@ The complete configuration for a CMT run has 5 sections :
 	    enable            : timerange ; default yes
 	    [alert_max_level] : alert, warn, notice (scale down)  ; overwrites global entry
 	    [alert_delay]     : delay before transition from to alert ; seconds/DEFAULT 120 
-	    ()[frequency]     : min seconds between runs ; needs --persist in ARGS
+	    [frequency]       : min seconds between runs ; needs --cron in ARGS
 
 
 	--------------------------
@@ -164,8 +164,8 @@ The complete configuration for a CMT run has 5 sections :
 	      [enable]          : timerange ; default yes  
 	      [alert_max_level] : alert, warn, notice (scales down) ; overwrites global / module
 	      [enable_pager]    : timerange ; default NO ; need global/pager to be enabled 
-
 	      [alert_delay]     : delay before alert ; DEFAULT 120 
+	      [frequency]       : min seconds between runs ; needs --cron in ARGS ; overrides module config
 
 
 	specific check options
@@ -231,6 +231,16 @@ The complete configuration for a CMT run has 5 sections :
 	     ()min_bytes:    : TODO (file)
 	     ()max_bytes:    : TODO
 	   ]
+
+
+	certificate
+	  module: certificate
+	  hostname: hostname.com
+	  port:                         # defaults to 443 if not specified
+	  alert_in:   1 week            # DEFAULT 3 days ; format  X years Y months ... weeks, days, hours"
+	  warning_in: 1 month           # DEFAULT 2 weeks
+	  notice_in:  3 months          # DEFAULT 2 months
+
 
 
 ## Global Section

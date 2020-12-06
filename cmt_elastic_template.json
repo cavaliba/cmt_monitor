@@ -90,6 +90,12 @@
           "type" : "long"
         },
 
+        "cmt_socket_count" : {
+          "type" : "long"
+        },
+
+
+
         "cmt_process_cpu" : {
           "type" : "float"
         }

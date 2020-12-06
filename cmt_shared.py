@@ -271,9 +271,10 @@ def load_conf_remote(conf):
         gro = conf['global'].get("cmt_group","nogroup")
         nod = conf['global'].get("cmt_node","nonode")
 
-        if url[-1] == '/':
-            url = url + "{}_{}.txt".format(gro,nod)
-
+        # if url[-1] == '/':
+        #     url = url + "{}_{}.txt".format(gro,nod)
+        url = url + "?group={}&node={}".format(gro,nod)
+        
         debug("Remote config URL : ", url)
 
 
@@ -762,9 +763,50 @@ class Check():
             self.warn = 0
 
 
+    def frequency(self):
+        ''' 
+        verify and update run frequency (cron mode).
+        Return True/False if allowed/not alloowed to run.
+        Update PERSIST() object
+        '''
+        # last run for this check ?
+        freqpersist = cmt.PERSIST.get_key("frequency", {})
+        id = self.get_id()
+        freqlastrun = freqpersist.get(id,0)
+
+        # frequency for this specific check ?
+        f = self.conf.get('frequency',-1)
+
+        if f == -1:
+            debug("Frequency: no Frequency at check level")
+            # frequency at the module level ?
+            modconf = cmt.CONF['modules'].get(self.module, {})
+            f2 = modconf.get('frequency',-1)
+
+            # no frequency specified, return True / no persist
+            if f2 == -1:
+                debug("Frequency: no Frequency at module level")
+                return True
+            else:
+                f = f2
+
+        # yes, compare value / delta ; update persist if Run
+        now = int(time.time())
+        delta = int ( now - freqlastrun )
+        if delta > f:
+            freqpersist[id] = now
+            cmt.PERSIST.set_key("frequency",freqpersist)
+            debug("Frequency: allowed {} > {} (f={}, delta={})".format(now, freqlastrun, f, delta))
+            return True
+
+        # too early
+        debug("Frequency: not allowed : f={}, delta={}".format(f, delta))
+        return False
+
+
     def  hysteresis_filter(self):
 
-        ''' Apply Hystereris up/down to alerts for this check :
+        ''' Apply Hystereris up/down to alert for this check :
             - consecutive alerts (duration) needed to define real alert
             - consecutire no_alert (idem) needed to define return to noalert
         '''
@@ -973,6 +1015,7 @@ class Report():
                 notice += 1
         nok = alert + warn + notice
         ok = ck - nok
+        print()
         logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
             ck, ok, nok, alert,warn,notice,
             ))

@@ -17,7 +17,7 @@ global:
   enable_pager: yes
   conf_url: http://localhost/cmt/conf/
   pager_rate_limit: 3600
-  max_execution_time: 10
+  max_execution_time: 40
   load_confd: yes
   alert_max_level: alert
   alert_delay: 90
@@ -95,6 +95,14 @@ modules:
     enable: yes
     #alert_delay: 70
     #alert_max_level: alert
+
+  
+  certificate:
+    enable: yes
+    frequency: 3600
+
+  socket:
+    enable: yes
 
 
 # List of checks to perform 
@@ -230,22 +238,50 @@ checks:
     path: /missing
 
 
-# Certificate
-  google:
+# certificates
+# ------------
+
+  cert_google:
     module: certificate
     hostname: google.com
-    alert_expires_in: 6 months 3 days
+    alert_in: 1 week 
+    warning_in: 3 months
+    notice_in: 6 months
 
   duck:
     module: certificate
     hostname: duckduckgo.com
-    alert_expires_in: 1 week
+    alert_in: 1 week
 
   broken:
     module: certificate
     hostname: duckduckgo.com
     port: 80
-    alert_expires_in: 2 week
+    alert_in: 2 week
+
+
+# sockets
+# -------
+
+  local_redis:
+    module: socket
+    socket: local tcp 6379
+    connect: yes
+
+  www_google:
+    module: socket
+    socket: remote www.google.com tcp 443
+    connect: yes
+
+
+
+
+
+
+
+
+
+
 
 # ---------------------------------------------------------
 # if set global,  conf.d/*.yml also included and merged

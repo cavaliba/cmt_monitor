@@ -19,8 +19,6 @@ def check_certificate(c):
     # is missing
 
     hostname = c.conf["hostname"]
-
-    # should there be a default value?
     DEFAULT_ALERT   = "4 days"
     DEFAULT_WARNING = "2 weeks"
     DEFAULT_NOTICE  = "2 months"
