@@ -116,6 +116,7 @@ def check_folder(c):
 
     # size
     ci = CheckItem('folder_size',s_size,"Total Size (bytes)", unit="bytes")
+    h_size = ci.human()
     c.add_item(ci)
 
     # age
@@ -187,8 +188,8 @@ def check_folder(c):
                 return c   
 
     if no_store:
-        c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes - targets OK ({} / {}) ; no-store mode".format(
-            name, path, s_count, s_dirs, s_size, tgcount, tgtotal ))
+        c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(
+            name, path, s_count, s_dirs, s_size, h_size, tgcount, tgtotal ))
         return c
 
     # NEED flist to be stored at scan time
@@ -202,6 +203,6 @@ def check_folder(c):
                 c.add_message("{} : expected file not found ({})".format(path,f))
                 return c
 
-    c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes - targets OK ({} / {})".format(
+    c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes - targets {}/{}".format(
         name, path, s_count, s_dirs, s_size, tgcount, tgtotal))
     return c
