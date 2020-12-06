@@ -10,7 +10,13 @@ title: cron
 
     $ sudo crontab -e
 
+    * * * * * /usr/local/bin/cmt --cron >> /var/log/cmt.log 2>&1
     * * * * * /usr/local/bin/cmt --conf /opt/cmt/conf.yml --report --pager --persist
+
+## --cron
+
+This option covers report, alert, persist and very short output suited for log file.
+
 
 ## config file: --conf
 

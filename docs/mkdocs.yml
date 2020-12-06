@@ -32,10 +32,11 @@ nav:
       - 'folders': 'check_folders.md'
       - 'pings': 'check_pings.md'
       - certificate: check_certificate.md
-  - 'Custom formats':
-    - Duration: duration.md
-  - 'Data model' : 'data_model.md'
-#  - 'Dev / How to extend': 'extend.md'
+  - 'Advanced':
+      - 'Data model' : 'data_model.md'
+      - 'Duration item': duration.md
+      # 'timerange item' : timerange.md
+   #  - 'Dev / How to extend': 'extend.md'
   - 'License': license.md
   - 'Visit cavaliba.com': 'http://www.cavaliba.com'
   - 'Versions': 'version.md'
