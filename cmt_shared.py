@@ -280,8 +280,10 @@ def load_conf_remote(conf):
 
         text_conf2 = conf_load_http(url)
         conf2 = yaml.safe_load(text_conf2)
-        if conf2 is None:
-            conf2={}
+        if not type(conf2) is dict:
+            conf2 = {}
+        # if conf2 is None :
+        #     conf2={}
         conf2 = conf_add_top_entries(conf2)
         conf = conf_merge(conf, conf2)
 
