@@ -4,12 +4,7 @@
 import os
 import sys
 import time
-import datetime
 import signal
-#import re
-
-import psutil
-import requests
 
 # global variables
 import cmt_globals as cmt
@@ -21,10 +16,8 @@ from cmt_shared import parse_arguments
 from cmt_shared import load_conf
 from cmt_shared import display_version, display_modules
 from cmt_shared import pager_test
-from cmt_shared import is_module_active_in_conf
-from cmt_shared import is_module_allowed_in_args
 
-from cmt_shared import Report, Check, CheckItem
+from cmt_shared import Report
 from cmt_shared import Persist
 
 from cmt_helper import timeout_handler
