@@ -121,6 +121,96 @@ def is_timeswitch_on(myconfig):
     return False
 
 
+# ------------------------------
+# perform a single check
+# ------------------------------
+
+def perform_check(checkname, modulename = ""):
+
+    debug("Starting check : ", checkname)
+
+    # get conf for this check
+    checkconf = cmt.CONF['checks'][checkname]
+
+    # get module for this check
+    if modulename == "":
+        modulename = checkconf.get('module', "unknown")
+    debug("  module : ", modulename)
+
+    #Is module in GLOBAL MAP ?
+    if not modulename in cmt.GLOBAL_MODULE_MAP:
+        debug("  unknown module in MAP: ", modulename)
+        return "continue"
+
+    # check  enabled in conf ?  (in check or in module)
+    ts_check = checkconf.get('enable', 'n/a')
+    # no info
+    if ts_check == "n/a":
+        # module level ?
+        if not is_module_active_in_conf(modulename):
+            debug("  module disabled in conf")
+            return "continue" #no
+    elif not is_timeswitch_on(ts_check):
+        debug("  check disabled by conf")
+        return "continue"
+
+    # check if module is filtered in ARGS
+    if not is_module_allowed_in_args(modulename):
+        return "continue"
+
+    
+    # create check object
+    check_result = Check(module=modulename, name=checkname, conf = checkconf)
+
+    # verify frequency in cron mode
+    if cmt.ARGS['cron']:
+        if not check_result.frequency():
+            return "continue"
+
+    # HERE / Future : give check_result the needed Module Conf, Global Conf ...
+
+    # TODO : if --available, call diffrent function
+
+    # ---------------
+    # perform check !
+    # ---------------
+    check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
+
+    if cmt.ARGS["available"]:
+        return "break"
+
+    # Hysteresis / alert upd & own
+    check_result.hysteresis_filter()
+
+    # apply alert_max_level for this check
+    check_result.adjust_alert_max_level()
+
+    # If pager enabled (at check level), and alert exists : set pager True
+    if check_result.alert > 0:
+        tr =  checkconf.get('enable_pager', "no")
+        if is_timeswitch_on(tr):
+            debug("pager for check ", check_result.get_id())
+            check_result.pager = True
+
+
+    # keep returned Persist structure in check_result
+    cmt.PERSIST.set_key(check_result.get_id(), check_result.persist)
+
+    # Print to CLI
+    if cmt.ARGS['cron'] or cmt.ARGS['short']:
+        check_result.print_to_cli_short()
+    else:
+        check_result.print_to_cli_detail()
+
+    # Metrology
+    if cmt.ARGS['cron'] or cmt.ARGS["report"]:
+        check_result.send_metrology()
+
+
+    # add Check to report
+    return check_result
+
+
 # -----------------------------------------------------
 # short commands
 # -----------------------------------------------------
@@ -611,16 +701,23 @@ class Persist():
 
 
     def save(self):
+        # Save Persistance to file
 
-        debug("Persist.write() : ", self.file)
+        if not cmt.ARGS['cron'] and not cmt.ARGS['persist']:
+            debug("Persist: save disabled")
+            return
+        
+        self.set_key("cmt_last_run",int(time.time()))
+        
         data = json.dumps(self.dict, indent=2)
         try:
             with open(self.file,"w") as fi:
                 fi.write(data)
         except:
             debug("ERROR - Persist() : couldn't write file {}".format(self.file))
-
-
+            return
+        
+        debug("Persist saved")
 
 
 # ----------------------------------------------------------
@@ -966,6 +1063,55 @@ class Report():
         if c.pager:
             self.pager = True
 
+
+    def print_header(self):
+
+        if cmt.ARGS['cron']:
+            print("-" * 60)    
+            logit("Starting ...")
+            print() 
+        else:
+            print('-' * 60)
+            display_version()
+            print('-' * 60)
+            print("cmt_group      : ", cmt.CONF['global']['cmt_group'])
+            print("cmt_node       : ", cmt.CONF['global']['cmt_node'])
+            print()
+        
+
+    def print_recap(self):
+        ''' display one line with number of checks, alert, warn, notice.'''
+        pass
+        ck = 0
+        alert = 0
+        warn = 0
+        notice = 0
+        for c in self.checks:
+            ck += 1
+            if c.alert > 0:
+                alert += 1
+            if c.warn > 0:
+                warn += 1
+            if c.notice > 0:
+                notice += 1
+        nok = alert + warn + notice
+        ok = ck - nok
+        print()
+        logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
+            ck, ok, nok, alert,warn,notice,
+            ))
+
+    def dispatch_alerts(self):
+
+        # Alerts : CLI & Pager
+        if not cmt.ARGS['cron'] and not cmt.ARGS['short']:
+            self.print_alerts_to_cli()
+            print()
+
+        if cmt.ARGS['cron'] or cmt.ARGS["pager"]:
+            self.send_alerts_to_pager()
+
+
     def print_alerts_to_cli(self):
         ''' print pager/alerts to CLI '''
 
@@ -999,28 +1145,6 @@ class Report():
                         print ("{:15s} : {}".format(c.module, c.get_message_as_str()))
         print()
 
-
-    def print_recap(self):
-        ''' display one line with number of checks, alert, warn, notice.'''
-        pass
-        ck = 0
-        alert = 0
-        warn = 0
-        notice = 0
-        for c in self.checks:
-            ck += 1
-            if c.alert > 0:
-                alert += 1
-            if c.warn > 0:
-                warn += 1
-            if c.notice > 0:
-                notice += 1
-        nok = alert + warn + notice
-        ok = ck - nok
-        print()
-        logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
-            ck, ok, nok, alert,warn,notice,
-            ))
 
     def send_alerts_to_pager(self):
 

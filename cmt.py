@@ -15,6 +15,7 @@ import requests
 import cmt_globals as cmt
 
 # shared functions and class
+from cmt_shared import perform_check
 from cmt_shared import logit, debug, debug2, abort, bcolors
 from cmt_shared import parse_arguments
 from cmt_shared import load_conf
@@ -27,13 +28,9 @@ from cmt_shared import is_timeswitch_on
 from cmt_shared import Report, Check, CheckItem
 from cmt_shared import Persist
 
-# ------------
-# Timeout stop
-# ------------
-def signal_handler(signum, frame):
-    #raise Exception("Timed out!")
-    print("Timed out ! (max_execution_time)")
-    sys.exit()
+from cmt_helper import timeout_handler
+
+
 
 # ------------
 # Main entry
@@ -54,7 +51,7 @@ if __name__=="__main__":
 
     maxexec = cmt.CONF['global'].get("max_execution_time", cmt.MAX_EXECUTION_TIME)
     # set global timer to limit global duration
-    signal.signal(signal.SIGALRM, signal_handler)
+    signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(maxexec)   #  seconds
 
 
@@ -84,134 +81,37 @@ if __name__=="__main__":
         sys.exit()
 
 
-    # -----------------
-
-    if cmt.ARGS['cron']:
-        print("-" * 60)    
-        logit("Starting ...")
-        print() 
-    
-    else:
-        print('-' * 60)
-        display_version()
-        print('-' * 60)
-        print("cmt_group      : ", cmt.CONF['global']['cmt_group'])
-        print("cmt_node       : ", cmt.CONF['global']['cmt_node'])
-        print()
-    
-
-    report = Report()
 
     # check master switch / CMT disabled ?
+    
     ts_global_enable = cmt.CONF['global'].get('enable', 'no')
     if not is_timeswitch_on(ts_global_enable):
         logit("CMT globally disabled by conf")
         sys.exit()
 
-    # LOOP over each individual check in CONF
+    # -----------------
+    report = Report()
+    report.print_header()
 
+
+    # LOOP over each individual check in CONF
     for checkname in cmt.CONF['checks']:
 
-        debug("Starting check : ", checkname)
+        check_result = perform_check(checkname)
 
-        # get conf for this check
-        checkconf = cmt.CONF['checks'][checkname]
-
-        # get module for this check
-        modulename = checkconf.get('module', "unknown")
-        debug("  module : ", modulename)
-
-        #Is module in GLOBAL MAP ?
-        if not modulename in cmt.GLOBAL_MODULE_MAP:
-            debug("  unknown module in MAP: ", modulename)
-            continue
-
-        # check  enabled in conf ?  (in check or in module)
-        ts_check = checkconf.get('enable', 'n/a')
-        # no info
-        if ts_check == "n/a":
-            # module level ?
-            if not is_module_active_in_conf(modulename):
-                debug("  module disabled in conf")
-                continue #no
-        elif not is_timeswitch_on(ts_check):
-            debug("  check disabled by conf")
-            continue
-
-        # check if module is filtered in ARGS
-        if not is_module_allowed_in_args(modulename):
-            continue
-
-        
-        # create check object
-        check_result = Check(module=modulename, name=checkname, conf = checkconf)
-
-        # verify frequency in cron mode
-        if cmt.ARGS['cron']:
-            if not check_result.frequency():
+        if type(check_result) is str:
+            if check_result == "break":
+                break
+            elif check_result == "continue":
                 continue
-
-        # HERE / Future : give check_result the needed Module Conf, Global Conf ...
-
-        # TODO : if --available, call diffrent function
-
-        # ---------------
-        # perform check !
-        # ---------------
-        check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
-
-        if cmt.ARGS["available"]:
-            break
-
-        # Hysteresis / alert upd & own
-        check_result.hysteresis_filter()
-
-        # apply alert_max_level for this check
-        check_result.adjust_alert_max_level()
-
-        # If pager enabled (at check level), and alert exists : set pager True
-        if check_result.alert > 0:
-            tr =  checkconf.get('enable_pager', "no")
-            if is_timeswitch_on(tr):
-                debug("pager for check ", check_result.get_id())
-                check_result.pager = True
-
-
-        # keep returned Persist structure in check_result
-        cmt.PERSIST.set_key(check_result.get_id(), check_result.persist)
-
-        # Print to CLI
-        if cmt.ARGS['cron'] or cmt.ARGS['short']:
-            check_result.print_to_cli_short()
         else:
-            check_result.print_to_cli_detail()
-
-        # Metrology
-        if cmt.ARGS['cron'] or cmt.ARGS["report"]:
-            check_result.send_metrology()
-
-
-        # add Check to report
-        report.add_check(check_result)
-
+            # add Check to report
+            report.add_check(check_result)
 
     # -- end of check loop --
 
-    # Alerts : CLI & Pager
-    if not cmt.ARGS['cron'] and not cmt.ARGS['short']:
-        report.print_alerts_to_cli()
-        print()
-
-    if cmt.ARGS['cron'] or cmt.ARGS["pager"]:
-        report.send_alerts_to_pager()
-
-    # Save Persistance
-    if cmt.ARGS['cron'] or cmt.ARGS['persist']:
-        cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
-        cmt.PERSIST.save()
-        debug2("Persist saved")
-    else:
-        debug2("Persist: save disabled")
-
-    
+    report.dispatch_alerts()
     report.print_recap()
+
+    cmt.PERSIST.save()
+
