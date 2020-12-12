@@ -18,29 +18,17 @@ requests.packages.urllib3.disable_warnings()
 import cmt_globals as cmt
 # from cmt_globals import *
 
+from cmt_helper import bcolors
+from cmt_helper import logit, abort
+from cmt_helper import is_timeswitch_on
+
+
 
 # ----------------------------------------------------------
-# logit
+# DEBUG
 # ----------------------------------------------------------
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+# TODO : migrate to cmt_helper.py (check ARGS access)
 
-def logit(line):
-    now = datetime.datetime.today().strftime("%Y/%m/%d - %H:%M:%S")
-    print(now + ' : ' + line)
-
-def abort(line):
-    now = datetime.datetime.today().strftime("%Y/%m/%d - %H:%M:%S")
-    print(now + ' : ' + line)
-    print("ABORTING.")
-    sys.exit()
 
 def debug(*items):
     if cmt.ARGS['debug'] or cmt.ARGS['debug2']:
@@ -49,76 +37,6 @@ def debug(*items):
 def debug2(*items):
     if cmt.ARGS['debug2']:
         print('DEBUG2:',' '.join(items))
-
-# ----------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------
-
-def is_timeswitch_on(myconfig):
-    ''' check if a date/time time range is active
-        myconfig can be :
-              yes
-              no
-              after YYYY-MM-DD hh:mm:ss
-              before YYYY-MM-DD hh:mm:ss
-              hrange  hh:mm:ss hh:mm:ss
-              ho   (Mon-Fri 8h30-18h)
-              hno
-        returns True or False if current datatime match myconfig
-    '''
-
-    # yaml gotcha
-    myconfig = str (myconfig)
-
-    if myconfig == "True" or myconfig == "yes" or myconfig == "true":
-        return True
-
-    if myconfig == "False" or myconfig =="no"  or myconfig == "false":
-        return False
-
-    myarray = myconfig.split()
-    action = myarray.pop(0)
-
-    if action  == "after":
-        mynow = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-        target = ' '.join(myarray)
-        #print(mynow)
-        if mynow >= target:
-            return True
-        return False
-
-    if action == "before":
-        mynow = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-        target = ' '.join(myarray)
-        if mynow <= target:
-            return True
-        return False
-
-    if action == "hrange":
-        mynow = datetime.datetime.today().strftime("%H:%M:%S")
-        if mynow >= myarray[0] and mynow <= myarray[1]:
-            return True
-        return False
-
-    if action == "ho":
-        myday  = datetime.datetime.today().strftime("%a")
-        myhour = datetime.datetime.today().strftime("%H:%M:%S")
-        if myday in ["Sat","Sun"]:
-            return False
-        if myhour < "08:30:00" or myhour > "18:00:00":
-            return False
-        return True
-
-    if action == "hno":
-        myday  = datetime.datetime.today().strftime("%a")
-        myhour = datetime.datetime.today().strftime("%H:%M:%S")
-        if myday in ["Mon","Tue","Wed","Thu","Fri"]:
-            if myhour >= "08:30:00" or myhour <= "18:00:00":
-                return False
-        return True
-
-    # default, unknown / no match
-    return False
 
 
 # ------------------------------

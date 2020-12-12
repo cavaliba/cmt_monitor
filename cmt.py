@@ -16,21 +16,21 @@ import cmt_globals as cmt
 
 # shared functions and class
 from cmt_shared import perform_check
-from cmt_shared import logit, debug, debug2, abort, bcolors
+from cmt_shared import debug, debug2
 from cmt_shared import parse_arguments
 from cmt_shared import load_conf
 from cmt_shared import display_version, display_modules
 from cmt_shared import pager_test
 from cmt_shared import is_module_active_in_conf
 from cmt_shared import is_module_allowed_in_args
-from cmt_shared import is_timeswitch_on
 
 from cmt_shared import Report, Check, CheckItem
 from cmt_shared import Persist
 
 from cmt_helper import timeout_handler
-
-
+from cmt_helper import bcolors
+from cmt_helper import logit, abort
+from cmt_helper import is_timeswitch_on
 
 # ------------
 # Main entry
