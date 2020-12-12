@@ -74,7 +74,6 @@ if __name__=="__main__":
         sys.exit()
 
 
-
     # check master switch / CMT disabled ?
     
     ts_global_enable = cmt.CONF['global'].get('enable', 'no')
