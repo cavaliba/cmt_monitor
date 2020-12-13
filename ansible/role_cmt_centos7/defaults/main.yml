@@ -1,2 +1,21 @@
 ---
 # defaults file for cmt_centos7
+# V 1.2.0 - 2020/12 (c) cavaliba.com
+
+cmt_deploy: yes
+
+cmt_local_bin: cmt-1.2.0-centos64.bin
+cmt_local_src: cmt/git
+
+cmt_group: na
+cmt_node: na
+cmt_node_env: na
+cmt_node_role: na
+cmt_node_location: na
+cmt_enable: "yes"
+cmt_enable_pager: "no"
+cmt_alert_max_level: alert
+
+cmt_default_graylog: http://localhost/gelf/
+cmt_alert_pager: https://noname/webhook/
+cmt_test_pager: https://noname/webhook/

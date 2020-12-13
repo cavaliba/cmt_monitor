@@ -85,8 +85,8 @@ if __name__=="__main__":
     report = Report()
     report.print_header()
 
-
-    # LOOP over each individual check in CONF
+    # FIRST LOOP : all individual checks entries in CONF
+    #  => must contain an module parameter
     for checkname in cmt.CONF['checks']:
 
         check_result = perform_check(checkname)
@@ -99,6 +99,28 @@ if __name__=="__main__":
         else:
             # add Check to report
             report.add_check(check_result)
+
+    # SECOND LOOP : alternate configuration
+    # checks are below each modulename entries in CONF
+
+    for modulename in cmt.GLOBAL_MODULE_MAP:
+        if modulename in cmt.CONF:
+            for checkname in cmt.CONF[modulename]:
+#                print("oooo found :", checkname, modulename)
+                check_result = perform_check(checkname, modulename)
+                if type(check_result) is str:
+                    if check_result == "break":
+                        break
+                    elif check_result == "continue":
+                        continue
+                else:
+                    # add Check to report
+                    report.add_check(check_result)
+            # break outer loop as well ; called if inner loop didnt break
+            else:
+                continue
+            break
+
 
     # -- end of check loop --
 

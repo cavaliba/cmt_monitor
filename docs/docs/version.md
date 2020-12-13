@@ -5,6 +5,17 @@ title: version
 # Releases
 
 
+## 1.2.0 - 2020/12/13
+
+    aleternate conf format : 'module' top entries with checks below
+    refactor to cmt_helper.py
+
+
+## 1.1.1 - 2020/12/09 
+
+    bug fixe - parse error if empty remote conf
+    build binary for debian 8 64bits
+
 ## 1.1.0 - 2020/12/06
 
     x module_certificate

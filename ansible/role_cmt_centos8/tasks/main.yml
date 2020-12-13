@@ -1,71 +1,126 @@
 ---
-# tasks file for roles/cmt_centos8
+# tasks file for cmt_centos8
+# V 1.2.0 - 2020/12 (c) cavaliba.com
 
-- name: debug
-  debug: msg="Start CMT deployment"
 
-- name: CMT - copy folder to /opt/cmt_monitor
-  copy:
-    src: cmt_monitor
-    dest: /opt/
-    owner: clevansible
-    group: clevansible
-    mode: '0644'
+- name: CMT - create /opt/cmt
+  file:
+    path: /opt/cmt
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
   tags: role_cmt
 
-- name: CMT - install python requirements
-  become: no
-  pip:
-    requirements: /opt/cmt_monitor/requirements.txt
-    executable: pip3.6
-    extra_args: --user
-  tags: role_cmt, pip
+- name: CMT - create /opt/cmt/conf.d
+  file:
+    path: /opt/cmt/conf.d
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  tags: role_cmt
 
+- name: CMT - create /var/log/cmt.log
+  copy:
+    content: ""
+    dest: /var/log/cmt.log
+    force: no
+    group: root
+    owner: root
+    mode: 0755
+  tags: role_cmt
+
+- name: CMT - create /opt/cmt/cmt.log
+  copy:
+    content: ""
+    dest: /opt/cmt/cmt.log
+    force: no
+    group: root
+    owner: root
+    mode: 0755
+  tags: role_cmt
 
 - name: CMT - create conf.yml
   template:
     src: templates/cmt_conf.yml.j2
-    dest: /opt/cmt_monitor/conf.yml
-    owner: clevansible
-    group: clevansible
-    mode: '0640'
-    backup: yes
-  tags: role_cmt, conf
+    dest: /opt/cmt/conf.yml
+    owner: root
+    group: root
+    mode: '0644'
+    backup: no
+  tags: role_cmt
 
-- name: CMT - create conf.d/ host specific config
+- name: CMT - create conf.d/host specific config
   template:
-    src: files/cmt_{{ inventory_hostname }}.yml
-    dest: /opt/cmt_monitor/conf.d/{{ inventory_hostname }}.yml
-    owner: clevansible
-    group: clevansible
-    mode: '0640'
-    backup: yes
-  tags: role_cmt, conf
+    src: templates/cmt_{{ inventory_hostname }}.yml.j2
+    dest: /opt/cmt/conf.d/{{ inventory_hostname }}.yml
+    owner: root
+    group: root
+    mode: '0644'
+    backup: no
+  tags: role_cmt
 
-- name: CMT - create /var/log/cmt
+- name: CMT - install cmt binay
+  copy:
+    src: "{{ cmt_local_bin }}"
+    dest: /usr/local/bin/cmt
+    owner: root
+    group: root
+    mode: 0755
+  tags: role_cmt
+
+
+- name: CMT - create /opt/cmt/src
   file:
-    path: /var/log/cmt
+    path: /opt/cmt/src
     state: directory
     mode: "0755"
-    owner: clevansible
-    group: clevansible
-  tags: role_cmt, log
+    owner: root
+    group: root
+  tags: role_cmt
+
+- name: CMT - install cmt src
+  copy:
+    src: "{{ cmt_local_src }}/{{ item }}"
+    dest: /opt/cmt/src/
+    owner: root
+    group: root
+    mode: 640
+  with_items:
+    - cmt.py
+    - cmt_globals.py
+    - cmt_shared.py
+    - cmt_helpers.py
+  tags: role_cmt
+
+
+- name: CMT - install cmt src checks
+  copy:
+    src: "{{ cmt_local_src }}/checks"
+    dest: /opt/cmt/src/
+    owner: root
+    group: root
+    mode: 640
+  tags: role_cmt
+
 
 - name: CMT - install logrotate
   copy:
-    src: cmt_logrotate
+    src: files/cmt_logrotate
     dest: /etc/logrotate.d/cmt
     owner: root
     group: root
     mode: '0644'
-  tags: role_cmt, logrotate
+  tags: role_cmt
 
 
 - name: CMT - install crontab
   cron:
-    name: cmt_monitor cavaliba
+    name: cmt
     state: present
-    user: clevansible
-    job: "/usr/bin/python3 /opt/cmt_monitor/cmt.py --report >> /var/log/cmt/cmt.log 2>&1"
-  tags: role_cmt, crontab
+    user: root
+    #job: "/usr/bin/python3 /opt/cmt_monitor/cmt.py --report --alert >> /var/log/cmt/cmt.log 2>&1"
+    job: "/usr/local/bin/cmt --cron >> /opt/cmt/cmt.log 2>&1"
+  tags: role_cmt
 

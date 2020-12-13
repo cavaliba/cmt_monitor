@@ -1,89 +1,184 @@
 ---
-# Cavaliba.com / cmt_monitor / global conf.yml
+# (c) Cavaliba.com  - 2020 -  cmt_monitor / global conf.yml
 
-# -----------------------------
-# Global
-# -----------------------------
 
-cmt_group: {{ cmt_group }}
-cmt_node: {{ inventory_hostname }}
+# ##################################################
+# ### ANSIBLE MANAGED - DO NOT EDIT MANUALLY
+# ##################################################
 
-# -----------------------------
+global:
+  cmt_group: {{ cmt_group }}
+  cmt_node: {{ cmt_node | default(inventory_hostname) }}
+  cmt_node_env: {{ cmt_node_env }}
+  cmt_node_role: {{ cmt_node_role }}
+  cmt_node_location: {{ cmt_node_location }}
+  enable: {{ cmt_enable  }}
+  enable_pager: {{ cmt_enable_pager  }}
+  alert_max_level: {{ cmt_alert_max_level }}
+  #conf_url: http://localhost/cmt/conf/
+  pager_rate_limit: 3600
+  max_execution_time: 50
+  load_confd: yes
+  alert_max_level: alert
+  alert_delay: 180
+
+
 # GELF servers for data reports
 # -----------------------------
 
-graylog_udp_gelf_servers:
-  - name: graylog1
-    host: graylog1.cavaliba.com
-    port: 12201
+metrology_servers:
+  graylog_kheops1:
+    type: graylog_http_gelf
+    url: {{ cmt_default_graylog }}
+    enable: yes
 
-graylog_http_gelf_servers:
-  - name: graylog2
-    url: https://graylog2.cavaliba.com/gelf/
 
-# ---------------------------
 # Teams channels for alerts
 # ---------------------------
 
-teams_channel:
-   - name: alert
-     url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-   - name: test
-     url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+pagers:
 
-# Rate limit message to Teams to max one every XX seconds
-teams_rate_limit: 1800
+  alert:
+    type: team_channel
+    url: {{ cmt_alert_pager }}
+    enable: yes
 
-# ------------------------
-# Available checks
-# ------------------------
+  test:
+    type: team_channel
+    url: {{ cmt_alert_pager }}
+    enable: yes
+
+# Available modules
+# -----------------
+
+modules:
+
+  load:
+    enable: yes
+    #alert_max_level: warn
+    #frequency: 60
+
+  cpu:
+    enable: yes
+
+  memory:
+    enable: yes
+
+  swap:
+    enable: yes
+
+  boottime:
+    enable: yes
+
+  disk:
+    enable: yes
+
+  mount:
+    enable: yes
+
+  process:
+    enable: yes
+
+  url:
+    enable: yes
+
+  ping:
+    enable: yes
+
+  folder:
+    enable: yes
+
+  certificate:
+    enable: yes
+    frequency: 3600
+
+  socket:
+    enable: yes
+
+# checks
+# ------
 
 checks:
-  - load
-  - cpu
-  - memory
-  - swap
-  - boottime
-#  - ntp
-  - disks
-  - urls
-#  - mounts
 
-# ----------------------------
-# Parameters for checks
-# ----------------------------
+# base
 
+  ck_load:
+    module: load
 
+  ck_cpu:
+    module: cpu
 
-disks:
-  - path: /
-    alert: 96
-#  - path: /var/www
-#    alert: 90
-#  - path: /var/log
-#    alert: 95
-#  - path: /home
-#    alert: 95
+  ck_swap:
+    module: swap
 
+  ck_memory:
+    module: memory
 
-urls:
-  - url: http://www.cavaliba.com/
-    name: cavaliba
-    pattern: "Welcome"
-#  - url: http://demo.cavaliba.com/
-#    name: demo
-#    pattern: "Demo"
+  ck_boottime:
+    module: boottime
 
+  ck_disk_root:
+    module: disk
+    path: /
+    alert: 80
 
-mounts:
-  - /
-  - /boot
+  ck_mount_root:
+    module: mount
+    path: /
+
+# process
+
+#  ck_ps_cron:
+#    module: process
+#    psname: crond
+
+#  ck_ps_sshd:
+#    module: process
+#    psname: sshd
+
+#  ck_ps_chronyd:
+#    module: process
+#    psname: chronyd
+
+#  ck_ps_rsyslogd:
+#    module: process
+#    psname: rsyslogd
+
+#  ck_ps_graylog:
+#    module: process
+#    psname: graylog-server
+
+#  ck_ps_mongod:
+#    module: process
+#    psname: mongod
+
+#  ck_ps_nginx:
+#    module: process
+#    psname: nginx
+
+#  ck_ps_java:
+#    module: process
+#    psname: java
+
+# url
+
+#  ck_url_localhost:
+#    module: url
+#    enabled: after 2020-01-01
+#    url: localhost
+#    pattern: "cavaliba"
+#    allow_redirects: yes
+#    ssl_verify: yes
+
+# Certificat
+
+#  ck_cert_cavaliba:
+#    module: certificate
+#    hostname: www.cavaliba.com
+#    port: 443
+#    frequency: 3600
 
 
 # ------------------------------------
-# conf.d/*.yml also included with :
-# - main conf has higher priority
-# - first level lists merged
+# conf.d/*.yml if configurer in global
 # ------------------------------------
-
-

@@ -1,17 +1,42 @@
 Role Name
 =========
 
-A brief description of the role goes here.
-
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
 
 Role Variables
 --------------
+   
+    # group_vars
+    cmt_group: mygroup
+    cmt_node: "{{ inventory_hostname }}"
+    cmt_node_location: my_datacenter
+    cmt_default_graylog: http://my_graylog_server/
+    cmt_alert_pager: not_defined
+    cmt_test_pager: not_defined
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+    ---
+    # defaults
+
+    cmt_deploy: yes
+
+    cmt_local_bin: cmt/cmt-1.2.0-centos64.bin
+    cmt_local_src:  cmt/git
+
+    cmt_group: na
+    cmt_node: na
+    cmt_node_env: na
+    cmt_node_role: na
+    cmt_node_location: na
+    cmt_enable: "yes"
+    cmt_enable_pager: "no"
+    cmt_alert_max_level: alert
+
+    cmt_default_graylog: http://localhost/gelf/
+    cmt_alert_pager: https://noname/webhook/
+    cmt_test_pager: https://noname/webhook/
+
+
+
+
 
 Dependencies
 ------------
@@ -23,9 +48,12 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
+
+    - hosts: vmadmin
+      gather_facts: yes
+
       roles:
-         - { role: username.rolename, x: 42 }
+        - cmt_centos7
 
 License
 -------

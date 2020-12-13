@@ -1,7 +1,7 @@
 CAVALIBA - CMT Monitor 
 ======================
 
-(c) Cavaliba.com 2020 - Version 1.1.2beta - 2020/12/09
+(c) Cavaliba.com 2020 - Version 1.2.0  - 2020/12/13
 
 CMT Monitor is a simple software agent to  :
 
@@ -191,71 +191,11 @@ CMT is provided as-is and no direct support is available at the moment.
 Feel free to drop a note at contact@cavaliba.com anyway.
 
 
-REVISION
+RELEASE
 --------
 
-    2020-06-14 - 0   - initial version
-    2020-06-14 - 0.1 - conf.yml directory from crontab
-    2020-06-14 - 0.2 - added conf.d/*.yml additional configurations
-    2020-06-27 - 0.3 - OO oriented design with CheckItems, Checks, Reports
-    2020-06-27 - 0.4 - check_process
+see RELEASE file.
 
-    2020-08-09 - 0.5
-        check_urls (no warnings, no redirects, msec, no ssl, options per URL)
-        check_mounts
-            option: --available
-        check_pings
-    
-    2020-09-27 - 0.6
-        check (abort) if config file exists
-        check (abort) if no 'checks' item in config
-        ignore (accept) missing conf.d
-        ignore (accept) missing entries in conf: graylog servers
-        timeout when sending http/gelf to graylog + suspended flag if previous errors
-        timeout when sending http to Teams channels
-        conf option : --conf filename
-
-    2020-10-04 - 0.7
-        accept missing check entries in configuration
-        checks : folders (exists, size, #files, max/min age, filename, ...)
-
-    2020-10-20 - 0.8
-        modular refactoring & split : one check per file
-
-    2020-10-25 - 0.9
-        bug: binary version couldn't file local conf.yml (pyinstaller)
-        check_folders : added option 'recursive'
-        documentation framework
-
-    2020-11-17 - 1.0.alpha - not production ready
-
-    2020-11-24 - 1.0.0.RC - new configuration structure
-
-    2020-11-29 - 1.0.0
-        conf : conf.d on/off : global load_confd yes/no
-        remote conf : send group.node as parameters (or as file.txt )  
-        ARG : --debug2
-        ARG : --no-pager-rate-limit
-        ARG : --persist
-        give persist to modules
-        default homedir = /opt/cmt
-        conf: enable_pager for check
-        Pager events contain all alert/warn/notice messages
-        hysteresis up (alert_delay in global/module/check)
-        cmt_node_env [prod,form, pre,qual, test, dev]
-        cmt_node_role: string
-        cmt_node_location
-        Pattern optionnal in module URL
-        removed module_*_status checkItems (not needed any more ; use alert/warning/notice)
-        module url : add "host" option (virtualhost header)
-
-    2020-12-06 - 1.1.0
-        module_certificate
-        module_folder :bug in dir count ; option no_store ; handle single_file
-        ARG : --cron
-        nicer output (summary, humanize)
-        CONF : frequency (--cron) for module and checks
-        module socket
 
 COPYRIGHT
 ---------

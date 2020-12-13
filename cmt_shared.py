@@ -44,16 +44,22 @@ def debug2(*items):
 # perform a single check
 # ------------------------------
 
-def perform_check(checkname, modulename = ""):
+def perform_check(checkname, modulename = None):
 
     debug("Starting check : ", checkname)
 
-    # get conf for this check
-    checkconf = cmt.CONF['checks'][checkname]
+    checkconf = {}
 
-    # get module for this check
-    if modulename == "":
+    # OLD CONF : checks instance contain module name
+    # if no module was given, get module from this check configuration
+    if modulename is None:
+        checkconf = cmt.CONF['checks'][checkname]
         modulename = checkconf.get('module', "unknown")
+    else:
+        # NEW CONF  ( module > checks instance )
+        # get conf for this check
+        checkconf = cmt.CONF[modulename][checkname]
+
     debug("  module : ", modulename)
 
     #Is module in GLOBAL MAP ?

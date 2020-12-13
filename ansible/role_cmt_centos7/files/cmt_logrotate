@@ -1,4 +1,4 @@
-/var/log/cmt/*.log {
+/var/log/cmt.log {
     weekly
     rotate 10
     copytruncate
