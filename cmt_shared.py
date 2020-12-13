@@ -60,7 +60,7 @@ def perform_check(checkname, modulename = None):
         # get conf for this check
         checkconf = cmt.CONF[modulename][checkname]
 
-    debug("  module : ", modulename)
+    #print(checkname, modulename, checkconf)
 
     #Is module in GLOBAL MAP ?
     if not modulename in cmt.GLOBAL_MODULE_MAP:
@@ -325,6 +325,12 @@ def conf_add_top_entries(conf):
             debug("No {} entry in config ; added automatically.".format(item))
             conf[item] = {}
 
+    # new conf format Ver. 1.2.0
+    for item in cmt.GLOBAL_MODULE_MAP:
+        if not item in conf:
+            debug("No {} entry in config ; added automatically.".format(item))
+            conf[item] = {}
+
     return conf
 
 # -----------
@@ -366,13 +372,20 @@ def conf_load_http(url):
 # -----------
 def conf_merge(conf1, conf2):
 
-    debug("merge conf ")
+    debug("merge conf")
     for topitem in cmt.DEFAULT_CONF_TOP_ENTRIES:
         #print("  topitem = ", topitem,  "conf2 = " , conf2[topitem], type)
         #print (type(conf2[topitem]))
         for k in conf2[topitem]:
             #print("k=",k)
             conf1[topitem][k] = conf2[topitem][k]
+
+    # new conf format Ver. 1.2.0
+    for topitem in cmt.GLOBAL_MODULE_MAP:
+        for k in conf2[topitem]:
+            #print("k=",k)
+            conf1[topitem][k] = conf2[topitem][k]    
+
     return conf1
 
 # ------------------
