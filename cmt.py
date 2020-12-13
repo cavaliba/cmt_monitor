@@ -5,6 +5,7 @@ import os
 import sys
 import time
 import signal
+import json
 
 # global variables
 import cmt_globals as cmt
@@ -55,7 +56,8 @@ if __name__=="__main__":
 
     # check config option
     if cmt.ARGS["checkconfig"]:
-        logit("config OK. use --debug to see full config.")
+        print(json.dumps(cmt.CONF, indent=2))
+        print("config OK.")
         sys.exit()
 
     # test if global run is enabled
