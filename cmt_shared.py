@@ -463,7 +463,7 @@ def teams_send(url=None, color="0000FF",title="CMT Alert", message="n/a", origin
         return 200
     # real
     try:
-        r = requests.post(url,headers=headers, data=message, timeout = TEAMS_TIMEOUT)
+        r = requests.post(url,headers=headers, data=message, timeout = cmt.TEAMS_TIMEOUT)
         return r.status_code
     except:
         return 0
