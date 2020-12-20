@@ -14,7 +14,7 @@ import cmt_globals as cmt
 from cmt_shared import perform_check
 from cmt_shared import debug, debug2
 from cmt_shared import parse_arguments
-from cmt_shared import load_conf
+from cmt_shared import load_conf, load_conf_remote
 from cmt_shared import display_version, display_modules
 from cmt_shared import pager_test
 
@@ -42,17 +42,14 @@ if __name__=="__main__":
     # conf.yml and conf.d/*.yml and remote conf (url)
     cmt.CONF = load_conf()
 
-
-    maxexec = cmt.CONF['global'].get("max_execution_time", cmt.MAX_EXECUTION_TIME)
-    # set global timer to limit global duration
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(maxexec)   #  seconds
-
-
     # Persist
     cmt.PERSIST = Persist(file=cmt.DEFAULT_PERSIST_FILE)
-
     lastrun = cmt.PERSIST.get_key("cmt_last_run", 0)
+
+
+    # remote conf / cached conf
+    load_conf_remote(cmt.CONF)
+    
 
     # check config option
     if cmt.ARGS["checkconfig"]:
@@ -86,6 +83,13 @@ if __name__=="__main__":
     # -----------------
     report = Report()
     report.print_header()
+
+
+    maxexec = cmt.CONF['global'].get("max_execution_time", cmt.MAX_EXECUTION_TIME)
+    # set global timer to limit global duration
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(maxexec)   #  seconds
+
 
     # FIRST LOOP : all individual checks entries in CONF
     #  => must contain an module parameter
@@ -129,5 +133,6 @@ if __name__=="__main__":
     report.dispatch_alerts()
     report.print_recap()
 
+    cmt.PERSIST.set_key("cmt_last_run",int(time.time()))
     cmt.PERSIST.save()
 

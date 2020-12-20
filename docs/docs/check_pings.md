@@ -12,7 +12,7 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	Module:
+	modules:
   	  ping:
   	     enable: yes
 
@@ -20,21 +20,19 @@ Enable the module in the configuration :
 
 This check requires additional parameters to define each mount point to be checked :
 
-	# ping
+	# conf.yml
+
+	ping:
+
 	  ping_vm1:
-	    module: ping
 	    host: 192.168.0.1
 	  ping_locahost:
-	    module: ping
 	    host: localhost
 	  www.google.com:
-	    module: ping
 	    host: www.google.com
 	  wwwtest:
-	    module: ping
 	    host: www.test.com    
 	  badname:
-	    module: ping
 	    host: www.averybadnammme_indeed.com  
 
 

@@ -60,11 +60,11 @@ def check_process(c):
             ci = CheckItem('process_cpu',cpu,"cpu time, user", unit='seconds')
             c.add_item(ci)
 
-            c.add_message("{} found ({}) - memory rss {} - cpu {} sec.".format(name, psname, h_mem, cpu ))
+            c.add_message("process {} found ({}) - memory rss {} - cpu {} sec.".format(name, psname, h_mem, cpu ))
             return c
 
     c.alert += 1
-    c.add_message("{} missing ({})".format(name, psname))
+    c.add_message("process {} missing ({})".format(name, psname))
 
     return c
 

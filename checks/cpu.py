@@ -17,5 +17,5 @@ def check_cpu(c):
     i  = CheckItem('cpu',cpu,"CPU Percentage", unit='%')   
     c.add_item(i)
 
-    c.add_message("usage : {} %".format(cpu))
+    c.add_message("cpu usage : {} %".format(cpu))
     return c

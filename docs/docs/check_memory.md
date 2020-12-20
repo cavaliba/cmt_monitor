@@ -12,7 +12,7 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	Module:
+	modules:
   	  memory:
   	     enable: yes
 

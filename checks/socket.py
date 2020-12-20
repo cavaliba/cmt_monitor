@@ -121,7 +121,7 @@ def check_socket(c):
         c.add_item(CheckItem('socket_count',soccount,""))
 
         if socalive == "no":
-            c.add_message("{} {} {} {}/{} not alive (no LISTEN)".format(soclocal, name, sochost, socproto,socport))
+            c.add_message("socket {} {} {} {}/{} not alive (no LISTEN)".format(soclocal, name, sochost, socproto,socport))
             c.alert += 1
             return c
 
@@ -129,7 +129,7 @@ def check_socket(c):
         if connect:
             r = socket_tcp_ping(sochost,socport)
             if not r:
-                c.add_message("{} {} {} {}/{} no response / bad response".format(soclocal, name, sochost, socproto,socport))
+                c.add_message("socket {} {} {} {}/{} no response / bad response".format(soclocal, name, sochost, socproto,socport))
                 c.alert += 1
                 return c
 
@@ -155,7 +155,7 @@ def check_socket(c):
             if not r:
                 socalive = "no"
                 c.add_item(CheckItem('socket_alive',socalive,""))
-                c.add_message("{} {} {} {}/{} no response / bad response".format(soclocal, name, sochost, socproto,socport))
+                c.add_message("socket {} {} {} {}/{} no response / bad response".format(soclocal, name, sochost, socproto,socport))
                 c.alert += 1
                 return c
             else:
@@ -165,7 +165,7 @@ def check_socket(c):
             # use value from counting ESTABLSHED
             c.add_item(CheckItem('socket_alive',socalive,""))
 
-    c.add_message("{} {} {} {}/{} - alive: {} - count: {}".format(soclocal, name, sochost, socproto,socport, socalive, soccount))
+    c.add_message("socket {} {} {} {}/{} - alive: {} - count: {}".format(soclocal, name, sochost, socproto,socport, socalive, soccount))
     return c
 
 

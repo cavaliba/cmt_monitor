@@ -19,11 +19,11 @@ This check can be used from a remote server to monitor various URL and Webservic
 
 ## Enable the module
 
-Enable the module in the configuration :
+Enable the module in the configuration (optional) :
 
     # conf.yml
-
-	Module:
+    
+	modules:
   	  url:
   	     enable: yes
 
@@ -31,21 +31,14 @@ Enable the module in the configuration :
 
 This check requires additional parameters to define each URL to be checked :
 
-	# conf.py
-	# url
-	  www.cavaliba.com:
-	    module: url
-	    enabled: after 2020-01-01
-	    url: https://www.cavaliba.com/
-	    pattern: "Cavaliba"
-	    allow_redirects: yes
-	    ssl_verify: yes
-	    #host: toto
-	  www_non_existing:
-	    module: url
-	    enabled: after 2020-01-01
-	    url: http://www.nonexisting/
-	    #pattern: ""
+	# conf.yml
+	url:
+	    www.cavaliba.com:
+			url               : https://www.cavaliba.com/
+			[pattern]         : "Cavaliba" ; DEFAULT = ""
+			[allow_redirects] : yes ; default = no
+			[ssl_verify]      : yes ; default = no
+			[host]            : optionnal hostname header (Host: xxx)
 
 
 pattern: 

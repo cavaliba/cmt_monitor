@@ -12,16 +12,18 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	Module:
+	modules:
   	  boottime:
   	     enable: yes
 
 ### Add a check
 
-	  boottime:
-	    module: boottime
-	    enable: yes
-	    alert_max_level: alert
+	# conf.yml
+	
+	boottime:
+	  my_boottime
+	  	enable: yes
+	  	alert_max_level: alert
 
 
 ## Additional parameters

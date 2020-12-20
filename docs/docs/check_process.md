@@ -13,7 +13,7 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	Module:
+	modules:
   	  process:
   	     enable: yes
 
@@ -22,28 +22,21 @@ Enable the module in the configuration :
 This check requires additional parameters to define each disk to be checked :
 
 
-	# process
+	process:
 	  redis:
-	    module: process
 	    psname: redis
 	    enable_pager: no
 	  apache:
-	    module: process
 	    psname: httpd
 	  cron:
-	    module: process
 	    psname: cron
 	  ssh:
-	    module: process
 	    psname: sshd
 	  ntp:
-	    module: process
 	    psname: ntpd
 	  mysql:
-	    module: process
 	    psname: mysqld
 	  php-fpm:
-	    module: process
 	    psname: php-fpm
 	    enable_pager: yes
 

@@ -30,9 +30,9 @@ def check_ping(c):
 
 
     if response == 0:
-        c.add_message("{} ok".format(host))
+        c.add_message("ping {} ok".format(host))
     else:
         c.alert += 1
-        c.add_message("{} not responding".format(host))
+        c.add_message("ping {} not responding".format(host))
 
     return c

@@ -12,7 +12,7 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	Module:
+	modules:
   	  mount:
   	     enable: yes
 
@@ -20,13 +20,9 @@ Enable the module in the configuration :
 
 This check requires additional parameters to define each mount point to be checked :
 
-	#mount
+	mount:
 	  mount_root:
-	    module: mount
 	    path: /
-	  mount_mnt:
-	    module: mount
-	    path: /mnt
 
 
 ## Alerts

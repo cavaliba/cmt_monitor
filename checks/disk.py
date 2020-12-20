@@ -31,10 +31,10 @@ def check_disk(c):
     ci = CheckItem('disk_percent',disk[3],"Used (percent)", unit='%')
     if disk[3] > alert_threshold:
         c.alert += 1
-        c.add_message("path : {} - critical capacity ({} %)".format(path,disk[3]))
+        c.add_message("disk {} - critical capacity ({} %)".format(path,disk[3]))
 
     else:
-        c.add_message("path : {} - used: {} % - used: {} - free: {} - total: {} ".format(path, disk[3],h_used, h_free,h_total))
+        c.add_message("disk {} - used: {} % - used: {} - free: {} - total: {} ".format(path, disk[3],h_used, h_free,h_total))
     
     c.add_item(ci)
 

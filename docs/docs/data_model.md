@@ -147,7 +147,6 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     -------------------------------------------
     2020/12/06 - V1.1
 
-
     cmt_socket_name      : string
     cmt_socket_type      : local/remote
     cmt_socket_proto     : tcp/udp

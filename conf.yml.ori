@@ -1,7 +1,5 @@
 ---
 # Cavaliba / cmt_monitor / conf.yml
-# V 1.0.0
-
 # this is the main config file
 
 # Global Section
@@ -16,8 +14,9 @@ global:
   enable: yes
   enable_pager: yes
   conf_url: http://localhost/cmt/conf/
+  #conf_url: http://localhost/cmt/txt/
   pager_rate_limit: 3600
-  max_execution_time: 40
+  max_execution_time: 55
   load_confd: yes
   alert_max_level: alert
   alert_delay: 90

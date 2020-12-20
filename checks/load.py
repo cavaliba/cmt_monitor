@@ -23,5 +23,5 @@ def check_load(c):
     l15.description='CPU Load Average, 15 minutes'
     c.add_item(l15)
     
-    c.add_message("1/5/15 min : {}  {}  {}".format(load[0], load[1], load[2]))
+    c.add_message("load 1/5/15 min : {}  {}  {}".format(load[0], load[1], load[2]))
     return c

@@ -12,14 +12,14 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	Module:
+	modules:
   	  cpu:
   	     enable: yes
 
 ### Add a check
 
+	cpu:
 	  mycpucheck:
-	    module: cpu
 	    enable: yes
 	    alert_max_level: notice
 

@@ -13,16 +13,16 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	Module:
+	modules:
   	  disk:
   	     enable: yes
 
 ### Add a check
 
-    disk_root:
-      module: disk
-      path: /
-      alert: 80
+    disk:
+      disk_root:
+        path: /
+        alert: 80
 
 
 ## Additional parameters

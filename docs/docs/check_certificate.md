@@ -15,19 +15,20 @@ Enable de module in the configuration :
 
     # conf.yml
 
-    Module:
+    modules:
       certificate:
          enable: yes
 
 ## Add a check in the configuration
 
-    a_certificate:
-      module: certificate
-      hostname: hostname.com
-      port: 2718                    # defaults to 443 if not specified
-      alert_in:   1 week            # DEFAULT 3 days ; format  X years Y months ... weeks, days, hours"
-      warning_in: 1 month           # DEFAULT 2 weeks
-      notice_in:  3 months          # DEFAULT 2 months
+    certificate:
+
+      mysite
+        hostname: mysite.com
+        port: 2718             # defaults to 443 if not specified
+        alert_in:   1 week     # DEFAULT 3 days ;  X years Y months Z weeks D days H hours
+        warning_in: 1 month    # DEFAULT 2 weeks
+        notice_in:  3 months   # DEFAULT 2 months
 
 
 hostname (string) and port (integer):

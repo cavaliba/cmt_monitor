@@ -4,11 +4,11 @@ title: configuration
 
 ##  conf.yml
 
-CMT use one or more configuration files to know what kind of checks to perform, what threshold or alert conditions are defined, and to which remote server the collected data must be sent.
+CMT uses one or more configuration files to know what kind of checks to perform, what threshold or alert conditions are defined, and to which remote server the collected data must be sent.
 
 The YAML file `conf.yml` is the standard configuration file for CMT.
 
-By default, it is located next to `cmy.py` or `cmt` binay program.
+By default, it is located in /opt/cmt/conf.yml or next to `cmy.py` program.
 
 
 ## --conf myconf.yml  option
@@ -21,15 +21,40 @@ This let you have different execution contexts of CMT on the same Server.
 
 ## Folder conf.d/
 
-Every file in the conf.d/ folder next to the conf.yml is merged into the configuration at run time. This design helps manage a bigger configuration with devops / deployment tools like Ansible.
+Every taml file in the conf.d/ folder next to the conf.yml is merged into the configuration at run time. This design helps manage a bigger configuration with devops / deployment tools like Ansible.
+
+This feature can be disabled in the main configuration file :
+
+	global:
+		load_confd: yes
 
 When deploying a new component on a CMT monitored system which needs more monitoring (process, socket, path, response time, urls availabity, ...) just drop a file in the conf.d folder with additionnal checks to perform.
 
-Each additional file must be a valid
+Each additional file must be a valid CMT yaml file.
+
+
+## remote configuration
+*new 1.2.1*
+
+CMT can fetch a remote configuration file according to the global configuration :
+
+	global:
+  		conf_url: http://localhost/txt/
+  		conf_url: http://localhost/api/
+
+This remote configuration - if found - is merged in the main yaml file(and conf.d/*). This feature lets you use a central repository for additional configurations to enable/disable/suspend checks centrally, etc.
+
+If the conf_url ends with `/txt/`, CMT will append a /group_node.txt to the rquested URL. You can thus manage configuration remotely with simple text files on any static web server.
+
+Any other conf_url value will be queried as specified. It can be a specific file or any API endpoint.
+
+CMT will always append a `?group=group&node=node` string to conf_url to inform a remote API about the requesting node.
+
+Remote configuration is persisted locally in case of no-response from remote server. Persistance last for one day at most of no reply. After that period, cached remote conf is discarded.
 
 ## Folder structure
 
-	/opt/cmt_monitor$ tree -L 1
+	/opt/cmt/$ tree -L 1
 	.
 	├── cmt
 	├── cmt.py
@@ -50,7 +75,7 @@ The complete configuration for a CMT run has 5 sections :
 2. a metrology server section
 3. a pager servers section
 4. a module section  to enable/disable various modules
-5. a checks section with all  individual checks parameters (module dependent)
+5. checks sections with all  individual checks parameters (module dependent)
 
 
 ## Configuration Reference 
@@ -86,13 +111,13 @@ The complete configuration for a CMT run has 5 sections :
 	  [cmt_node_role]      : string ; appli_front_1, db_3
 	  [cmt_node_location]  : string, geographical position
 
-	  [enable]             : timerange ; DEFAULT = yes; master switch (no inheritance)
+	  [enable]             : timerange ; DEFAULT = yes; master switch (no inheritance below)
 	  [enable_pager]       : timerange ; DEFAULT = no ; master switch (no inheritance)
 	  [pager_rate_limit]   : seconds ; default 7200
-	  [conf_url]           : https://.../api/  (/group_node.txt if url ends by /)
-	  [max_execution_time] : seconds ; DEFAULT 5
+	  [conf_url]           : https://.../api/  (/group_node.txt if url ends by /txt/) + ?group=group&node=node
+	  [max_execution_time] : seconds ; DEFAULT 55
 	  [load_confd]         : yes/no ; DEFAULT no
-	  [alert_max_level]    : alert, warn, notice   ; lower priority ;
+	  [alert_max_level]    : alert, warn, notice  ; levels are shifted to respect this limit.
 	  [alert_delay]        : delay before transition to alert (if alert) ; seconds/DEFAULT 120 
 
 
@@ -106,12 +131,12 @@ The complete configuration for a CMT run has 5 sections :
 	      type: graylog_udp_gelf
 	      host: 10.10.10.13
 	      port: 12201
+	      [enable]                : timerange ; default = yes ; master switch      
+
 	  graylog_test2:
 	      type: graylog_tcp_gelf
 	      url: http://10.10.10.13:8080/gelf
-
 	      [enable]                : timerange ; default = yes ; master switch      
-	      ()secret_key
 
 	----------------------
 	Pager services
@@ -122,15 +147,11 @@ The complete configuration for a CMT run has 5 sections :
 	     type            : team_channel
 	     url             : Teams channel URL
 	     [enable]        : timerange ; DEFAULT = no ; master switch / no inheritance
-	     ()secret_key    : 
-	     ()add_tags
-	         tag: value
-	         tag: value
+
 	  test               : mandatory 'test' entry for ARG --pagertest
 	     type            : team_channel
 	     url             :   
-	     [enable]        : timerange ; DEFAULT = no  test:
-	     ()secret_key    : 
+	     [enable]        : timerange ; DEFAULT = no 
 
 
 	---------------------------
@@ -151,96 +172,20 @@ The complete configuration for a CMT run has 5 sections :
 	--------------------------
 	Checks instances
 	--------------------------
+	
+	module                  : module name
 
-	general check config
-	---------------------
-	checks
-	  checkname             : string - unique id
-	      module            : module name (load, cpu, url)
-	      arg1              : specific to module
-	      arg2              : specific to module  
-	      (...)
+	  checkname             : string - unique id in the module scope
 
-	      [enable]          : timerange ; default yes  
-	      [alert_max_level] : alert, warn, notice (scales down) ; overwrites global / module
-	      [enable_pager]    : timerange ; default NO ; need global/pager to be enabled 
-	      [alert_delay]     : delay before alert ; DEFAULT 120 
+          [enable]          : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
+	      [alert_max_level] : alert, warn, notice (scale down)  ; overwrites global & module entry
+	      [enable_pager]    : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
+	      [alert_delay]     : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
 	      [frequency]       : min seconds between runs ; needs --cron in ARGS ; overrides module config
 
-
-	specific check options
-	----------------------
-	load:
-	  module : load
-
-	cpu:
-	  module : cpu
-
-	swap:
-	  module : swap
-
-	memory:
-	  module : memory
-
-	boottime
-	  module : boottime  
-
-	mount:
-	  module        : mount
-	  path          : /path/to/mountpoint
-
-	disk:
-	  module        : disk
-	  path          : /absolute/path
-	  alert         : INT [percent before alert]
-
-	process
-	  module        : process
-	  psname        : string  (system process name)
-
-	url:
-	  module            : url
-	  url               : https://www.cavaliba.com/
-	  [pattern]         : "Cavaliba" ; DEFAULT = ""
-	  [allow_redirects] : yes ; default = no
-	  [ssl_verify]      : yes ; default = no
-	  [host]            : optionnal hostname header (Host: xxx)
-
-
-	ping
-	   module          : ping
-	   host            : 192.168.0.1
-	 
-
-	folder
-	  module            : folder
-	  folder_name       : string, unique value
-	  path              : /path/to/folder
-	  recursive         : yes  ; default = no
-	  ()[]filter: *.txt : TODO 
-	  [target:
-	     files_max       : 400
-	     files_min       : 2
-	     size_max:       : (folder)
-	     size_min:       : (folder)      
-	     age_max:        : seconds, (file)
-	     age_min:        : seconds (file)
-	     has_files: 
-	         - filename1
-	         - filename2
-	     ()min_bytes:    : TODO (file)
-	     ()max_bytes:    : TODO
-	   ]
-
-
-	certificate
-	  module: certificate
-	  hostname: hostname.com
-	  port:                         # defaults to 443 if not specified
-	  alert_in:   1 week            # DEFAULT 3 days ; format  X years Y months ... weeks, days, hours"
-	  warning_in: 1 month           # DEFAULT 2 weeks
-	  notice_in:  3 months          # DEFAULT 2 months
-
+	      arg1              : specific to module (see doc for each module)
+	      arg2              : specific to module  
+	      (...)
 
 
 ## Global Section
@@ -358,6 +303,8 @@ Available moules
 	  - process
 	  - pings
 	  - folders
+	  - certificate
+	  - socket
 
 
 ## Specific Checks configuration
@@ -370,7 +317,6 @@ See the various document (from the sidebar) for each check/module configuration.
 	
 	---
 	# Cavaliba / cmt_monitor / conf.yml
-	# V 1.0.0
 
 	# Global Section
 	# --------------
@@ -468,51 +414,48 @@ See the various document (from the sidebar) for each check/module configuration.
 	# List of checks to perform 
 	# --------------------------
 
-	checks:
+	load:
 
-	# load
 	  my_load:
-	    module: load
 	    enable: yes
 	    alert_max_level: alert
 
-	# cpu
+	cpu
+
 	  my_cpu:
-	    module: cpu
 	    enable: yes
 	    alert_max_level: alert
 
-	# memory
+	memory
+
 	  my_memory:
-	    module: memory
 	    enable: yes
 	    alert_max_level: alert
 
-	# boottime
-	  boottime:
-	    module: boottime
+	boottime
+
+	  my_boottime:
 	    enable: yes
 	    alert_max_level: alert
 
-	# swap
+	swap
+
 	  my_swap:
-	    module: swap
 	    enable: yes
 	    alert_max_level: alert
 
-	# disk  
+	disk  
+
 	  my_disk_root:
-	    module: disk
 	    path: /
 	    alert: 80
 	  my_disk_boot:
-	    module: disk
 	    path: /boot
 	    alert: 90
 
-	# url
+	url
+
 	  main_website:
-	    module: url
 	    enabled: after 2020-01-01
 	    url: https://www.cavaliba.com/
 	    pattern: "Cavaliba"
@@ -520,65 +463,53 @@ See the various document (from the sidebar) for each check/module configuration.
 	    ssl_verify: yes
 	    #host: toto
 	  www_non_existing_for_test:
-	    module: url
 	    enabled: after 2020-01-01
 	    url: http://www.nonexisting/
 	    #pattern: ""
 
 
-	#mount
+	mount
+
 	  my_mount_root:
-	    module: mount
 	    path: /
 	  my_mount_mnt:
-	    module: mount
 	    path: /mnt
 
-	# process
+	process
+
 	  redis:
-	    module: process
 	    psname: redis
 	    enable_pager: no
 	  apache:
-	    module: process
 	    psname: httpd
 	  cron:
-	    module: process
 	    psname: cron
 	  ssh:
-	    module: process
 	    psname: sshd
 	  ntp:
-	    module: process
 	    psname: ntpd
 	  mysql:
-	    module: process
 	    psname: mysqld
 	  php-fpm:
-	    module: process
 	    psname: php-fpm
 	    enable_pager: yes
 
-	# ping
+	ping
+
 	  ping_vm1:
-	    module: ping
 	    host: 192.168.0.1
 	  ping_locahost:
-	    module: ping
 	    host: localhost
 	  ping_google:
-	    module: ping
 	    host: www.google.com
 	  wwwtest:
-	    module: ping
 	    host: www.test.com    
 	  badname:
-	    module: ping
 	    host: www.averybadnammme_indeed.com  
 	    
-	# folder
+	folder
+
 	  folder_mytmp:
-	    module: folder
 	    path: /tmp
 	    alert_max_level: alert
 	    #alert_delay: 30
@@ -594,8 +525,46 @@ See the various document (from the sidebar) for each check/module configuration.
 	            - secret.pdf
 	            #- secret2.pdf
 	  folder_number2:
-	    module: folder
 	    path: /missing
+
+
+	certificate:
+
+	  cert_google:
+	    hostname: google.com
+	    port: 443
+	    alert_in: 1 week 
+	    warning_in: 3 months
+	    notice_in: 6 months
+
+	  duck:
+	    hostname: duckduckgo.com
+	    alert_in: 1 week
+
+	  broken:
+	    hostname: duckduckgo.com
+	    port: 80
+	    alert_in: 2 week
+
+	  yahoo:
+	    hostname: yahoo.com
+	    port: 443
+	    alert_in: 2 week
+
+	socket:
+
+	  redis:
+	    socket: local tcp 6379
+	    #socket: local tcp port | remote tcp host port
+	    connect: yes
+	    #send: 
+	    #pattern:
+
+	  www_google:
+	    socket: remote www.google.com tcp 443
+	    connect: yes
+	    #send: 
+	    #pattern:
 
 
 	# ---------------------------------------------------------
@@ -604,3 +573,13 @@ See the various document (from the sidebar) for each check/module configuration.
 
 
 
+## Alternate / deprecated checks structure
+
+You can specficy individual checks in the following (deprecated) format:
+
+    checks:
+         my_checkname:
+             module: module_name
+             arg1: value1
+             arg2: value2 
+             (...)

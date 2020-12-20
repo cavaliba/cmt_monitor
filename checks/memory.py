@@ -30,6 +30,6 @@ def check_memory(c):
     c.add_item(m4)
 
 
-    c.add_message("used {} % - used {} - avail {} - total {}".format(memory.percent, h_used, h_avail, h_total) )
+    c.add_message("mem used {} % - used {} - avail {} - total {}".format(memory.percent, h_used, h_avail, h_total) )
 
     return c

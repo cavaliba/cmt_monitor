@@ -58,7 +58,7 @@ def check_folder(c):
 
     if not os.path.exists(path):      
         c.alert += 1
-        c.add_message("{} missing".format(path))       
+        c.add_message("folder {} missing".format(path))       
         return c
 
     # scan
@@ -103,7 +103,7 @@ def check_folder(c):
 
     else:
         c.warn = 1
-        c.add_message("{} ({}) is not a dir / nor a file".format(name, path))
+        c.add_message("folder {} ({}) is not a dir / nor a file".format(name, path))
         return c
 
     # file count
@@ -142,7 +142,7 @@ def check_folder(c):
         tgcount += 1
         if s_count < targets['files_min']:
             c.alert += 1
-            c.add_message ("{} :  too few files ({})".format(path,s_count))
+            c.add_message ("folder {} :  too few files ({})".format(path,s_count))
             return c
 
     # target : files_max: 23
@@ -150,7 +150,7 @@ def check_folder(c):
         tgcount += 1
         if s_count > targets['files_max']:
             c.alert += 1
-            c.add_message ("{} : too many files ({})".format(path,s_count))
+            c.add_message ("folder {} : too many files ({})".format(path,s_count))
             return c
 
     # target : size_max (folder max bytes)
@@ -158,7 +158,7 @@ def check_folder(c):
         tgcount += 1
         if s_size > targets['size_max']:
             c.alert += 1
-            c.add_message("{} : too big ({})".format(path,s_size))
+            c.add_message("folder {} : too big ({})".format(path,s_size))
             return c            
 
     # target : size_min (folder min bytes)
@@ -166,7 +166,7 @@ def check_folder(c):
         tgcount += 1
         if s_size < targets['size_min']:
             c.alert += 1
-            c.add_message("{} : too small ({})".format(path,s_size))
+            c.add_message("folder {} : too small ({})".format(path,s_size))
             return c            
 
     # target : age_max: 
@@ -175,7 +175,7 @@ def check_folder(c):
         if s_minage != -1:
             if int(now - s_minage) > targets ['age_max']:
                 c.alert += 1
-                c.add_message("{} : some files too old ({} sec)".format(path,int(now - s_minage)))
+                c.add_message("folder {} : some files too old ({} sec)".format(path,int(now - s_minage)))
                 return c                
 
     # target : age_min: 
@@ -184,11 +184,11 @@ def check_folder(c):
         if s_maxage != 0:
             if int(now - s_maxage) < targets ['age_min']:
                 c.alert += 1
-                c.add_message("{} : some files too young ({} sec)".format(path,int(now - s_maxage)))
+                c.add_message("folder {} : some files too young ({} sec)".format(path,int(now - s_maxage)))
                 return c   
 
     if no_store:
-        c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(
+        c.add_message("folder {} ({}) OK - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(
             name, path, s_count, s_dirs, s_size, h_size, tgcount, tgtotal ))
         return c
 
@@ -200,9 +200,9 @@ def check_folder(c):
         for f in flist:
             if f not in s_files:
                 c.alert += 1
-                c.add_message("{} : expected file not found ({})".format(path,f))
+                c.add_message("folder {} : expected file not found ({})".format(path,f))
                 return c
 
-    c.add_message("{} ({}) ok - {} files, {} dirs, {} bytes - targets {}/{}".format(
+    c.add_message("folder {} ({}) OK - {} files, {} dirs, {} bytes - targets {}/{}".format(
         name, path, s_count, s_dirs, s_size, tgcount, tgtotal))
     return c

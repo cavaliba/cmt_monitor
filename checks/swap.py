@@ -20,5 +20,5 @@ def check_swap(c):
     c.add_item(m3)
 
 
-    c.add_message("used: {} % /  {} - total {}".format(swap.percent, h_used, h_total))
+    c.add_message("swap used: {} % /  {} - total {}".format(swap.percent, h_used, h_total))
     return c

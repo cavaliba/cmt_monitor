@@ -1,7 +1,7 @@
 CAVALIBA - CMT Monitor 
 ======================
 
-(c) Cavaliba.com 2020 - Version 1.2.0  - 2020/12/13
+(c) Cavaliba.com 2020 - Version 1.2.1  - 2020/12/20
 
 CMT Monitor is a simple software agent to  :
 
@@ -70,7 +70,7 @@ see help
 setup from binary
 -----------------
 
-    sudo cp cmt.bin /usr/local/bin/cmt
+    sudo cp cmt.###.bin /usr/local/bin/cmt
     sudo chown root:root /usr/loca/bin/cmt
     sudo chmod 755 /usr/local/bin/cmt
     $ cmt --version
@@ -176,7 +176,7 @@ Available Modules
 
 REFERENCE
 ---------
-See included file REFERENCE.txt
+See included file docs/
 
 
 LICENSE

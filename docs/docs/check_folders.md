@@ -15,7 +15,7 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	Module:
+	modules:
   	  folder:
   	     enable: yes
 
@@ -23,24 +23,27 @@ Enable the module in the configuration :
 
 This check requires additional parameters to define each FOLDER to be checked :
 
-	# conf.py
-	folders:
-	  - path: /tmp
-	    (OPTIONAL)name: mytmp
-	    (OPTIONAL)recursive: yes/no
-	    target:
-	       age_min: 120       (youngest file)
-	       age_max: 3600      (oldest file)
-	       files_min: 3    
-	       files_max: 10
-	       size_min: 100000   (folder total)
-	       size_max: 10       (folder total)
-	       has_files:
-	            - aaa
-	            - bbb
-	  - path: /tmp/doesnt_exist
-	    name: numbertwo
+	# conf.yml
+	
+	folder:
 
+      my_folder_name
+		  path              : /path/to/folder
+		  [recursive]       : yes/no ; default = no
+	      [no_store]        : yes/no ; default no ; don't store the filelist in memory (big dirs)
+		  [target:
+		     files_max       : 400
+		     files_min       : 2
+		     size_max:       : (folder)
+		     size_min:       : (folder)      
+		     age_max:        : seconds, (file)
+		     age_min:        : seconds (file)
+		     has_files: 
+		         - filename1
+		         - filename2
+		     ()min_bytes:    : TODO (file)
+		     ()max_bytes:    : TODO
+		   ]
 
 
 - `path`: the path to the folder

@@ -20,29 +20,27 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	Module:
+	modules:
   	  socket:
   	     enable: yes
 
 ## Additional parameters
 
-
-	mysocket:
-	   module            : socket
-	   socket            : local tcp port | remote host tcp port
-	   connect           : yes/no ; default no for local, yes for remote
+	socket:
+	    mysocket:
+	       socket       : local tcp port | remote host tcp port
+	       connect      : yes/no ; default no for local, yes for remote
 
 Example
 
-	redis:
-	    module: socket
-	    socket: local tcp 6379
-	    connect: yes
+	socket:
+		redis:
+		    socket: local tcp 6379
+		    connect: yes
 
-	google:
-	    module: socket
-	    socket: remote www.google.com tcp 443
-	    connect: yes
+		google:
+		    socket: remote www.google.com tcp 443
+		    connect: yes
 
 
 ## Alerts

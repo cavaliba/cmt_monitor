@@ -211,16 +211,10 @@ def parse_arguments():
 # Configuration management
 # ------------------------------------------------------------
 def load_conf():
-
     debug("Load conf")
-
     conf = load_conf_master()
-    conf = conf_add_default_modules(conf)
-    conf = load_conf_dirs(conf)
-    conf = load_conf_remote(conf)
-
+    load_conf_dirs(conf)  # includes merge
     return conf
-
 
 
 def load_conf_master():
@@ -240,7 +234,8 @@ def load_conf_master():
 
     # load master conf
     conf = conf_load_file(config_file)
-    conf = conf_add_top_entries(conf)
+    conf_add_top_entries(conf)
+    conf_add_default_modules(conf)
 
     return conf
 
@@ -267,18 +262,18 @@ def load_conf_dirs(conf):
     for item in os.scandir(config_dir):
         if item.is_file(follow_symlinks=False):
             if item.name.endswith('.yml'):
-                debug2("Additionnal config file found : ",item.path)
+                debug("Additionnal config file found : ",item.path)
                 conf2 = conf_load_file(item.path)
-                conf2 = conf_add_top_entries(conf2)
-                conf = conf_merge(conf, conf2)
+                conf_add_top_entries(conf2)
+                conf_merge(conf, conf2)
 
     return conf
 
-
+# ---
 def load_conf_remote(conf):
 
     debug("Load remote conf")
-
+    
     # load remote config from conf_url parameter
     if 'conf_url' in conf['global']:
 
@@ -286,35 +281,48 @@ def load_conf_remote(conf):
         gro = conf['global'].get("cmt_group","nogroup")
         nod = conf['global'].get("cmt_node","nonode")
 
-        # if url[-1] == '/':
-        #     url = url + "{}_{}.txt".format(gro,nod)
+        if url.endswith("/txt/"):
+             url = url + "{}_{}.txt".format(gro,nod)
         url = url + "?group={}&node={}".format(gro,nod)
         
         debug("Remote config URL : ", url)
 
 
-        text_conf2 = conf_load_http(url)
-        conf2 = yaml.safe_load(text_conf2)
-        if not type(conf2) is dict:
-            conf2 = {}
-        # if conf2 is None :
-        #     conf2={}
-        conf2 = conf_add_top_entries(conf2)
-        conf = conf_merge(conf, conf2)
+        remote_txt = conf_load_http(url)
+        remote_conf = None
+
+        if remote_txt is not None:
+            remote_conf = yaml.safe_load(remote_txt)
+            if not type(remote_conf) is dict:
+                remote_conf = None
+
+        cachedconf = cmt.PERSIST.get_key("remote_conf_cache", None)
+        cachedconf_age = cmt.PERSIST.get_key("remote_conf_cache_age", 0)
+        
+        if int ( time.time() - cachedconf_age) > 86400:
+            # too old
+            cachedconf = None
+
+        if remote_conf is None:
+            remote_conf = cachedconf
+            
+        if remote_conf is not None:
+            cmt.PERSIST.set_key("remote_conf_cache", remote_conf)
+            cmt.PERSIST.set_key("remote_conf_cache_age", int (time.time()) )
+            cmt.PERSIST.save()
+            conf_add_top_entries(remote_conf)
+            conf_merge(conf, remote_conf)
 
     debug("Configuration loaded")
     debug2(json.dumps(conf, indent=2))
 
-    return conf
 
 # -----------
 def conf_add_default_modules(conf):
 
     for key in cmt.GLOBAL_MODULE_MAP:
-        #print("  - ", key )
         if key not in conf['modules']:
             conf['modules'][key] = {}
-    return conf
 
 # -----------
 def conf_add_top_entries(conf):
@@ -322,16 +330,14 @@ def conf_add_top_entries(conf):
     # add missing top entries
     for item in cmt.DEFAULT_CONF_TOP_ENTRIES:
         if not item in conf:
-            debug("No {} entry in config ; added automatically.".format(item))
+            debug2("No {} entry in config ; added automatically.".format(item))
             conf[item] = {}
 
     # new conf format Ver. 1.2.0
     for item in cmt.GLOBAL_MODULE_MAP:
         if not item in conf:
-            debug("No {} entry in config ; added automatically.".format(item))
+            debug2("No {} entry in config ; added automatically.".format(item))
             conf[item] = {}
-
-    return conf
 
 # -----------
 # load a single file
@@ -345,8 +351,6 @@ def conf_load_file(config_file):
     # # verify content
     if conf is None:
         return {}
-    #    abort("Bad config; Exiting.")
-    #     sys.exit()
 
     return conf
 
@@ -363,30 +367,29 @@ def conf_load_http(url):
         # real
         try:
             r = requests.get(url,headers=headers, timeout = cmt.REMOTE_CONFIG_TIMEOUT)
-            result = r.text
         except:
-            result = "---\n"
-        debug("remote conf:",result)
-        return result
+            debug("Load remote conf failed : {}".format(r.status_code) )
+            return None
+        
+        if r.status_code != 200:
+            debug("Load remote conf failed : {}".format(+ r.status_code) )
+            return None
+
+        debug("Load remote conf OK : ",r.text)
+        return r.text
 
 # -----------
 def conf_merge(conf1, conf2):
 
     debug("merge conf")
     for topitem in cmt.DEFAULT_CONF_TOP_ENTRIES:
-        #print("  topitem = ", topitem,  "conf2 = " , conf2[topitem], type)
-        #print (type(conf2[topitem]))
         for k in conf2[topitem]:
-            #print("k=",k)
             conf1[topitem][k] = conf2[topitem][k]
 
     # new conf format Ver. 1.2.0
     for topitem in cmt.GLOBAL_MODULE_MAP:
         for k in conf2[topitem]:
-            #print("k=",k)
             conf1[topitem][k] = conf2[topitem][k]    
-
-    return conf1
 
 # ------------------
 def is_module_allowed_in_args(name):
@@ -644,9 +647,7 @@ class Persist():
         if not cmt.ARGS['cron'] and not cmt.ARGS['persist']:
             debug("Persist: save disabled")
             return
-        
-        self.set_key("cmt_last_run",int(time.time()))
-        
+                
         data = json.dumps(self.dict, indent=2)
         try:
             with open(self.file,"w") as fi:
