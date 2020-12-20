@@ -2,6 +2,12 @@ RELEASE.md
 ==========
 
 
+## 1.2.1 - 2020/12/20
+
+    bug fixe cmt.PAGER TIMEOUT
+    Persist remote conf
+    remoteconf type (/txt/group_node.txt vs api )
+
 
 ## 1.2.0 - 2020/12/13
 

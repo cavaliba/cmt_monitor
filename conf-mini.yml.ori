@@ -1,20 +1,15 @@
 ---
 
-# minimal CMT 1.0 configuration
+# minimal CMT configuration
 # for CLI usage
 
 global:
   cmt_group: minidev
   cmt_node: minihost
   enable: yes
-
-#modules:
-#  load:
-#    enable: yes
-
-checks:
+  
+load:
   my_load:
-    module: load
-
+    enable: yes
 
     
