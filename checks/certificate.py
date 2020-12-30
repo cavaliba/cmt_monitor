@@ -31,7 +31,7 @@ def check_certificate(c):
 
     hostdisplay = "{}:{}".format(hostname,port)
 
-    c.add_item(CheckItem("certificate_name", c.name, unit=""))
+    c.add_item(CheckItem("certificate_name", c.check, unit=""))
 
     c.add_item(CheckItem("certificate_host", hostdisplay, ""))
     #c.add_item(CheckItem("certificate_port", port, ""))

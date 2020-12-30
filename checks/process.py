@@ -23,7 +23,7 @@ def check_process(c):
 
     # real check
 
-    name = c.name
+    name = c.check
     psname = c.conf['psname']
 
     #{'name': 'python3', 'cpu_times': pcputimes(user=0.39, system=0.3, 
@@ -33,7 +33,7 @@ def check_process(c):
     #for proc in psutil.process_iter(['pid', 'name', 'username','cpu_times','memory_info']):
     #     #print(proc.info)
 
-    ci = CheckItem('process_name',name,"")
+    ci = CheckItem('process_name',psname,"")
     c.add_item(ci)
 
     

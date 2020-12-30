@@ -85,7 +85,7 @@ def perform_check(checkname, modulename = None):
 
     
     # create check object
-    check_result = Check(module=modulename, name=checkname, conf = checkconf)
+    check_result = Check(module=modulename, check=checkname, conf = checkconf)
 
     # verify frequency in cron mode
     if cmt.ARGS['cron']:
@@ -514,7 +514,7 @@ def build_gelf_message(check):
     graylog_data += '"cmt_node_location":"{}",'.format(check.node_location)
 
     graylog_data += '"cmt_module":"{}",'.format(check.module)
-    graylog_data += '"cmt_check":"{}",'.format(check.module)    # deprecated
+    graylog_data += '"cmt_check":"{}",'.format(check.check)    # deprecated
     graylog_data += '"cmt_id":"{}",'.format(check.get_id())
 
     # cmt_message  : Check name + check.message + all items.alert_message
@@ -526,8 +526,20 @@ def build_gelf_message(check):
 
     # check items key/values
     for item in check.checkitems:
-        graylog_data += '"cmt_{}":"{}",'.format(item.name, item.value)
-        debug("Build gelf data : ", str(item.name), str(item.value))
+        # TODO : improve numerical detection : may cause weird elastic indexing issues 
+        # if numerical value is the first one for a new field, e.g. after index rotation
+        # good enough here for the moment.
+        try:
+            tmp = float(item.value)
+            graylog_data += '"cmt_{}":{},'.format(item.name, item.value)
+        except ValueError:
+            graylog_data += '"cmt_{}":"{}",'.format(item.name, item.value)
+        
+        debug2("Build gelf data : ", str(item.name), str(item.value))
+
+
+    # notifications
+    graylog_data += '"cmt_notification":{},'.format(check.get_notification())
 
     # cmt_alert ?
     if check.alert > 0:
@@ -552,7 +564,6 @@ def build_gelf_message(check):
 
 
     graylog_data = '{' + graylog_data + '}'
-
     return graylog_data
 
 
@@ -709,7 +720,7 @@ class Check():
        - Pager alerts are sent globally at the Report level.
     '''
 
-    def __init__(self, module="nomodule", name="noname", conf = {}):
+    def __init__(self, module="nomodule", check="noname", conf = {}):
 
         self.group = cmt.CONF['global'].get('cmt_group','nogroup')
         self.node = cmt.CONF['global'].get('cmt_node', 'nonode')
@@ -717,13 +728,14 @@ class Check():
         self.node_role = cmt.CONF['global'].get('cmt_node_role', 'norole')
         self.node_location = cmt.CONF['global'].get('cmt_node_location', 'nolocation')
         self.module = module
-        self.name = name
+        self.check = check
 
         self.message = []
 
         self.alert = 0
         self.warn = 0
         self.notice = 0
+        # self.notification = alert + warn + notice
         self.checkitems=[]
 
         # set by framework after Check is performed, if pager_enable and alert>0
@@ -767,7 +779,11 @@ class Check():
 
     def get_id(self):
         ''' Returns unique check id '''
-        return "{}.{}.{}.{}".format(self.group, self.node, self.module, self.name)
+        return "{}.{}.{}.{}".format(self.group, self.node, self.module, self.check)
+
+    def get_notification(self):
+        ''' Returns notification has sum of alert + warn + nocive '''
+        return int (self.alert + self.warn + self.notice)
 
     def get_message_as_str(self):
 

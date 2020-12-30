@@ -22,13 +22,13 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_node_role     : string - free
     cmt_node_location : geographical / hosting
     cmt_module        : module name
-    cmt_check         : module name - deprecated
-    cmt_id            : group.node.module.name
+    cmt_check         : check name (user choosen string in config)
+    cmt_id            : group.node.module.check  => primary key
 
     cmt_alert         : yes/no
     cmt_warning       : yes/no
     cmt_notice        : yes/no
-
+    cmt_notification  : int : number of alert/warning/notice 
     cmt_message       : one line for human / full recap / id. compact mode
 
 

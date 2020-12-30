@@ -4,6 +4,11 @@ title: version
 
 # Releases
 
+## 1.3.0alpha - latest
+
+   cmt_check : private name of the check (not module name anymore)
+   
+
 ## 1.2.1 - 2020/12/20
 
     bug fixe cmt.PAGER TIMEOUT

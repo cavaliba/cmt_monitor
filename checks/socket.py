@@ -31,7 +31,7 @@ def socket_tcp_ping(host, port, send='', pattern=''):
 
 def check_socket(c):
 
-    name = c.name
+    name = c.check
     socket = c.conf['socket']
     connect = False 
     send = c.conf.get('send', '')

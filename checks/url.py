@@ -18,7 +18,7 @@ def check_url(c):
     # cmt_url_name
     # cmt_url_msec
 
-    name         = c.name
+    name         = c.check
     url          = c.conf['url']
     pattern      = c.conf.get('pattern',"")
     my_redirects = c.conf.get("allow_redirects",False) == True

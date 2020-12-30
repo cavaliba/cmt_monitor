@@ -40,7 +40,7 @@ def check_folder(c):
 
     path = c.conf['path']
 
-    name = c.name
+    name = c.check
 
     recursive = c.conf.get("recursive",False) == True
 

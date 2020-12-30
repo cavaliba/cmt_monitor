@@ -112,7 +112,6 @@ if __name__=="__main__":
     for modulename in cmt.GLOBAL_MODULE_MAP:
         if modulename in cmt.CONF:
             for checkname in cmt.CONF[modulename]:
-#                print("oooo found :", checkname, modulename)
                 check_result = perform_check(checkname, modulename)
                 if type(check_result) is str:
                     if check_result == "break":
