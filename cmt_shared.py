@@ -366,7 +366,7 @@ def conf_load_http(url):
 
         # real
         try:
-            r = requests.get(url,headers=headers, timeout = cmt.REMOTE_CONFIG_TIMEOUT)
+            r = requests.get(url,headers=headers, verify=False, allow_redirects = False, timeout = cmt.REMOTE_CONFIG_TIMEOUT)
         except:
             debug("Load remote conf failed : {}".format(r.status_code) )
             return None
