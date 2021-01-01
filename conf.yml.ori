@@ -1,9 +1,9 @@
 ---
 # Cavaliba / cmt_monitor / conf.yml
-# this is the main config file
 
-# Global Section
-# --------------
+
+# Global
+# ------
 
 global:
   cmt_group: cavaliba
@@ -13,17 +13,12 @@ global:
   cmt_node_location: Ladig
   enable: yes
   enable_pager: yes
-  conf_url: http://localhost/cmt/conf/
-  #conf_url: http://localhost/cmt/txt/
+  conf_url: http://localhost/txt/
   pager_rate_limit: 3600
-  max_execution_time: 55
+  max_execution_time: 500
   load_confd: yes
   alert_max_level: alert
   alert_delay: 90
-
-# Remote metrology servers
-# ------------------------
-# to store and present data, with alert/warning/notice infos
 
 metrology_servers:
   graylog_test1:
@@ -36,10 +31,6 @@ metrology_servers:
       url: http://10.10.10.13:8080/gelf
       enable: yes
 
-# Pager services
-# --------------
-# to send live alerts to human
-
 pagers:
   alert:
     type: team_channel
@@ -50,174 +41,149 @@ pagers:
     url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
     enable: no
      
-# List of enabled modules
-# -----------------------
+# Modules
+# -------
 modules:
-
   load:
     enable: yes
     alert_max_level: notice
 
   cpu:
     enable: yes
-
+  
   memory:
     enable: yes
+    frequency: 600
 
   swap:
     enable: yes
-
   boottime:
     enable: yes
-
   ntp:
     enable: yes
-
   disk:
     enable: yes
-
   url:
     enable: yes
-
   mount:
     enable: yes
     alert_max_level: notice    
-
   process:
     enable: yes
-
   ping:
     enable: yes
     alert_max_level: warn    
-
   folder:
     enable: yes
     #alert_delay: 70
     #alert_max_level: alert
-
   
   certificate:
     enable: yes
-    frequency: 3600
 
   socket:
     enable: yes
 
+# checks
+# ------
 
-# List of checks to perform 
-# --------------------------
 
-checks:
-
-# load
-  my_load:
-    module: load
+load:
+  myload:
     enable: yes
     alert_max_level: alert
 
-# cpu
-  my_cpu:
-    module: cpu
+cpu:
+  mycpu:
     enable: yes
     alert_max_level: alert
 
-# memory
-  my_memory:
-    module: memory
+memory:
+  mymemory:
+    enable: yes
+    alert_max_level: alert
+    frequency: 10
+
+boottime:
+  myboottime:
     enable: yes
     alert_max_level: alert
 
-# boottime
-  boottime:
-    module: boottime
+swap:
+  myswap:
     enable: yes
     alert_max_level: alert
 
-# swap
-  my_swap:
-    module: swap
-    enable: yes
-    alert_max_level: alert
-
-# disk  
-  my_disk_root:
-    module: disk
+disk:
+  disk_root:
     path: /
     alert: 80
-  my_disk_boot:
-    module: disk
+  disk_boot:
     path: /boot
     alert: 90
 
-# url
-  main_website:
-    module: url
+url:
+
+  www.cavaliba.com:
     enabled: after 2020-01-01
     url: https://www.cavaliba.com/
     pattern: "Cavaliba"
     allow_redirects: yes
     ssl_verify: yes
     #host: toto
-  www_non_existing_for_test:
-    module: url
+
+  www_non_existing:
     enabled: after 2020-01-01
     url: http://www.nonexisting/
     #pattern: ""
 
+  google:
+    url: https://www.google.com/
 
-#mount
-  my_mount_root:
-    module: mount
+  yahoo:
+    url: https://www.yahoo.com/
+    allow_redirects: yes
+    ssl_verify: yes
+
+mount:
+  mount_root:
     path: /
-  my_mount_mnt:
-    module: mount
+  mount_mnt:
     path: /mnt
 
-# process
+process:
   redis:
-    module: process
     psname: redis
     enable_pager: no
   apache:
-    module: process
     psname: httpd
   cron:
-    module: process
     psname: cron
   ssh:
-    module: process
     psname: sshd
   ntp:
-    module: process
     psname: ntpd
   mysql:
-    module: process
     psname: mysqld
   php-fpm:
-    module: process
     psname: php-fpm
     enable_pager: yes
 
-# ping
+ping:
   ping_vm1:
-    module: ping
     host: 192.168.0.1
   ping_locahost:
-    module: ping
     host: localhost
-  ping_google:
-    module: ping
+  www.google.com:
     host: www.google.com
   wwwtest:
-    module: ping
     host: www.test.com    
   badname:
-    module: ping
     host: www.averybadnammme_indeed.com  
     
-# folder
+folder:
+
   folder_mytmp:
-    module: folder
     path: /tmp
     alert_max_level: alert
     #alert_delay: 30
@@ -232,65 +198,64 @@ checks:
        has_files:
             - secret.pdf
             #- secret2.pdf
+
   folder_number2:
-    module: folder
     path: /missing
 
+  a_file:
+    path: /tmp/ab.txt
+    no_store: no
 
-# certificates
-# ------------
+  folder_big_nostore:
+    path: /usr/lib
+    recursive: yes
+    no_store: yes
+
+
+certificate:
 
   cert_google:
-    module: certificate
     hostname: google.com
+    port: 443
     alert_in: 1 week 
     warning_in: 3 months
     notice_in: 6 months
 
   duck:
-    module: certificate
     hostname: duckduckgo.com
     alert_in: 1 week
 
   broken:
-    module: certificate
     hostname: duckduckgo.com
     port: 80
     alert_in: 2 week
 
+  yahoo:
+    hostname: yahoo.com
+    port: 443
+    alert_in: 2 week
 
-# sockets
-# -------
 
-  local_redis:
-    module: socket
+socket:
+
+  redis:
     socket: local tcp 6379
+    #socket: local tcp port | remote tcp host port
     connect: yes
+    #send: 
+    #pattern:
 
   www_google:
-    module: socket
     socket: remote www.google.com tcp 443
     connect: yes
+    #send: 
+    #pattern:
 
 
-# NEW CONF TYPE - Version 1.2.0
-# =============================
-# checks can be defined below each "module:" entries
-
-url:
-  google:
-    url: https://www.google.com/
-
-
-
-
-
-
-
-
-
-# ---------------------------------------------------------
-# if set global,  conf.d/*.yml also included and merged
-# ---------------------------------------------------------
+# ------------------------------------
+# conf.d/*.yml also included with :
+# - main conf has higher priority
+# - first level lists merged
+# ------------------------------------
 
 
