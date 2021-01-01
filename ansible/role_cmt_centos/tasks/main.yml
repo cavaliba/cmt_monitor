@@ -1,6 +1,6 @@
 ---
 # tasks file for cmt_centos8
-# V 1.2.0 - 2020/12 (c) cavaliba.com
+# V 1.3.0 - 2021/01 (c) cavaliba.com
 
 
 - name: CMT - create /opt/cmt
@@ -61,7 +61,7 @@
     backup: no
   tags: role_cmt
 
-- name: CMT - install cmt binay
+- name: CMT - install cmt binay to /usr/local/bin/cmt
   copy:
     src: "{{ cmt_local_bin }}"
     dest: /usr/local/bin/cmt
@@ -70,35 +70,43 @@
     mode: 0755
   tags: role_cmt
 
-
-- name: CMT - create /opt/cmt/src
-  file:
-    path: /opt/cmt/src
-    state: directory
-    mode: "0755"
+- name: CMT - install cmt binay to /opt/cmt/
+  copy:
+    src: "{{ cmt_local_bin }}"
+    dest: /usr/local/bin/cmt
     owner: root
     group: root
+    mode: 0755
   tags: role_cmt
 
-- name: CMT - install cmt src
-  copy:
-    src: "{{ cmt_local_src }}/{{ item }}"
-    dest: /opt/cmt/src/
-    owner: root
-    group: root
-    mode: 640
-  with_items:
-    - cmt.py
-    - cmt_globals.py
-    - cmt_shared.py
-    - cmt_helpers.py
-  tags: role_cmt
+# - name: CMT - create /opt/cmt/src
+#   file:
+#     path: /opt/cmt/src
+#     state: directory
+#     mode: "0755"
+#     owner: root
+#     group: root
+#   tags: role_cmt
+
+# - name: CMT - install cmt src
+#   copy:
+#     src: "{{ cmt_local_src }}/{{ item }}"
+#     dest: /opt/cmt/src/
+#     owner: root
+#     group: root
+#     mode: 640
+#   with_items:
+#     - cmt.py
+#     - cmt_globals.py
+#     - cmt_shared.py
+#     - cmt_helpers.py
+#   tags: role_cmt
 
 
-- name: CMT - install cmt src checks
+- name: CMT - install cmt src to /opt/cmt/src
   copy:
-    src: "{{ cmt_local_src }}/checks"
-    dest: /opt/cmt/src/
+    src: "{{ cmt_local_src }}/cmt"
+    dest: /opt/cmt/src
     owner: root
     group: root
     mode: 640
