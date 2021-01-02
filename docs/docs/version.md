@@ -4,14 +4,13 @@ title: version
 
 # Releases
 
-## 1.3.0 alpha
+## 1.3.0 - 2021/01/02
 
    bugfix : confd_load : ssl_verify, redirect set to False
    new: cmt_check : contains the name of the check instead of the module name (deprecated)
    new: cmt_notification = alert + warn + notice
-   new: GELF fields without quote  for numerical values => no more elastic index templates.
-   
-
+   new: GELF fields without quote for numerical values => no more elastic index templates.
+   code refactor/split modules ; lint
 
 ## 1.2.1 - 2020/12/20
 

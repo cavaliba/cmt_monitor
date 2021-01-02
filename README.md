@@ -1,7 +1,7 @@
 CAVALIBA - CMT Monitor 
 ======================
 
-(c) Cavaliba.com 2020 - Version 1.3.0 alpha  - 2020/12/30
+(c) Cavaliba.com 2020 - Version 1.3.0 - 2021/01/02
 
 CMT Monitor is a simple software agent to  :
 
@@ -100,7 +100,7 @@ CLI - run manually
     $ ./cmt.py -s
 
     ------------------------------------------------------------
-    CMT - Version 1.1.0 - (c) Cavaliba.com - 2020/12/06
+    CMT - Version 1.3.0 - (c) Cavaliba.com - 2021/01/02
     ------------------------------------------------------------
     cmt_group      :  cavaliba
     cmt_node       :  vmxupm
@@ -147,7 +147,6 @@ CLI - run manually
 crontab
 -------
 
-
     $ sudo crontab -e
 
     */2 * * * * /usr/local/bin/cmt --cron
@@ -178,27 +177,22 @@ REFERENCE
 ---------
 See included file docs/
 
-
 LICENSE
 -------
 See LICENSE file. Opensurce Software with a 3 points BDS-like license.
 
-
 SUPPORT
 -------
 CMT is provided as-is and no direct support is available at the moment. 
-
 Feel free to drop a note at contact@cavaliba.com anyway.
-
 
 RELEASE
 --------
-
-see RELEASE file.
+see docs/version.md
 
 
 COPYRIGHT
 ---------
 
-    (c) Cavaliba.com - 2020
+    (c) Cavaliba.com - 2021
 
