@@ -11,12 +11,13 @@ import json
 import globals as cmt
 import args
 import conf
+import map    # needed to init GLOBAL_MAP
 import persist
 import check
 import report
 import pager
 
-from logger import logit
+from logger import logit, debug
 
 
 # -----------------
