@@ -64,7 +64,6 @@ dist/*
 build/
 build/*
 cmt.spec
-cmt
 docs/site/
 docs/site/*
 alert.last
