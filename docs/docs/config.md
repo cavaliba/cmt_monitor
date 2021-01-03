@@ -143,12 +143,12 @@ The complete configuration for a CMT run has 5 sections :
 	----------------------
 
 	pagers:
-	  alert              : mandatory entry 'alert'
+	  alert:             : mandatory entry 'alert'
 	     type            : team_channel
 	     url             : Teams channel URL
 	     [enable]        : timerange ; DEFAULT = no ; master switch / no inheritance
 
-	  test               : mandatory 'test' entry for ARG --pagertest
+	  test:              : mandatory 'test' entry for ARG --pagertest
 	     type            : team_channel
 	     url             :   
 	     [enable]        : timerange ; DEFAULT = no 
@@ -173,10 +173,9 @@ The complete configuration for a CMT run has 5 sections :
 	Checks instances
 	--------------------------
 	
-	module                  : module name
-
-	  checkname             : string - unique id in the module scope
-
+	modulename:                  
+	
+	  checkname:            : free string - unique id in the module scope
           [enable]          : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
 	      [alert_max_level] : alert, warn, notice (scale down)  ; overwrites global & module entry
 	      [enable_pager]    : timerange ; default NO ; need global/pager to be enabled ; sent if alert found

@@ -184,9 +184,11 @@ def conf_load_http(url):
 def conf_merge(conf1, conf2):
 
     debug("merge conf")
-    for topitem in cmt.DEFAULT_CONF_TOP_ENTRIES:
-        for k in conf2[topitem]:
-            conf1[topitem][k] = conf2[topitem][k]
+
+    # deprecated    
+    # for topitem in cmt.DEFAULT_CONF_TOP_ENTRIES:
+    #     for k in conf2[topitem]:
+    #         conf1[topitem][k] = conf2[topitem][k]
 
     # new conf format Ver. 1.2.0
     for topitem in cmt.GLOBAL_MODULE_MAP:
