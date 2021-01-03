@@ -1,7 +1,9 @@
 import pytest
 import datetime
+import sys
 
-from helpers import parse_duration
+sys.path.insert(0, './cmt')
+from helper import parse_duration
 
 
 def test_examples():

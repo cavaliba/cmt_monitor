@@ -8,7 +8,7 @@ from logger import debug
 
 # process args on CLI
 
-def parse_arguments():
+def parse_arguments(myargs):
 
     parser = argparse.ArgumentParser(description='CMT - Cavaliba Monitoring')
 
@@ -53,8 +53,9 @@ def parse_arguments():
     parser.add_argument('--short', '-s', help='short compact cli output',
                         action='store_true', required=False)
 
-    return vars(parser.parse_args())
-
+    r = parser.parse_args(myargs)
+    return vars(r)
+    
 
 # ------------------
 def is_module_allowed_in_args(name):
@@ -66,7 +67,7 @@ def is_module_allowed_in_args(name):
 
 
 # -------------------
-# TODO
 # check if all module names exist
 def is_module_list_valid_in_args():
-    pass
+    # TODO
+    return True

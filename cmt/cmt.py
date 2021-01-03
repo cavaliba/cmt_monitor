@@ -33,7 +33,7 @@ def timeout_handler(signum, frame):
 
 if __name__ == "__main__":
 
-    cmt.ARGS = args.parse_arguments()
+    cmt.ARGS = args.parse_arguments(sys.argv[1:])
 
     if cmt.ARGS["version"]:
         print(cmt.VERSION)
