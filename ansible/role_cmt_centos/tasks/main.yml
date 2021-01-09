@@ -1,6 +1,6 @@
 ---
-# tasks file for cmt_centos8
-# V 1.3.0 - 2021/01 (c) cavaliba.com
+# tasks file for cmt_centos
+# 2021 (c) cavaliba.com
 
 
 - name: CMT - create /opt/cmt
@@ -12,6 +12,9 @@
     group: root
   tags: role_cmt
 
+# ----
+# conf
+
 - name: CMT - create /opt/cmt/conf.d
   file:
     path: /opt/cmt/conf.d
@@ -19,27 +22,7 @@
     mode: "0755"
     owner: root
     group: root
-  tags: role_cmt
-
-- name: CMT - create /var/log/cmt.log
-  copy:
-    content: ""
-    dest: /var/log/cmt.log
-    force: no
-    group: root
-    owner: root
-    mode: 0755
-  tags: role_cmt
-
-- name: CMT - create /opt/cmt/cmt.log
-  copy:
-    content: ""
-    dest: /opt/cmt/cmt.log
-    force: no
-    group: root
-    owner: root
-    mode: 0755
-  tags: role_cmt
+  tags: role_cmt, role_cmt_conf
 
 - name: CMT - create conf.yml
   template:
@@ -49,7 +32,7 @@
     group: root
     mode: '0644'
     backup: no
-  tags: role_cmt
+  tags: role_cmt, role_cmt_conf
 
 - name: CMT - create conf.d/host specific config
   template:
@@ -59,7 +42,10 @@
     group: root
     mode: '0644'
     backup: no
-  tags: role_cmt
+  tags: role_cmt, role_cmt_conf
+
+# ----
+# Binary
 
 - name: CMT - install cmt binay to /usr/local/bin/cmt
   copy:
@@ -68,7 +54,7 @@
     owner: root
     group: root
     mode: 0755
-  tags: role_cmt
+  tags: role_cmt, role_cmt_bin
 
 - name: CMT - install cmt binay to /opt/cmt/
   copy:
@@ -77,41 +63,30 @@
     owner: root
     group: root
     mode: 0755
-  tags: role_cmt
+  tags: role_cmt, role_cmt_bin
 
-# - name: CMT - create /opt/cmt/src
-#   file:
-#     path: /opt/cmt/src
-#     state: directory
-#     mode: "0755"
-#     owner: root
-#     group: root
-#   tags: role_cmt
+# ----
+# logs
 
-# - name: CMT - install cmt src
-#   copy:
-#     src: "{{ cmt_local_src }}/{{ item }}"
-#     dest: /opt/cmt/src/
-#     owner: root
-#     group: root
-#     mode: 640
-#   with_items:
-#     - cmt.py
-#     - cmt_globals.py
-#     - cmt_shared.py
-#     - cmt_helpers.py
-#   tags: role_cmt
-
-
-- name: CMT - install cmt src to /opt/cmt/src
+- name: CMT - create /var/log/cmt.log
   copy:
-    src: "{{ cmt_local_src }}/cmt"
-    dest: /opt/cmt/src
-    owner: root
+    content: ""
+    dest: /var/log/cmt.log
+    force: no
     group: root
-    mode: 640
-  tags: role_cmt
+    owner: root
+    mode: 0755
+  tags: role_cmt, role_cmt_log
 
+- name: CMT - create /opt/cmt/cmt.log
+  copy:
+    content: ""
+    dest: /opt/cmt/cmt.log
+    force: no
+    group: root
+    owner: root
+    mode: 0755
+  tags: role_cmt, role_cmt_log
 
 - name: CMT - install logrotate
   copy:
@@ -120,8 +95,49 @@
     owner: root
     group: root
     mode: '0644'
-  tags: role_cmt
+  tags: role_cmt, role_cmt_log
 
+# ---
+# src
+
+- name: CMT - create /opt/cmt/src
+  file:
+    path: /opt/cmt/src
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  tags: role_cmt, role_cmt_src
+
+- name: CMT - create /opt/cmt/src/modules
+  file:
+    path: /opt/cmt/src/modules
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  tags: role_cmt, role_cmt_src
+
+
+- name: CMT - install cmt src to /opt/cmt/src
+  copy:
+    src: "{{ cmt_local_src }}/cmt/"
+    dest: /opt/cmt/src
+    owner: root
+    group: root
+    mode: 0644
+  tags: role_cmt, role_cmt_src
+
+- name: CMT - install cmt src/modules to /opt/cmt/src/modules
+  copy:
+    src: "{{ cmt_local_src }}/cmt/modules"
+    dest: /opt/cmt/src
+    owner: root
+    group: root
+    mode: 0644
+  tags: role_cmt, role_cmt_src
+
+# -----
 
 - name: CMT - install crontab
   cron:
@@ -130,5 +146,5 @@
     user: root
     #job: "/usr/bin/python3 /opt/cmt_monitor/cmt.py --report --alert >> /var/log/cmt/cmt.log 2>&1"
     job: "/usr/local/bin/cmt --cron >> /opt/cmt/cmt.log 2>&1"
-  tags: role_cmt
+  tags: role_cmt, role_cmt_cron
 
