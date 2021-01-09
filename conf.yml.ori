@@ -221,8 +221,14 @@ folder:
       path: /usr/share/doc
       alert_max_level: none
       recursive: yes
-      filter_regexp: 'Makefile$'
-      
+      filter_regexp: '^Makefile$'
+
+    dir_usrshare_alsa:
+      path: /usr/share/alsa
+      alert_max_level: none
+      recursive: yes
+      filter_regexp: '.*.conf$'      
+
 certificate:
 
   cert_google:

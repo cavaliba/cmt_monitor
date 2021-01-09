@@ -6,9 +6,10 @@ title: version
 
 ## last 
 
-    feature :  added alert_max_level:none option (along with alert, warn, notice)
     bugfix  : module mount ; parse all modules (not disk only)
     bugfix  : ansible role / copy src and modules to /opt/cmt/src
+    feature : added alert_max_level:none option (along with alert, warn, notice)
+    feature : regexp/extension option
     more documentation
 
 ## 1.3.0 - 2021/01/02
