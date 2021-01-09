@@ -37,13 +37,9 @@ title: setup
           cmt_node: minihost
           enable: yes
 
-        #modules:
-        #  load:
-        #    enable: yes
-
-        checks:
+        load:
           my_load:
-            module: load
+            enable: yes
 
 
 
@@ -53,3 +49,4 @@ title: setup
 * use --available option to identify items to monitor
 * configure crontab
 * watch for event in your elastic/graylog/kibana server
+* wakeup when the pager rings !

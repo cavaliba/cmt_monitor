@@ -10,7 +10,7 @@ def check(c):
          - cmt_mount
     '''
 
-    partitions=psutil.disk_partitions(all=False)
+    partitions=psutil.disk_partitions(all=True)
 
     if cmt.ARGS["available"]:
         print("-" * 25)

@@ -4,13 +4,20 @@ title: version
 
 # Releases
 
+## last 
+
+    feature :  added alert_max_level:none option (along with alert, warn, notice)
+    bugfix  : module mount ; parse all modules (not disk only)
+    bugfix  : ansible role / copy src and modules to /opt/cmt/src
+    more documentation
+
 ## 1.3.0 - 2021/01/02
 
-   bugfix : confd_load : ssl_verify, redirect set to False
-   new: cmt_check : contains the name of the check instead of the module name (deprecated)
-   new: cmt_notification = alert + warn + notice
-   new: GELF fields without quote for numerical values => no more elastic index templates.
-   code refactor/split modules ; lint
+    bugfix : confd_load : ssl_verify, redirect set to False
+    new: cmt_check : contains the name of the check instead of the module name (deprecated)
+    new: cmt_notification = alert + warn + notice
+    new: GELF fields without quote for numerical values => no more elastic index templates.
+    code refactor/split modules ; lint
 
 ## 1.2.1 - 2020/12/20
 

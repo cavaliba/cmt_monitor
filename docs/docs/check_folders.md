@@ -28,9 +28,11 @@ This check requires additional parameters to define each FOLDER to be checked :
 	folder:
 
       my_folder_name
-		  path              : /path/to/folder
-		  [recursive]       : yes/no ; default = no
-	      [no_store]        : yes/no ; default no ; don't store the filelist in memory (big dirs)
+		  path               : /path/to/folder
+		  [recursive]        : yes/no ; default = no
+	      [no_store]         : yes/no ; default no ; don't store the filelist in memory (big dirs)
+	      [filter_extension] : string : e.g. ".pdf .txt .hl7 .conf"  ; AND condition 
+	      [filter_regexp]    : string, python regexp : e.g. '.*.conf$'
 		  [target:
 		     files_max       : 400
 		     files_min       : 2

@@ -72,7 +72,7 @@ class Report():
         nok = alert + warn + notice
         ok = ck - nok
         print()
-        logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
+        logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
               ck, ok, nok, alert, warn, notice))
 
     def dispatch_alerts(self):

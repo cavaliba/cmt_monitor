@@ -59,7 +59,7 @@
 - name: CMT - install cmt binay to /opt/cmt/
   copy:
     src: "{{ cmt_local_bin }}"
-    dest: /usr/local/bin/cmt
+    dest: /usr/local/bin/
     owner: root
     group: root
     mode: 0755

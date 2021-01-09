@@ -6,22 +6,20 @@ title: configuration
 
 CMT uses one or more configuration files to know what kind of checks to perform, what threshold or alert conditions are defined, and to which remote server the collected data must be sent.
 
-The YAML file `conf.yml` is the standard configuration file for CMT.
+By default, it is located in `/opt/cmt/conf.yml`.
 
-By default, it is located in /opt/cmt/conf.yml or next to `cmy.py` program.
+The YAML file `conf.yml` is the main configuration file for CMT.
 
-
-## --conf myconf.yml  option
-
-you can specify an alternate configuration file :
+you can specify an alternate configuration file at run time (CLI or crontab) :
 
     $ cmt --conf /my/dir/cmt/conf.yml
 
-This let you have different execution contexts of CMT on the same Server.
+This let you have different execution contexts for CMT on the same Server.
 
-## Folder conf.d/
 
-Every taml file in the conf.d/ folder next to the conf.yml is merged into the configuration at run time. This design helps manage a bigger configuration with devops / deployment tools like Ansible.
+## conf.d/ for additional configurations
+
+Every yaml file in the conf.d/ folder next to the conf.yml is merged into the configuration at run time. This design helps manage a bigger configuration with devops / deployment tools like Ansible.
 
 This feature can be disabled in the main configuration file :
 
@@ -33,7 +31,8 @@ When deploying a new component on a CMT monitored system which needs more monito
 Each additional file must be a valid CMT yaml file.
 
 
-## remote configuration
+## HTTP remote configuration
+
 *new 1.2.1*
 
 CMT can fetch a remote configuration file according to the global configuration :
@@ -52,22 +51,9 @@ CMT will always append a `?group=group&node=node` string to conf_url to inform a
 
 Remote configuration is persisted locally in case of no-response from remote server. Persistance last for one day at most of no reply. After that period, cached remote conf is discarded.
 
-## Folder structure
-
-	/opt/cmt/$ tree -L 1
-	.
-	├── cmt
-	├── cmt.py
-	├── (...)	
-	├── conf.yml     <= main configuration file
-	└── conf.d/      <= additional configuration files go in there 
-	   ├── demo.yml
-	   ├── apache.yml
-	   ├── folder_backup.yml
-	   └── README
 
 
-## Configuration structure
+## conf.yml sections
 
 The complete configuration for a CMT run has 5 sections :
 
@@ -78,30 +64,18 @@ The complete configuration for a CMT run has 5 sections :
 5. checks sections with all  individual checks parameters (module dependent)
 
 
-## Configuration Reference 
-
-	===========================================================
-	Configuration Reference
-	===========================================================
+In the following lines : 
 
 	[ ] is optional, available
 	( ) is on the roadmap
 
 
-	--------------------------------
-	timerange field
-	--------------------------------
-	- yes
-	- no
-	- after YYYY-MM-DD hh:mm:ss
-	- before YYYY-MM-DD hh:mm:ss
-	- hrange hh:mm:ss hh:mm:ss
-	- ho   (8h30/18h mon>fri)
-	- hno  (! (8h30/18h mon>fri))
 
-	----------------------
-	Global
-	----------------------
+### conf.yml : global section
+
+	# ----------------------
+	# Global
+	# ----------------------
 
 	global:
 	  cmt_group: cavaliba
@@ -117,13 +91,15 @@ The complete configuration for a CMT run has 5 sections :
 	  [conf_url]           : https://.../api/  (/group_node.txt if url ends by /txt/) + ?group=group&node=node
 	  [max_execution_time] : seconds ; DEFAULT 55
 	  [load_confd]         : yes/no ; DEFAULT no
-	  [alert_max_level]    : alert, warn, notice  ; levels are shifted to respect this limit.
+	  [alert_max_level]    : alert, warn, notice, none  ; levels are shifted to respect this limit.
 	  [alert_delay]        : delay before transition to alert (if alert) ; seconds/DEFAULT 120 
 
 
-	----------------------
-	Metrology Servers
-	----------------------
+### conf.yml : metroloy servers
+
+	# ----------------------
+	# Metrology Servers
+	# ----------------------
 
 	metrology_servers:
 
@@ -138,9 +114,13 @@ The complete configuration for a CMT run has 5 sections :
 	      url: http://10.10.10.13:8080/gelf
 	      [enable]                : timerange ; default = yes ; master switch      
 
-	----------------------
-	Pager services
-	----------------------
+### conf.yml : pager services
+
+You must have a pager with the name `alert`.
+
+	# ----------------------
+	# Pager services
+	# ----------------------
 
 	pagers:
 	  alert:             : mandatory entry 'alert'
@@ -154,30 +134,34 @@ The complete configuration for a CMT run has 5 sections :
 	     [enable]        : timerange ; DEFAULT = no 
 
 
-	---------------------------
-	Modules
-	---------------------------
-	modules are enabled by default
+### conf.yml : modules section
+
+	# ---------------------------
+	# Modules
+	# ---------------------------
+	# modules are enabled by default
 
 	modules:
 	  name:               : module name : ex load , cpu, swap, ...
 	    enable            : timerange ; default yes
 	  name:               : load 
 	    enable            : timerange ; default yes
-	    [alert_max_level] : alert, warn, notice (scale down)  ; overwrites global entry
+	    [alert_max_level] : alert, warn, notice, none  (scale down)  ; overwrites global entry
 	    [alert_delay]     : delay before transition from to alert ; seconds/DEFAULT 120 
 	    [frequency]       : min seconds between runs ; needs --cron in ARGS
 
 
-	--------------------------
-	Checks instances
-	--------------------------
+### conf.yml : checks to be performed
+
+	# --------------------------
+	# Checks instances
+	# --------------------------
 	
 	modulename:                  
 	
-	  checkname:            : free string - unique id in the module scope
+	  checkname:            : free string - unique id in the module scope - avoid dot/special chars in name
           [enable]          : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
-	      [alert_max_level] : alert, warn, notice (scale down)  ; overwrites global & module entry
+	      [alert_max_level] : alert, warn, notice, none (scale down)  ; overwrites global & module entry
 	      [enable_pager]    : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
 	      [alert_delay]     : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
 	      [frequency]       : min seconds between runs ; needs --cron in ARGS ; overrides module config
@@ -187,7 +171,103 @@ The complete configuration for a CMT run has 5 sections :
 	      (...)
 
 
+## Common options
+
+## `enable: [timerange option]`
+
+It defines if :
+
+* CMT must run globally  (global section, default = yes)
+* if a mondule is enabled (default = yes)
+* if a metrology server should reveive data (default = yes)
+* if a pager should receive notifications (default = no)
+* if a single check should be performed (default = yes)
+
+See `timerange option` for possible values.
+
+
+## `enable_pager: [timerange option]`
+
+values : timerange field , default = no
+
+For an alert to be sent to a pager, this option must be set at *ALL* levels:
+
+* global section
+* pager section (name: enable)
+* at individual checks requiring a pager notification.
+
+
+## `pager_rate_limit : seconds`
+
+Pager notifications won't be sent more frequently than `pager_rate_limit` seconds by this CMT instance.
+
+
+## `alert_delay : seconds`
+
+This option helps implement an hysteresis mechanism to remove transient events 
+which shouldn't be reported as alerts nor sent as notification to pagers.
+
+It defines a mimimal duration during which an alert confidtion must be present, before firing a real alert.
+
+Before that delay, an alert is sent as a warning.
+
+
+## `alert_max_level`
+
+Values: alert(default), warn, notice, none
+
+It defines the maximum alert informations detected by a module run, that will be reporte to the metrology servers. 
+
+Thes option can be set at the following configurations from lower to higher precedence (last rules) : global, module, individual check.
+
+When set to alert (default), alert conditions are sent as collected from the module.
+
+When set to warn, one shift is performed : alerts become warn, warn becom notice, notice are discarded (data is sent, but fields describing alerts, warnings, notice, notifications are set to 0)..
+
+When set to warn, two shifts are performed : alerts become notice, the rest is discarded.
+
+When set to none, all level are discarde, no values are reported to metrolgoy servers.
+
+
+## `load_confd : yes/no`
+
+It defines if a remote conf (HTTP) should be collected and merged with local configuration.
+
+
+## `conf_url`
+
+Remote URL from which additional configuration may be fetched, persisted locally, and merged at each run.
+
+If it ends by `/txt/`, CMT appends a `/group_node.txt` value. Use case : static remote server with a text file for 
+
+In other case, CMT appends `?group=group&node=node` to pass parameters to an API.
+
+Remote configuration is designed to implement muting for alerts/pagers/metrology on various condition, without the need for editing local configuration files.
+
+
+## `max_execution_time : seconds`
+
+when run from crontab, the CMT process kills itself after this amount of time. A monitoring tool should no disturb its host. We are not quantical (yet).
+
+
+## `timerange field values`
+
+`timerage` fields can take more values than the basic yes/no:
+
+	--------------------------------
+	timerange field
+	--------------------------------
+	- yes
+	- no
+	- after YYYY-MM-DD hh:mm:ss
+	- before YYYY-MM-DD hh:mm:ss
+	- hrange hh:mm:ss hh:mm:ss
+	- ho   (8h30/18h mon>fri)
+	- hno  (! (8h30/18h mon>fri))
+
+
 ## Global Section
+
 *new v1.0.0* : all entries in the global section must be under **global** yaml top entry.
 
 

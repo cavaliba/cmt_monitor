@@ -1,10 +1,13 @@
 import os
 import time
+import re
 
 # import globals as cmt
 from checkitem import CheckItem
 
 s_dirs = 0
+conf_filter_extension = []
+conf_filter_regexp = None
 
 def scanRecurse(path):
     global s_dirs
@@ -30,6 +33,19 @@ def scanNoRecurse(path):
     except Exception:
         pass
 
+def filter_extension(entry):
+    for e in conf_filter_extension:
+            if entry.name.endswith(e):    
+                return True
+    return False
+
+def filter_regexp(entry):
+    if re.match(conf_filter_regexp, entry.name):
+        return True
+    return False
+
+
+
 def check(c):
 
     '''Check for various folder attributes '''
@@ -45,15 +61,27 @@ def check(c):
 
     no_store = c.conf.get("no_store",False) is True
 
+    global conf_filter_extension
+    conf_filter_extension = c.conf.get("filter_extension","").split()
+    if len(conf_filter_extension) > 0:
+        has_filter_extension = True
+    else:
+        has_filter_extension = False
+
+    global conf_filter_regexp
+    if "filter_regexp" in c.conf:
+        conf_filter_regexp = re.compile(c.conf.get("filter_regexp"))
+        has_filter_regexp = True
+    else:
+        has_filter_regexp = False
 
     targets = []
     if 'target' in c.conf:
         targets = c.conf['target']
 
-    ci = CheckItem('folder_path',path)
-    c.add_item(ci)
-    ci = CheckItem('folder_name',name)
-    c.add_item(ci)
+    
+    c.add_item(CheckItem('folder_path',path))
+    c.add_item(CheckItem('folder_name',name))
 
     if not os.path.exists(path):      
         c.alert += 1
@@ -68,6 +96,7 @@ def check(c):
     s_maxage = 0
     s_files = []
 
+    # single file
     if os.path.isfile(path):
         statinfo = os.stat(path)
         s_size = statinfo.st_size
@@ -75,10 +104,19 @@ def check(c):
         s_maxage = statinfo.st_mtime
         s_minage = statinfo.st_mtime
 
+    # directory
     elif os.path.isdir(path):
         #for entry in os.scandir(path):
         if recursive:
             for entry in scanRecurse(path):
+
+                if has_filter_extension:
+                    if not filter_extension(entry):
+                        continue
+                if has_filter_regexp:
+                    if not filter_regexp(entry):
+                        continue
+
                 s_count += 1
                 if not no_store:
                     s_files.append(entry.name)
@@ -90,6 +128,9 @@ def check(c):
                     s_minage = statinfo.st_mtime
         else:
             for entry in scanNoRecurse(path):
+                if has_filter_extension:
+                    if not filter_extension(entry):
+                        continue                
                 s_count += 1
                 if not no_store:
                     s_files.append(entry.name)
@@ -186,7 +227,7 @@ def check(c):
                 return c   
 
     if no_store:
-        c.add_message("folder {} ({}) OK - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(
+        c.add_message("folder {} ({}) OK - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(
             name, path, s_count, s_dirs, s_size, h_size, tgcount, tgtotal ))
         return c
 
@@ -201,6 +242,6 @@ def check(c):
                 c.add_message("folder {} : expected file not found ({})".format(path,f))
                 return c
 
-    c.add_message("folder {} ({}) OK - {} files, {} dirs, {} bytes - targets {}/{}".format(
+    c.add_message("folder {} ({}) OK - {} files, {} dirs, {} bytes - targets {}/{}".format(
         name, path, s_count, s_dirs, s_size, tgcount, tgtotal))
     return c

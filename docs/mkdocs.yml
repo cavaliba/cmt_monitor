@@ -14,23 +14,24 @@ nav:
 #  - 'Quickstart': 'quickstart.md'
   - 'Download': 'download.md'
   - 'Setup': 'setup.md'
+  - 'Directory structure': 'directory_structure.md'
   - 'Configuration': 'config.md'
 #  - 'Datastore / ElasticStack': 'server.md'
 #  - 'FAQ': 'faq.md'
   - 'CLI': 'cli.md'
   - 'Cron / Automatic run' : 'cron.md'
-  - 'Checks':
-      - 'load': 'check_load.md'
-      - 'cpu': 'check_cpu.md'
-      - 'memory': 'check_memory.md'
-      - 'boot time': 'check_boottime.md'
-      - 'swap': 'check_swap.md'
-      - 'disks': 'check_disks.md'
-      - 'mounts': 'check_mounts.md'
-      - 'process': 'check_process.md'
-      - 'urls': 'check_urls.md'
-      - 'folders': 'check_folders.md'
-      - 'pings': 'check_pings.md'
+  - 'Modules':
+      - load: check_load.md
+      - cpu: check_cpu.md
+      - memory: check_memory.md
+      - boottime: check_boottime.md
+      - swap: check_swap.md
+      - disk: check_disks.md
+      - mount: check_mounts.md
+      - process: check_process.md
+      - url: check_urls.md
+      - folder: check_folders.md
+      - ping: check_pings.md
       - certificate: check_certificate.md
       - socket: check_socket.md
   - 'Advanced':
@@ -39,8 +40,8 @@ nav:
       # 'timerange item' : timerange.md
    #  - 'Dev / How to extend': 'extend.md'
   - 'License': license.md
-  - 'Visit cavaliba.com': 'http://www.cavaliba.com'
   - 'Versions': 'version.md'
+  - 'Visit cavaliba.com': 'http://www.cavaliba.com'
 #- upgrade
 #- full configuration
 #- ansible

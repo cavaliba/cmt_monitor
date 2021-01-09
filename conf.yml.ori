@@ -211,7 +211,18 @@ folder:
     recursive: yes
     no_store: yes
 
+   dir_usrshare_doc:
+      path: /usr/share/doc
+      alert_max_level: none
+      recursive: yes
+      filter_extension: ".conf .hl7"
 
+    dir_usrshare_doc2:
+      path: /usr/share/doc
+      alert_max_level: none
+      recursive: yes
+      filter_regexp: 'Makefile$'
+      
 certificate:
 
   cert_google:

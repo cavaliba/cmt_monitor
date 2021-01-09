@@ -55,19 +55,20 @@ class Check():
 
         # compute alert_max_level
         self.alert_max_level = "alert"   # DEFAULT
-        # check level ?
+        
+        # at the individual check level ?
         a = conf.get('alert_max_level', '')
-        if a in ['alert', 'notice', 'warn']:
+        if a in ['alert', 'notice', 'warn', 'none']:
             self.alert_max_level = a
         else:
-            # module level ?
+            # at the module level ?
             b = cmt.CONF['modules'][self.module].get('alert_max_level', '')
-            if b in ['alert', 'notice', 'warn']:
+            if b in ['alert', 'notice', 'warn', 'none']:
                 self.alert_max_level = b
             else:
-                # global level
+                # global level ?
                 c = cmt.CONF['global'].get('alert_max_level', '')
-                if c in ['alert', 'notice', 'warn']:
+                if c in ['alert', 'notice', 'warn', 'none']:
                     self.alert_max_level = c
 
     def add_message(self, m):
@@ -115,6 +116,12 @@ class Check():
             self.notice = self.alert
             self.alert = 0
             self.warn = 0
+
+        if level == "none":
+            self.notice = 0
+            self.alert = 0
+            self.warn = 0
+
 
     def frequency(self):
         ''' Verify and update run frequency (cron mode).
