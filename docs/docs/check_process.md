@@ -22,33 +22,59 @@ Enable the module in the configuration :
 This check requires additional parameters to define each disk to be checked :
 
 
+Syntax: 
+
 	process:
-	  redis:
-	    psname: redis
-	    enable_pager: no
-	  apache:
-	    psname: httpd
+
+	  checkname:			     : choose a name for this check - sent to metrology 
+	    psname: string           : exact name of the process to be found
+	    [search_arg: string]     : optional paramter of the process command line
+
+	    + common parameters for checks : enable, enable_pager, alarm_max_level, alert_delay, ...
+	    (see config page)
+
+
+Example :
+
+    process:
+
 	  cron:
 	    psname: cron
+		search_arg: "-f"
+
+	  redis:
+	    psname: redis
+
+      graylog
+        psname: java
+        search_arg: '/usr/share/graylog-server/graylog.jar'
+	
+	  apache:
+	    psname: httpd
+
 	  ssh:
 	    psname: sshd
+
 	  ntp:
 	    psname: ntpd
+
 	  mysql:
 	    psname: mysqld
+
 	  php-fpm:
 	    psname: php-fpm
-	    enable_pager: yes
 
 
+### `search_arg`
+*new in version 1.3.1*
 
-The first parameter is the name of the process to be reported to cental server.
-The second parameter is the exact process name to be checked in the process list.
+This optional parameter indicates that arguments given to the process command line must be
+checked against the provided string. Useful for java or nodejs process where the real
+task is a parameter of the java (nodejs) main binary.
 
 ## Alerts
 
 This check sends an alert and adds alert fields if a process is not running.
-
 
 
 ## Output to ElasticSearch
@@ -64,43 +90,15 @@ This module sends one message for each mount point, with the following fields:
 
 ## CLI usage and output
 
-	$ ./cmt.py process
+	$ ./cmt.py process -s
 
-	Check process 
-	cmt_process_name       redis  () 
-	NOK                    redis missing (redis)
-
-	Check process 
-	cmt_process_name       apache  () 
-	NOK                    apache missing (httpd)
-
-	Check process 
-	cmt_process_name       cron  () 
-	cmt_process_memory     2899968 bytes (2.9 MB)  - rss
-	cmt_process_cpu        0.04 seconds (0:00:00)  - cpu time, user
-	OK                     cron found (cron) - memory rss 2.9 MB - cpu 0.04 sec.
-
-	Check process 
-	cmt_process_name       ssh  () 
-	cmt_process_memory     3899392 bytes (3.9 MB)  - rss
-	cmt_process_cpu        0.05 seconds (0:00:00)  - cpu time, user
-	OK                     ssh found (sshd) - memory rss 3.9 MB - cpu 0.05 sec.
-
-	Check process 
-	cmt_process_name       ntp  () 
-	NOK                    ntp missing (ntpd)
-
-	Check process 
-	cmt_process_name       mysql  () 
-	cmt_process_memory     56307712 bytes (56.3 MB)  - rss
-	cmt_process_cpu        20.76 seconds (0:00:20)  - cpu time, user
-	OK                     mysql found (mysqld) - memory rss 56.3 MB - cpu 20.76 sec.
-
-	Check process 
-	cmt_process_name       php-fpm  () 
-	NOK                    php-fpm missing (php-fpm)
-
-
+	NOK     process      process redis missing (redis, None)
+	NOK     process      process apache missing (httpd, None)
+	OK      process      process cron found (cron, -f) - memory rss 3.0 MB - cpu 0.0 sec.
+	OK      process      process ssh found (sshd, None) - memory rss 5.6 MB - cpu 0.04 sec.
+	NOK     process      process ntp missing (ntpd, None)
+	OK      process      process mysql found (mysqld, None) - memory rss 88.9 MB - cpu 0.66 sec.
+	NOK     process      process php-fpm missing (php-fpm, None)
 
 
 
