@@ -4,7 +4,7 @@ title: version
 
 # Releases
 
-## last 
+## 1.3.1 - 2021/01/10
 
     bugfix  : module mount ; parse all modules (not disk only)
     bugfix  : ansible role / copy src and modules to /opt/cmt/src

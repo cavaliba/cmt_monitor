@@ -9,7 +9,7 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - Version 1.3.0 - (c) Cavaliba.com - 2021/01/01"
+VERSION = "CMT - (c) cavaliba.com - Version 1.3.1 - - 2021/01/10"
 
 # default ; can be overrided in configuration files
 MAX_EXECUTION_TIME = 55

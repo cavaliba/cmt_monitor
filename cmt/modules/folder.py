@@ -35,8 +35,8 @@ def scanNoRecurse(path):
 
 def filter_extension(entry):
     for e in conf_filter_extension:
-            if entry.name.endswith(e):    
-                return True
+        if entry.name.endswith(e):    
+            return True
     return False
 
 def filter_regexp(entry):
@@ -78,7 +78,6 @@ def check(c):
     targets = []
     if 'target' in c.conf:
         targets = c.conf['target']
-
     
     c.add_item(CheckItem('folder_path',path))
     c.add_item(CheckItem('folder_name',name))
@@ -96,7 +95,7 @@ def check(c):
     s_maxage = 0
     s_files = []
 
-    # single file
+    # single file
     if os.path.isfile(path):
         statinfo = os.stat(path)
         s_size = statinfo.st_size
@@ -104,7 +103,7 @@ def check(c):
         s_maxage = statinfo.st_mtime
         s_minage = statinfo.st_mtime
 
-    # directory
+    # directory
     elif os.path.isdir(path):
         #for entry in os.scandir(path):
         if recursive:

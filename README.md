@@ -1,7 +1,7 @@
 CAVALIBA - CMT Monitor 
 ======================
 
-(c) Cavaliba.com 2020 - Version 1.3.0 - 2021/01/02
+(c) Cavaliba.com 2020-2021  - Version 1.3.1 - 2021/01/10
 
 CMT Monitor is a simple software agent to  :
 
@@ -156,7 +156,6 @@ Available Modules
 -----------------
 
     $ ./cmt.py --listmodule
-    CMT - Version 1.1.0 - (c) Cavaliba.com - 2020/12/06
 
       -  load
       -  cpu
@@ -194,5 +193,5 @@ see docs/version.md
 COPYRIGHT
 ---------
 
-    (c) Cavaliba.com - 2021
+    (c) Cavaliba.com - 2020-2021
 
