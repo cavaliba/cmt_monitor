@@ -13,7 +13,7 @@ global:
   cmt_node_location: Ladig
   enable: yes
   enable_pager: yes
-  conf_url: http://localhost/txt/
+  conf_url: http://localhostd/txt/
   pager_rate_limit: 3600
   max_execution_time: 500
   load_confd: yes
@@ -40,10 +40,13 @@ pagers:
     type: team_channel
     url: https://outlook.office.com/webhook/xxxxxxxxxxxxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
     enable: no
-     
+
+# -------     
 # Modules
 # -------
+
 modules:
+
   load:
     enable: yes
     alert_max_level: notice
@@ -84,40 +87,48 @@ modules:
   socket:
     enable: yes
 
+# ------
 # checks
 # ------
 
-
 load:
+
   myload:
     enable: yes
     alert_max_level: alert
 
 cpu:
+
   mycpu:
     enable: yes
     alert_max_level: alert
 
 memory:
+
   mymemory:
     enable: yes
     alert_max_level: alert
     frequency: 10
 
 boottime:
+
   myboottime:
     enable: yes
     alert_max_level: alert
 
 swap:
+
   myswap:
     enable: yes
     alert_max_level: alert
 
+
 disk:
+
   disk_root:
     path: /
     alert: 80
+
   disk_boot:
     path: /boot
     alert: 90
@@ -145,48 +156,85 @@ url:
     allow_redirects: yes
     ssl_verify: yes
 
+
 mount:
+
   mount_root:
     path: /
+
   mount_mnt:
     path: /mnt
 
+
 process:
+
   redis:
     psname: redis
     enable_pager: no
+
   apache:
     psname: httpd
+
   cron:
     psname: cron
+    search_arg: "-f"
   ssh:
     psname: sshd
+
   ntp:
     psname: ntpd
+
   mysql:
     psname: mysqld
+
   php-fpm:
     psname: php-fpm
     enable_pager: yes
 
+
 ping:
+
   ping_vm1:
     host: 192.168.0.1
+
   ping_locahost:
     host: localhost
+
   www.google.com:
     host: www.google.com
+
   wwwtest:
     host: www.test.com    
+
   badname:
     host: www.averybadnammme_indeed.com  
-    
+
+
 folder:
+
+  dir_usrshare_doc:
+    path: /usr/share/doc
+    alert_max_level: none
+    recursive: yes
+    filter_extension: ".conf .hl7"
+
+  dir_usrshare_doc2:
+    path: /usr/share/doc
+    alert_max_level: none
+    recursive: yes
+    filter_regexp: '^Makefile$'
+
+  dir_usrshare_alsa:
+    path: /usr/share/alsa
+    alert_max_level: none
+    recursive: yes
+    filter_regexp: '.*.conf$'
 
   folder_mytmp:
     path: /tmp
     alert_max_level: alert
     #alert_delay: 30
+    recursive: no
     target:
        is_blabla:
        #age_min: 1000
@@ -211,23 +259,6 @@ folder:
     recursive: yes
     no_store: yes
 
-   dir_usrshare_doc:
-      path: /usr/share/doc
-      alert_max_level: none
-      recursive: yes
-      filter_extension: ".conf .hl7"
-
-    dir_usrshare_doc2:
-      path: /usr/share/doc
-      alert_max_level: none
-      recursive: yes
-      filter_regexp: '^Makefile$'
-
-    dir_usrshare_alsa:
-      path: /usr/share/alsa
-      alert_max_level: none
-      recursive: yes
-      filter_regexp: '.*.conf$'      
 
 certificate:
 
@@ -267,6 +298,8 @@ socket:
     connect: yes
     #send: 
     #pattern:
+
+
 
 
 # ------------------------------------

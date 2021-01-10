@@ -8,6 +8,7 @@ title: version
 
     bugfix  : module mount ; parse all modules (not disk only)
     bugfix  : ansible role / copy src and modules to /opt/cmt/src
+    bugfix  : handle http remote conf exception
     feature : added alert_max_level:none option (along with alert, warn, notice)
     feature : module folder with regexp/extension option
     feature : module process with serach_arg option
