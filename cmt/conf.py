@@ -143,7 +143,6 @@ def conf_load_file(config_file):
 
     with open(config_file) as f:
         conf = yaml.load(f, Loader=yaml.SafeLoader)
-        # print(CONF)
         # print(json.dumps(CONF, indent=2))
 
     # verify content
@@ -169,8 +168,8 @@ def conf_load_http(url):
                          allow_redirects=False,
                          timeout=cmt.REMOTE_CONFIG_TIMEOUT
                          )
-    except requests.exceptions.RequestException as e:
-        debug("Load remote conf failed : {} - {}".format(r.status_code, e))
+    except Exception as e:
+        logit("Load remote conf failed (network) : {}".format(e))
         return None
 
     if r.status_code != 200:
