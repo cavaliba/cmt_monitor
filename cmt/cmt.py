@@ -95,9 +95,10 @@ if __name__ == "__main__":
                 else:
                     # add Check to report
                     myreport.add_check(check_result)
-            # break outer loop as well ; called if inner loop didnt break
-            else:
+            else: # no break in inner loop
+                # called if no break : go on with outer loop 
                 continue
+            # break from outer for loop
             break
 
     # -- end of check loop --

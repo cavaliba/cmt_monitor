@@ -4,6 +4,11 @@ title: version
 
 # Releases
 
+## 1.4.0 - alpha
+
+    feature: rootrequired configuration for checks when root privilege is mandatory
+    feature : send_content option in folder module
+
 ## 1.3.1 - 2021/01/10
 
     bugfix  : module mount ; parse all modules (not disk only)
@@ -11,22 +16,22 @@ title: version
     bugfix  : handle http remote conf exception
     feature : added alert_max_level:none option (along with alert, warn, notice)
     feature : module folder with regexp/extension option
-    feature : module process with serach_arg option
-    more documentation
+    feature : module process with seach_arg option
+    quality: more documentation
 
 ## 1.3.0 - 2021/01/02
 
-    bugfix : confd_load : ssl_verify, redirect set to False
-    new: cmt_check : contains the name of the check instead of the module name (deprecated)
-    new: cmt_notification = alert + warn + notice
-    new: GELF fields without quote for numerical values => no more elastic index templates.
-    code refactor/split modules ; lint
+    bugfix: confd_load : ssl_verify, redirect set to False
+    feature: cmt_check : contains the name of the check instead of the module name (deprecated)
+    feature: cmt_notification = alert + warn + notice
+    feature: GELF fields without quote for numerical values => no more elastic index templates.
+    quality: code refactor/split modules ; lint
 
 ## 1.2.1 - 2020/12/20
 
-    bug fixe cmt.PAGER TIMEOUT
-    Persist remote conf
-    remoteconf type (/txt/group_node.txt vs api )
+    bugfix: cmt.PAGER TIMEOUT
+    feature: Persist remote conf
+    feature: remoteconf type (/txt/group_node.txt vs api )
 
 ## 1.2.0 - 2020/12/13
 

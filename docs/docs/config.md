@@ -165,6 +165,7 @@ You must have a pager with the name `alert`.
 	      [enable_pager]    : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
 	      [alert_delay]     : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
 	      [frequency]       : min seconds between runs ; needs --cron in ARGS ; overrides module config
+          [rootrequired]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
 
 	      arg1              : specific to module (see doc for each module)
 	      arg2              : specific to module  
@@ -603,6 +604,7 @@ See the various document (from the sidebar) for each check/module configuration.
 	       has_files:
 	            - secret.pdf
 	            #- secret2.pdf
+	  
 	  folder_number2:
 	    path: /missing
 

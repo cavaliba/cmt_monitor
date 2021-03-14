@@ -1,6 +1,7 @@
 # check.py
 
 import time
+import os
 
 import globals as cmt
 import conf
@@ -324,6 +325,14 @@ def perform_check(checkname, modulename):
     # check if module is filtered in ARGS
     if not args.is_module_allowed_in_args(modulename):
         return "continue"
+
+    # check if root privilege is required
+    conf_rootreq = checkconf.get('rootrequired', False) is True
+    if conf_rootreq:
+        if (os.getuid() != 0):
+            logit("check %s must run as root." % checkname)
+            return "continue"
+
 
     # create check object
     check_result = Check(module=modulename, check=checkname, conf=checkconf)

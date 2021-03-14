@@ -44,7 +44,19 @@ def filter_regexp(entry):
         return True
     return False
 
-
+def get_file_content(path):
+    r = ""
+    try:
+        with open(path,"r") as f:
+            for line in f.readlines():
+                r = r + line
+                if len(r) > 100:
+                    break
+    except:
+        pass
+    r = r[:100]
+    print("r=",r)
+    return r
 
 def check(c):
 
@@ -54,12 +66,10 @@ def check(c):
     s_dirs = 0
 
     path = c.conf['path']
-
     name = c.check
-
     recursive = c.conf.get("recursive",False) is True
-
     no_store = c.conf.get("no_store",False) is True
+    send_content = c.conf.get("send_content",False) is True
 
     global conf_filter_extension
     conf_filter_extension = c.conf.get("filter_extension","").split()
@@ -102,6 +112,13 @@ def check(c):
         s_count = 1
         s_maxage = statinfo.st_mtime
         s_minage = statinfo.st_mtime
+
+        # option : send_content
+        if send_content:
+            fico = get_file_content(path)
+            ci = CheckItem('file_content',fico,"file content")
+            c.add_item(ci)
+
 
     # directory
     elif os.path.isdir(path):

@@ -33,6 +33,7 @@ This check requires additional parameters to define each FOLDER to be checked :
 	      [no_store]         : yes/no ; default no ; don't store the filelist in memory (big dirs)
 	      [filter_extension] : string : e.g. ".pdf .txt .hl7 .conf"  ; boolean OR 
 	      [filter_regexp]    : string, python regexp : e.g. '.*.conf$'
+		  [send_content]     : if path is a file, send 200 first chars as cmt_file_content attribute
 		  [target:
 		     files_max       : 400
 		     files_min       : 2
@@ -102,6 +103,7 @@ This module sends one message for each mount point, with the following fields:
 	cmt_folder_size_min: #bytes (smallest file, whole folder)
 	cmt_folder_age_min:         (youngest file)
 	cmt_folder_age_max:         (oldest file)
+	cmt_file_content:           (200 chars of file)
 
 ## CLI usage and output
 
