@@ -54,8 +54,9 @@ def get_file_content(path):
                     break
     except:
         pass
-    r = r[:100]
-    print("r=",r)
+    if len(r) > 100:
+        r = r[:100] + "(...)"
+    #print("r=",r)
     return r
 
 def check(c):
