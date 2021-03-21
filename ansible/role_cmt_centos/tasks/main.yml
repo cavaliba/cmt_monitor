@@ -12,8 +12,8 @@
     group: root
   tags: role_cmt
 
-# ----
-# conf
+#----
+#conf
 
 - name: CMT - create /opt/cmt/conf.d
   file:
@@ -44,8 +44,8 @@
     backup: no
   tags: role_cmt, role_cmt_conf
 
-# ----
-# Binary
+#----
+#Binary
 
 - name: CMT - install cmt binay to /usr/local/bin/cmt
   copy:
@@ -65,8 +65,8 @@
     mode: 0755
   tags: role_cmt, role_cmt_bin
 
-# ----
-# logs
+#----
+#logs
 
 - name: CMT - create /var/log/cmt.log
   copy:
@@ -97,8 +97,8 @@
     mode: '0644'
   tags: role_cmt, role_cmt_log
 
-# ---
-# src
+#---
+#src
 
 - name: CMT - create /opt/cmt/src
   file:

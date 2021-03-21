@@ -29,6 +29,7 @@ def parse_arguments(myargs):
 
     parser.add_argument('modules', nargs='*',
                         action='append', help='modules to check')
+
     parser.add_argument('--listmodules', help='display available modules',
                         action='store_true', required=False)
     parser.add_argument('--available', help='display available entries found for modules (manual run on target)',
@@ -53,6 +54,11 @@ def parse_arguments(myargs):
     parser.add_argument('--short', '-s', help='short compact cli output',
                         action='store_true', required=False)
 
+    parser.add_argument('--check', help='check name for single check run',
+                        action='store', required=False)
+
+
+
     r = parser.parse_args(myargs)
     return vars(r)
     
@@ -65,6 +71,13 @@ def is_module_allowed_in_args(name):
     debug(name, "module not in ARGS")
     return False
 
+# ------------------
+def is_module_alone_in_args(name):
+    modules = cmt.ARGS['modules'][0]
+    if name in modules and len(modules) == 1:
+        return True
+    debug(name, "module not alone or not in ARGS")
+    return False
 
 # -------------------
 # check if all module names exist

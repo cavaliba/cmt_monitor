@@ -26,7 +26,7 @@ class Check():
        - Pager alerts are sent globally at the Report level.
     '''
 
-    def __init__(self, module="nomodule", check="noname", conf={}):
+    def __init__(self, module="nomodule", check="noname", conf={}, opt={}):
 
         self.group = cmt.CONF['global'].get('cmt_group', 'nogroup')
         self.node = cmt.CONF['global'].get('cmt_node', 'nonode')
@@ -35,6 +35,9 @@ class Check():
         self.node_location = cmt.CONF['global'].get('cmt_node_location', 'nolocation')
         self.module = module
         self.check = check
+        self.opt = opt         # opt given at init time by perform_check external creator
+        self.result = "ok"     # ok, nok, skip
+        self.result_info = ""  # human info about check run
 
         self.message = []
 
@@ -324,22 +327,56 @@ def perform_check(checkname, modulename):
 
     # check if module is filtered in ARGS
     if not args.is_module_allowed_in_args(modulename):
+        #check_result.result = "skip"         
+        #check_result.result_info =  "module not requested (args)"
         return "continue"
 
-    # check if root privilege is required
-    conf_rootreq = checkconf.get('rootrequired', False) is True
-    if conf_rootreq:
-        if (os.getuid() != 0):
-            logit("check %s must run as root." % checkname)
+
+    # prepare options sent to Module code
+    my_opt = {}
+
+    # some checks are exclusive / standalone 
+    # Check if it is a standalone check (one module, one check)
+    if args.is_module_alone_in_args(modulename):
+        my_opt["single_module_run"]=True
+    else:
+        my_opt["single_module_run"]=False
+
+    # particular checkname requested ? (--check option)
+    # NB : several modules can match for the same chechname which is not a PK accross full config
+    my_opt["specific_checkname_run"]=False
+    if cmt.ARGS["check"]:
+        if cmt.ARGS["check"] == checkname:
+            debug("  specific check name : match %s" % checkname)
+            my_opt["specific_checkname_run"]=True
+        else:
+            debug("  specific check name : skip %s" % checkname)
             return "continue"
 
 
+    # ----------------------
     # create check object
-    check_result = Check(module=modulename, check=checkname, conf=checkconf)
+    # ----------------------
+    # TODO, create earlier, with status run/skipped/error + message
+
+    check_result = Check(module=modulename, check=checkname, conf=checkconf, opt=my_opt)
+
+
+    # check if root privilege is required
+    # TODO : create check, result = skip (for display)
+    conf_rootreq = checkconf.get('root_required', False) is True
+    if conf_rootreq:
+        if (os.getuid() != 0):
+            debug ("check %s must run as root." % checkname)   
+            check_result.result = "skip"         
+            check_result.result_info =  "must run as root"
+            return "continue"
 
     # verify frequency in cron mode
     if cmt.ARGS['cron']:
         if not check_result.frequency():
+            check_result.result = "skip"
+            check_result.result_info =  "check skipped (frequency)"
             return "continue"
 
     # HERE / Future : give check_result the needed Module Conf, Global Conf ...
@@ -347,12 +384,22 @@ def perform_check(checkname, modulename):
     # TODO : if --available, call diffrent function
 
     # ---------------
-    # perform check !
+    # perform check 
     # ---------------
     check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
 
+    # ---------------
+    # results
+    # ---------------
+
+    # option list available => not a real run
     if cmt.ARGS["available"]:
         return "break"
+
+    # if check skipped
+    if check_result.result == "skip":
+        debug("  skipped in module")
+        return "continue"
 
     # Hysteresis / alert upd & own
     check_result.hysteresis_filter()

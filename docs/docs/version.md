@@ -4,10 +4,14 @@ title: version
 
 # Releases
 
-## 1.4.0 - alpha
+## 1.4.0 - 2021/03/21
 
-    feature: rootrequired configuration for checks when root privilege is mandatory
-    feature : send_content option in folder module
+    feature: root_required configuration for checks when root privilege is mandatory
+    feature: module folder: send_content option in folder module
+    feature: module url: timeout and http proxy options : http_proxy, https_proxy, noenv
+    feature: --check option for specific checkname filtering when run as CLI
+    NEW module send: pipe a result to cmt for immediate send to metrology
+
 
 ## 1.3.1 - 2021/01/10
 

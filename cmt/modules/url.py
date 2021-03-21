@@ -25,6 +25,24 @@ def check(c):
     my_redirects = c.conf.get("allow_redirects", False) is True
     my_sslverify = c.conf.get("ssl_verify", False) is True
     my_host      = c.conf.get("host","")
+    my_timeout   = c.conf.get("timeout",4)
+
+    # default : use env proxies
+    # if "http_proxy:noenv" remove env proxies
+    # else use specified proxies
+    proxies = {} 
+    my_http_proxy = c.conf.get('http_proxy',"")
+    my_https_proxy = c.conf.get('https_proxy',my_http_proxy) 
+    if my_http_proxy != "":
+        proxies["http"] = my_http_proxy
+    if my_http_proxy != "":
+        proxies["https"] = my_https_proxy
+    session = requests.Session()
+    if my_http_proxy =="noenv":
+        session.trust_env = False
+        proxies = {}
+    ##print("\n---\n",proxies)
+
 
     ci = CheckItem('url_name',name,'')
     c.add_item(ci)
@@ -39,11 +57,18 @@ def check(c):
     if my_host != "":
         headers['Host'] = my_host
 
+    
     try:
-        resp = requests.get(url, headers = headers, timeout=5, verify=my_sslverify, allow_redirects = my_redirects)
+        resp = requests.get(url, 
+                            headers = headers, 
+                            timeout=my_timeout, 
+                            verify=my_sslverify, 
+                            proxies=proxies,
+                            allow_redirects = my_redirects)
+
     except Exception:
         c.alert += 1
-        c.add_message("url {} - {} [Host: {}] - no response to query".format(name,url, my_host))
+        c.add_message("url {} - {} [Host: {}] - timeout/no response to query".format(name,url, my_host))
         return c
 
     elapsed_time = int ( 1000 * (time.time() - start_time) )

@@ -87,9 +87,12 @@ modules:
   socket:
     enable: yes
 
-# ------
+  send:
+    enable: yes
+
+#------
 # checks
-# ------
+#------
 
 load:
 
@@ -133,6 +136,7 @@ disk:
     path: /boot
     alert: 90
 
+
 url:
 
   www.cavaliba.com:
@@ -155,6 +159,19 @@ url:
     url: https://www.yahoo.com/
     allow_redirects: yes
     ssl_verify: yes
+
+  via_proxy_cavaliba:
+    enabled: yes
+    url: https://www.cavaliba.com/
+    http_proxy: http://62.210.205.232:8080
+
+  url_noenv_proxy:
+    url: http://www.monip.org/
+    http_proxy: noenv
+
+  url_test_timeout:
+    url: http://slowwly.robertomurray.co.uk/delay/4000/url/http://google.co.uk
+    timeout: 2
 
 
 mount:
@@ -299,6 +316,12 @@ socket:
     #send: 
     #pattern:
 
+send:
+
+    test_token1:
+      comment: "a test comment for token1 - cmt_test will be created in elastic"
+      unit: "no_unit"
+      attribute: test
 
 
 

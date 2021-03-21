@@ -1,7 +1,7 @@
 CAVALIBA - CMT Monitor 
 ======================
 
-(c) Cavaliba.com 2020-2021  - Version 1.3.1 - 2021/01/10
+(c) Cavaliba.com 2020-2021  - Version 1.4.0 - 2021/03/21
 
 CMT Monitor is a simple software agent to  :
 
@@ -170,6 +170,7 @@ Available Modules
       -  folder
       -  certificate
       -  socket
+      - send
 
 
 REFERENCE

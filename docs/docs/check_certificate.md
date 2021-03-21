@@ -40,7 +40,7 @@ hostname (string) and port (integer):
 Use `warning_in` and `notice_in` for lower grade alerts.
 
 
-## Alerts
+## Alerts
 
 Sends an alert if a certificate is invalid, that is, one of these conditions
 matches:
@@ -58,4 +58,4 @@ matches:
     cmt_certificate_host                     string         # host:port
     cmt_certificate_seconds                  int (seconds)  # seconds left before certificate expirry
     cmt_certificate_days                     int (days)     # days left
-    cmt_certificate_subject                  string         # domain/subject name
+    cmt_certificate_subject                  string         # domain/subject name

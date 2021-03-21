@@ -27,9 +27,13 @@ Enable the module in the configuration (optional) :
   	  url:
   	     enable: yes
 
-## Additional parameters
+## configure URL checks 
 
-This check requires additional parameters to define each URL to be checked :
+### common parameters
+
+See [config page](config.md) for common check parameters.
+
+### specific parameters
 
 	# conf.yml
 	url:
@@ -38,7 +42,10 @@ This check requires additional parameters to define each URL to be checked :
 			[pattern]         : "Cavaliba" ; DEFAULT = ""
 			[allow_redirects] : yes ; default = no
 			[ssl_verify]      : yes ; default = no
-			[host]            : optionnal hostname header (Host: xxx)
+			[host]            : optionnal hostname header (Host: xxx) ; default to None
+			[timeout]         : float (sec) ; default = 4 ; e.g. : 5.2
+			[http_proxy]      : http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env			
+			[https_proxy]     : https://[login[:pass]]@proxyhost:port  ; default to http_proxy
 
 
 pattern: 
@@ -53,6 +60,26 @@ ssl_verify:
 	
     CMT will check for a valid TLS certificate (CA, validity, host)
 
+host: 
+
+    add a Host: header to specify which target/virtualhost to query
+
+timeout:
+
+    socket timeout value (no bytes lapse) ; default : 4 secs. Float accepted
+
+http_proxy:
+
+	default : use os/env wide settings.
+	if defined, use specified proxy for http requests. 
+	http://[login[:pass]]@proxyhost:port
+	use noenv value to skip os/env (direct access)
+
+https_proxy
+
+	default : http_proxy 
+	if defined, use specified proxy for https (TLS/SSL) requests. 
+	https://[login[:pass]]@proxyhost:port	
 
 ## Alerts
 

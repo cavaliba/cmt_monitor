@@ -1,0 +1,332 @@
+---
+title: configuration example
+---
+
+
+
+## Full configuration example for Version 1.4.0
+
+    ---
+    # Cavaliba / cmt_monitor / conf.yml
+
+
+    # Global
+    # ------
+
+    global:
+      cmt_group: cavaliba
+      cmt_node: vmxupm
+      cmt_node_env: dev
+      cmt_node_role: dev_cmt
+      cmt_node_location: Ladig
+      enable: yes
+      enable_pager: yes
+      conf_url: http://localhost/cmt/txt/
+      pager_rate_limit: 3600
+      max_execution_time: 500
+      load_confd: yes
+      alert_max_level: alert
+      alert_delay: 90
+
+    metrology_servers:
+      graylog_test1:
+          type: graylog_udp_gelf
+          host: 10.10.10.13
+          port: 12201
+          enable: yes
+      graylog_test2:
+          type: graylog_http_gelf
+          url: http://10.10.10.13:8080/gelf
+          enable: yes
+
+    pagers:
+      alert:
+        type: team_channel
+        url: https://outlook.office.com/webhook/xxxx/IncomingWebhook/yyyyy
+        enable: yes
+      test:
+        type: team_channel
+        url: https://outlook.office.com/webhook/xxxx/IncomingWebhook/yyyyy
+        enable: no
+
+    # -------     
+    # Modules
+    # -------
+
+    modules:
+
+      load:
+        enable: yes
+        alert_max_level: notice
+
+      cpu:
+        enable: yes
+      
+      memory:
+        enable: yes
+        frequency: 600
+
+      swap:
+        enable: yes
+      boottime:
+        enable: yes
+      ntp:
+        enable: yes
+      disk:
+        enable: yes
+      url:
+        enable: yes
+      mount:
+        enable: yes
+        alert_max_level: notice    
+      process:
+        enable: yes
+      ping:
+        enable: yes
+        alert_max_level: warn    
+      folder:
+        enable: yes
+        #alert_delay: 70
+        #alert_max_level: alert
+      
+      certificate:
+        enable: yes
+
+      socket:
+        enable: yes
+
+    # ------
+    # checks
+    # ------
+
+    load:
+
+      myload:
+        enable: yes
+        alert_max_level: alert
+
+    cpu:
+
+      mycpu:
+        enable: yes
+        alert_max_level: alert
+
+    memory:
+
+      mymemory:
+        enable: yes
+        alert_max_level: alert
+        frequency: 10
+
+    boottime:
+
+      myboottime:
+        enable: yes
+        alert_max_level: alert
+
+    swap:
+
+      myswap:
+        enable: yes
+        alert_max_level: alert
+
+
+    disk:
+
+      disk_root:
+        path: /
+        alert: 80
+
+      disk_boot:
+        path: /boot
+        alert: 90
+
+
+    url:
+
+      www.cavaliba.com:
+        enabled: after 2020-01-01
+        url: https://www.cavaliba.com/
+        pattern: "Cavaliba"
+        allow_redirects: yes
+        ssl_verify: yes
+        #host: toto
+
+      www_non_existing:
+        enabled: after 2020-01-01
+        url: http://www.nonexisting/
+        #pattern: ""
+
+      google:
+        url: https://www.google.com/
+
+      yahoo:
+        url: https://www.yahoo.com/
+        allow_redirects: yes
+        ssl_verify: yes
+
+      via_proxy_cavaliba:
+        enabled: yes
+        url: https://www.cavaliba.com/
+        http_proxy: http://192.168.0.1:8080
+
+      url_noenv_proxy:
+        url: http://www.monip.org/
+        http_proxy: noenv
+
+      url_test_timeout:
+        url: http://slowwly.robertomurray.co.uk/delay/4000/url/http://google.co.uk
+        timeout: 2
+
+
+    mount:
+
+      mount_root:
+        path: /
+
+      mount_mnt:
+        path: /mnt
+
+
+    process:
+
+      redis:
+        psname: redis
+        enable_pager: no
+
+      apache:
+        psname: httpd
+
+      cron:
+        psname: cron
+        search_arg: "-f"
+      ssh:
+        psname: sshd
+
+      ntp:
+        psname: ntpd
+
+      mysql:
+        psname: mysqld
+
+      php-fpm:
+        psname: php-fpm
+        enable_pager: yes
+
+
+    ping:
+
+      ping_vm1:
+        host: 192.168.0.1
+
+      ping_locahost:
+        host: localhost
+
+      www.google.com:
+        host: www.google.com
+
+      wwwtest:
+        host: www.test.com    
+
+      badname:
+        host: www.averybadnammme_indeed.com  
+
+
+    folder:
+
+      dir_usrshare_doc:
+        path: /usr/share/doc
+        alert_max_level: none
+        recursive: yes
+        filter_extension: ".conf .hl7"
+
+      dir_usrshare_doc2:
+        path: /usr/share/doc
+        alert_max_level: none
+        recursive: yes
+        filter_regexp: '^Makefile$'
+
+      dir_usrshare_alsa:
+        path: /usr/share/alsa
+        alert_max_level: none
+        recursive: yes
+        filter_regexp: '.*.conf$'
+
+      folder_mytmp:
+        path: /tmp
+        alert_max_level: alert
+        #alert_delay: 30
+        recursive: no
+        target:
+           is_blabla:
+           #age_min: 1000
+           #age_max: 300
+           #files_min: 3
+           #files_max: 10
+           #size_min: 100000
+           #size_max: 10
+           has_files:
+                - secret.pdf
+                #- secret2.pdf
+
+      folder_number2:
+        path: /missing
+
+      a_file:
+        path: /tmp/ab.txt
+        no_store: no
+
+      folder_big_nostore:
+        path: /usr/lib
+        recursive: yes
+        no_store: yes
+
+
+    certificate:
+
+      cert_google:
+        hostname: google.com
+        port: 443
+        alert_in: 1 week 
+        warning_in: 3 months
+        notice_in: 6 months
+
+      duck:
+        hostname: duckduckgo.com
+        alert_in: 1 week
+
+      broken:
+        hostname: duckduckgo.com
+        port: 80
+        alert_in: 2 week
+
+      yahoo:
+        hostname: yahoo.com
+        port: 443
+        alert_in: 2 week
+
+
+    socket:
+
+      redis:
+        socket: local tcp 6379
+        #socket: local tcp port | remote tcp host port
+        connect: yes
+        #send: 
+        #pattern:
+
+      www_google:
+        socket: remote www.google.com tcp 443
+        connect: yes
+        #send: 
+        #pattern:
+
+
+    # ------------------------------------
+    # conf.d/*.yml also included with :
+    # - main conf has higher priority
+    # - first level lists merged
+    # ------------------------------------
+
+
+

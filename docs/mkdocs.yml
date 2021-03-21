@@ -1,5 +1,5 @@
 site_name: CMT Monitor Documentation
-copyright: 2020 - cavaliba.com
+copyright: 2020-2021 - cavaliba.com
 
 theme:
   name: material
@@ -16,6 +16,7 @@ nav:
   - 'Setup': 'setup.md'
   - 'Directory structure': 'directory_structure.md'
   - 'Configuration': 'config.md'
+  - 'Configuration Example': 'config_example.md'
 #  - 'Datastore / ElasticStack': 'server.md'
 #  - 'FAQ': 'faq.md'
   - 'CLI': 'cli.md'
@@ -34,6 +35,7 @@ nav:
       - ping: check_pings.md
       - certificate: check_certificate.md
       - socket: check_socket.md
+      - send: check_send.md
   - 'Advanced':
       - 'Data model' : 'data_model.md'
       - 'Duration item': duration.md
@@ -47,7 +49,7 @@ nav:
 #- ansible
 
 markdown_extensions:
-  - admonition
+  #- admonition
   - pymdownx.highlight
   - pymdownx.superfences
   - pymdownx.tasklist:

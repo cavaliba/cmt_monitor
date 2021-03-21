@@ -18,7 +18,7 @@ Enable the module in the configuration :
 
 ### Add a check
 
-	# conf.yml
+	# conf.yml
 	
 	boottime:
 	  my_boottime
@@ -26,12 +26,12 @@ Enable the module in the configuration :
 	  	alert_max_level: alert
 
 
-## Additional parameters
+## Additional parameters
 
 This module as no additional parameter.
 
 
-## Alerts
+## Alerts
 
 This module doesn't compute nor report alerts.
 

@@ -1,4 +1,4 @@
-# cavaliba.com - 2021
+# cavaliba.com - 2020 - 2021
 # globals.py
 
 import os
@@ -9,7 +9,7 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - (c) cavaliba.com - Version 1.3.1 - - 2021/01/10"
+VERSION = "CMT - (c) cavaliba.com - Version 1.4.0 - - 2021/03/21"
 
 # default ; can be overrided in configuration files
 MAX_EXECUTION_TIME = 55

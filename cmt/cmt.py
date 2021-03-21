@@ -55,17 +55,18 @@ if __name__ == "__main__":
         logit("CMT globally disabled by conf")
         sys.exit()
 
-    # check config option
+    # CLI : check config option ?
     if cmt.ARGS["checkconfig"]:
         print(json.dumps(cmt.CONF, indent=2))
         print("config OK.")
         sys.exit()
 
-    # Send test message to Teams
+    # CLI : Send test message to Teams ?
     if cmt.ARGS["pagertest"]:
         pager.pager_test()
         sys.exit()
 
+    # CLI : List available modules option ?
     if cmt.ARGS["listmodules"]:
         print("Available modules: ")
         for key in cmt.GLOBAL_MODULE_MAP:
@@ -82,7 +83,6 @@ if __name__ == "__main__":
     signal.alarm(maxexec)   # seconds
 
     # main loop
-    # NEW : 1.3.0 - checks *must* be below each modulename entries in CONF
     for modulename in cmt.GLOBAL_MODULE_MAP:
         if modulename in cmt.CONF:
             for checkname in cmt.CONF[modulename]:
@@ -98,7 +98,7 @@ if __name__ == "__main__":
             else: # no break in inner loop
                 # called if no break : go on with outer loop 
                 continue
-            # break from outer for loop
+            # break from outer for loop
             break
 
     # -- end of check loop --

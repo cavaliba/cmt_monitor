@@ -5,7 +5,7 @@ import globals as cmt
 import args
 
 # {'cron': False, 'report': False, 'pager': False, 
-# 'persist': False, 'conf': None, 'modules': [[]], 
+# 'persist': False, 'conf': None, 'modules': [[]], 
 # 'listmodules': False, 'available': False, 'pagertest': False, 
 # 'no_pager_rate_limit': False, 'checkconfig': False, 'version': False, 
 # 'debug': False, 'debug2': False, 'devmode': False, 'short': False}

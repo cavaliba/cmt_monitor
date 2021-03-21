@@ -4,7 +4,7 @@ title: Home
 
 # Welcome to CMT Documentation
 
-*Current release : 1.3.1 - 2021/01/10
+*Current release : 1.4.0 - 2021/03/21
 
 ## Overwiew - CMT is a simple monitoring agent
 
@@ -25,6 +25,11 @@ For sysadmin, CMT can be used as command line tool on each server during various
 ## Data model / ElasticStack data storage
 
 CMT provides a clean and well organized  data model to enable an efficient metrology storage and further processing of collected data. You can then build various dashborad for data analysis and correlation,  for reporting, finer alerting, etc.
+
+
+## Deploy easily
+
+CMT is provided as a standalone binary for most recent linux distributions. Download and get running. Optionnaly yon can download and run directly the python3 code with a few mandatory librairies (yaml, requests, psutils, ...)
 
 ## Modular
 
@@ -96,5 +101,5 @@ None of the reviewed tools covered this exact set of requirements, some being to
 
 ## Enjoy
 
-CMT is free to use, free to extend. Experiment, Adopt, Enjoy, contribute.
+CMT is free to use, free to extend. Experiment, Adopt, Enjoy, Contribute.
 
