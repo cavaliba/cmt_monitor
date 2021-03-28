@@ -269,7 +269,9 @@ class Check():
             to metrology servers.
         '''
 
-        graylog_data = metrology.build_gelf_message(self)
+        gelf_data = metrology.build_gelf_message(self)
+        json_data = metrology.build_json_message(self)
+
 
         for metro in cmt.CONF['metrology_servers']:
 
@@ -285,12 +287,17 @@ class Check():
             if metrotype == "graylog_udp_gelf":
                 host = metroconf['host']
                 port = metroconf['port']
-                metrology.graylog_send_udp_gelf(host=host, port=port, data=graylog_data)
+                metrology.graylog_send_udp_gelf(host=host, port=port, data=gelf_data)
                 debug("Data sent to metrology server ", metro)
 
             elif metrotype == "graylog_http_gelf":
                 url = metroconf['url']
-                metrology.graylog_send_http_gelf(url=url, data=graylog_data)
+                metrology.graylog_send_http_gelf(url=url, data=gelf_data)
+                debug("Data sent to metrology server ", metro)
+
+            elif metrotype == "elastic6_http_json":
+                url = metroconf['url']
+                metrology.elastic6_send_http_json(url=url, data=json_data)
                 debug("Data sent to metrology server ", metro)
 
             else:

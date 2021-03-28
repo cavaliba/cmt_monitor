@@ -17,7 +17,6 @@ nav:
   - 'Directory structure': 'directory_structure.md'
   - 'Configuration': 'config.md'
   - 'Configuration Example': 'config_example.md'
-#  - 'Datastore / ElasticStack': 'server.md'
 #  - 'FAQ': 'faq.md'
   - 'CLI': 'cli.md'
   - 'Cron / Automatic run' : 'cron.md'
@@ -36,6 +35,7 @@ nav:
       - certificate: check_certificate.md
       - socket: check_socket.md
       - send: check_send.md
+  - 'Metrology servers': metrology.md
   - 'Advanced':
       - 'Data model' : 'data_model.md'
       - 'Duration item': duration.md

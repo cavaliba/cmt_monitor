@@ -60,6 +60,10 @@ GRAYLOG_HTTP_TIMEOUT = 5
 # can be switched to True if no response during current RUN
 GRAYLOG_HTTP_SUSPENDED = False
 
+# for elastic
+METROLOGY_HTTP_TIMEOUT = 5
+METROLOGY_HTTP_SUSPENDED = False
+
 
 # map.py with all imports from modules
 GLOBAL_MODULE_MAP = {}

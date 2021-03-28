@@ -41,6 +41,11 @@ metrology_servers:
       url: http://10.10.10.13:8080/gelf
       enable: yes
 
+  el6_test:
+      type: elastic6_http_json
+      url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
+      enable: yes
+
 # Pager section
 # -------------
 
