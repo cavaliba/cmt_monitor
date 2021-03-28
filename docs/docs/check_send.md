@@ -10,7 +10,7 @@ title: check_send
 **Send** is a specific module which takes a value on STDIN and pipe it to CMT for immediate send.
 
 
-## Use case
+## Use case
 
 
     echo "42" | cmt send --check mytestcheck --report
@@ -44,7 +44,7 @@ Enable the module in the configuration :
       send:
          enable: yes
 
-## Create a check entry 
+## Create a check entry 
 
     send:
         mytestcheck:

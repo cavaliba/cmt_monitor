@@ -4,7 +4,7 @@ title: Home
 
 # Welcome to CMT Documentation
 
-*Current release : 1.4.0 - 2021/03/21
+*Current release : 1.5 - 2021/03/28*
 
 ## Overwiew - CMT is a simple monitoring agent
 
@@ -22,7 +22,7 @@ If various conditions are met (or not met), CMT can also send direct alerts / pa
 
 For sysadmin, CMT can be used as command line tool on each server during various sysadmin or software configuration tasks. One single run provides an immediate health check of all the configured check items.
 
-## Data model / ElasticStack data storage
+## Data model / ElasticStack data storage
 
 CMT provides a clean and well organized  data model to enable an efficient metrology storage and further processing of collected data. You can then build various dashborad for data analysis and correlation,  for reporting, finer alerting, etc.
 
@@ -78,7 +78,7 @@ executing to overcrowd a server.
         checks/*.py     # modular checks
         conf.yml        # configuration what to measure / where to send
         conf.d/         # additional configuration (eg. ansible additive deployment)
-        persist.json    # optional data persistance across run
+        persist.json    # optional data persistance across run
 
 ## Why another monitoring tool ?
 

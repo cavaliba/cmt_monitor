@@ -24,7 +24,7 @@ Enable the module in the configuration :
   	  socket:
   	     enable: yes
 
-## Additional parameters
+## Additional parameters
 
 	socket:
 	    mysocket:
@@ -43,7 +43,7 @@ Example
 		    connect: yes
 
 
-## Alerts
+## Alerts
 
 This check sends an alert if a local socket is not in LISTEN state, or if a socket refuse connection.
 

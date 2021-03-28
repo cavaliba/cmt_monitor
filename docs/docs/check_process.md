@@ -17,7 +17,7 @@ Enable the module in the configuration :
   	  process:
   	     enable: yes
 
-## Additional parameters
+## Additional parameters
 
 This check requires additional parameters to define each disk to be checked :
 
@@ -72,7 +72,7 @@ This optional parameter indicates that arguments given to the process command li
 checked against the provided string. Useful for java or nodejs process where the real
 task is a parameter of the java (nodejs) main binary.
 
-## Alerts
+## Alerts
 
 This check sends an alert and adds alert fields if a process is not running.
 

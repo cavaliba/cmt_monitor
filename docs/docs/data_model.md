@@ -139,8 +139,8 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_certificate_name          string         # entry name in conf.yml
     cmt_certificate_host          string         # host:port
     cmt_certificate_seconds       int (seconds)  # seconds before expiration
-    cmt_certificate_days          int (days)     # days before expiration
-    cmt_certificate_subject       string         # domain/subject name
+    cmt_certificate_days          int (days)     # days before expiration
+    cmt_certificate_subject       string         # domain/subject name
 
     -------------------------------------------
     Module: socket

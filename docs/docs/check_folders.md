@@ -19,7 +19,7 @@ Enable the module in the configuration :
   	  folder:
   	     enable: yes
 
-## Additional parameters
+## Additional parameters
 
 This check requires additional parameters to define each FOLDER to be checked :
 
@@ -71,7 +71,7 @@ Targets define the desired state of a folder.
 - `has_files`: list of exact filenames to be found in the folder (subfolders if recursive is set to yes).
 
 
-## Alerts
+## Alerts
 
 This check sends an alert and adds alert fields if a folder doesn't match its target state.
 

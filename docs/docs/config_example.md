@@ -95,9 +95,9 @@ title: configuration example
       socket:
         enable: yes
 
-    # ------
+    # ------
     # checks
-    # ------
+    # ------
 
     load:
 

@@ -32,7 +32,7 @@ When deploying a new component on a CMT monitored system which needs more monito
 Each additional file must be a valid CMT yaml file.
 
 
-## HTTP remote configuration
+## HTTP remote configuration
 
 *new 1.2.1*
 
@@ -67,16 +67,16 @@ The complete configuration for a CMT run has 5 sections :
 
 In the following lines : 
 
-	[ ] is optional, available
+	[ ] is optional, available
 	( ) is on the roadmap
 
 
 
-### conf.yml : global section
+### conf.yml : global section
 
-	# ----------------------
-	# Global
-	# ----------------------
+	# ----------------------
+	# Global
+	# ----------------------
 
 	global:
 
@@ -95,7 +95,7 @@ In the following lines :
 	  [load_confd]         : yes/no ; DEFAULT no
 	  [alert_max_level]    : alert, warn, notice, none  ; levels are shifted to respect this limit.
 	  [alert_delay]        : delay before transition to alert (if alert) ; seconds/DEFAULT 120 
-
+      [tags]               : tag1 tag2[=value] ; list of tags ; no blank space aroung optional "=value"
 
 ### conf.yml : metroloy servers
 
@@ -120,7 +120,7 @@ Metrology servers represent remote graylog/elasticsearch systems where collected
 	      [enable]                : timerange ; default = yes ; master switch      
 
 
-### conf.yml : pager services
+### conf.yml : pager services
 
 Pager services represent remote systmes to which alerts are sent, when human immediate action is needed. Use wisely, syadmin sleep is precious !
 
@@ -147,8 +147,8 @@ You must have a pager with the name `alert`.
 Modules are code plugin to perform specific kind of data collection. Think as a class of checks. This section specfies settings shared by  all checks of each modules.
 
 	# ---------------------------
-	# Modules
-	# ---------------------------
+	# Modules
+	# ---------------------------
 	# modules are enabled by default
 
 	modules:
@@ -173,8 +173,8 @@ Checks have options available to all checks, and options specific to the type of
 `checkname` must be unique accross all cmt configuration.
 
 
-	# --------------------------
-	# Checks
+	# --------------------------
+	# Checks
 	# --------------------------
 	
 	modulename:                  
@@ -187,6 +187,7 @@ Checks have options available to all checks, and options specific to the type of
 	      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
 	      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
           [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
+          [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank space aroung optional "=value"
 
 	      arg1               : specific to module (see doc for each module)
 	      arg2               : specific to module  
@@ -314,7 +315,7 @@ when run from crontab, the CMT process kills itself after this amount of time. A
 
 
 
-### `timerange field values`
+### `timerange field values`
 
 `timerage` fields can take more values than the basic yes/no:
 
@@ -378,6 +379,31 @@ Optional.
 ### cmt_node_location
 *new v1.0.0*
 Optional.
+
+
+### tags
+*new v1.5*
+
+Scope: global, check
+
+Values : line of tagname blank separated, with optional =value for each tag
+
+Default : none
+
+Add a list of tags fields (think labels or key/value pairs) in the data sent to metrology servers. Tags can be declared in the global section or in each individual checks. Do not add blank around `=`. Tags from global and check section are merged.
+
+Example:
+    
+    global:
+       tags: tag1 production mydate=2021/03 size=4 foldertype=test 
+
+will add the following info to outuput:
+
+    cmt_tag_tag1: 1
+    cmt_tag_production: 1
+    cmt_tag_mydate: '2021/03'
+    cmt_tag_size: 4
+    cmt_tag_foldertype: 'test'
 
 
 ##	metrology_servers
@@ -468,13 +494,13 @@ See the various document (from the sidebar) for each check/module configuration.
 
 
 
-## Example configuration conf.yml
+## Example configuration conf.yml
 	
 See the page [config_example.md](configuration_example) for a complete configuration.
 
 
 
-## Alternate / deprecated checks structure
+## Alternate / deprecated checks structure
 
 You can specficy individual checks in the following (deprecated) format:
 

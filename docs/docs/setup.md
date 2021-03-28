@@ -22,7 +22,7 @@ title: setup
     python3 /opt/cmt/cmt.py
 
 
-## Minimal configuration
+## Minimal configuration
 
     $ sudo mkdir /opt/cmt
     $ sudo vi /opt/cmt/conf.yml

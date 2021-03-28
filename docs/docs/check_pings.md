@@ -16,7 +16,7 @@ Enable the module in the configuration :
   	  ping:
   	     enable: yes
 
-## Additional parameters
+## Additional parameters
 
 This check requires additional parameters to define each mount point to be checked :
 
@@ -36,7 +36,7 @@ This check requires additional parameters to define each mount point to be check
 	    host: www.averybadnammme_indeed.com  
 
 
-## Alerts
+## Alerts
 
 This check sends an alert and adds alert fields if a mount point is not present.
 

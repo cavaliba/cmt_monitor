@@ -48,6 +48,8 @@ def load_conf_master():
 
     # load master conf
     conf = conf_load_file(config_file)
+    conf["__config_file"] = config_file
+    
     conf_add_top_entries(conf)
     conf_add_default_modules(conf)
 

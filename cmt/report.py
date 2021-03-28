@@ -52,6 +52,7 @@ class Report():
             print('-' * 60)
             print("cmt_group      : ", cmt.CONF['global']['cmt_group'])
             print("cmt_node       : ", cmt.CONF['global']['cmt_node'])
+            print("config file    : ", cmt.CONF['__config_file'])
             print()
 
     def print_recap(self):

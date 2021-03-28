@@ -4,6 +4,14 @@ title: version
 
 # Releases
 
+
+## 1.5 - 2021/03/28
+
+    feature: display config_file in report header
+    feature: tags/key-value option in global/check conf sections
+
+
+
 ## 1.4.0 - 2021/03/21
 
     feature: root_required configuration for checks when root privilege is mandatory
@@ -43,7 +51,7 @@ title: version
     refactor to cmt_helper.py
 
 
-## 1.1.1 - 2020/12/09 
+## 1.1.1 - 2020/12/09 
 
     bug fixe - parse error if empty remote conf
     build binary for debian 8 64bits
@@ -107,7 +115,7 @@ title: version
 
 
 
-## old
+## old
 
 ## 0.9
     x (0.9) bug : binary version find local conf.yml

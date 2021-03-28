@@ -16,12 +16,12 @@ Enable the module in the configuration :
   	  memory:
   	     enable: yes
 
-## Additional parameters
+## Additional parameters
 
 This module as no additional parameter.
 
 
-## Alerts
+## Alerts
 
 This module doesn't compute nor report alerts.
 

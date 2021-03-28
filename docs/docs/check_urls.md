@@ -27,7 +27,7 @@ Enable the module in the configuration (optional) :
   	  url:
   	     enable: yes
 
-## configure URL checks 
+## configure URL checks 
 
 ### common parameters
 
@@ -81,7 +81,7 @@ https_proxy
 	if defined, use specified proxy for https (TLS/SSL) requests. 
 	https://[login[:pass]]@proxyhost:port	
 
-## Alerts
+## Alerts
 
 This check sends an alert and adds alert fields if an URL isn't responding properly.
 

@@ -25,7 +25,7 @@ Enable the module in the configuration :
         alert: 80
 
 
-## Additional parameters
+## Additional parameters
 
 This check requires additional parameters to define each disk to be checked :
 
@@ -35,7 +35,7 @@ This check requires additional parameters to define each disk to be checked :
 The first parameter is the name of the disk (df -k).
 The second parameter is the percent threshold before sending an alert.
 
-## Alerts
+## Alerts
 
 This check sends an alert and adds alert fields if a mount point is not present.
 

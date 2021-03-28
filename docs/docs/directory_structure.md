@@ -15,7 +15,7 @@ The following layout is standard for cmt :
     ├── persist.json   : persitent data accross cmt runs
     ├── conf.yml       : default main configuration file
     └── conf.d/        : additional configuration files go here 
-       ├── demo.yml
-       ├── apache.yml
-       ├── backup.yml
-       └── README
+       ├── demo.yml
+       ├── apache.yml
+       ├── backup.yml
+       └── README

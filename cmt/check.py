@@ -11,6 +11,7 @@ import metrology
 
 from globals import bcolors
 from logger import logit, debug
+from checkitem import CheckItem
 
 
 # ----------------------------------------------------------
@@ -296,6 +297,30 @@ class Check():
                 debug("Unknown metrology server type in conf.")
 
 
+    def add_tags(self):
+        ''' Add checkitems tags from global or check config '''
+
+        # global
+        tags = cmt.CONF['global'].get("tags","").split()
+
+        # self.conf
+        tags += self.conf.get("tags","").split()
+
+        # parse tags / split if value provided / add check item
+        for tag in tags:
+            k=''
+            v=''
+            if '=' in tag:
+                (k,v)=tag.split('=')
+            else:
+                k=tag
+                v=1
+            #print("tag : ",tag,k,v)
+            ci = 'tag_' + k
+            self.add_item(CheckItem(ci,v))
+
+
+
 # --------------------------------------------------------------------------------
 # perform a single check
 # --------------------------------------------------------------------------------
@@ -382,6 +407,9 @@ def perform_check(checkname, modulename):
     # HERE / Future : give check_result the needed Module Conf, Global Conf ...
 
     # TODO : if --available, call diffrent function
+
+    # Add  tags/kv
+    check_result.add_tags()
 
     # ---------------
     # perform check 
