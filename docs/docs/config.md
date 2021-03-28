@@ -95,7 +95,7 @@ In the following lines :
 	  [load_confd]         : yes/no ; DEFAULT no
 	  [alert_max_level]    : alert, warn, notice, none  ; levels are shifted to respect this limit.
 	  [alert_delay]        : delay before transition to alert (if alert) ; seconds/DEFAULT 120 
-      [tags]               : tag1 tag2[=value] ; list of tags ; no blank space aroung optional "=value"
+      [tags]               : tag1 tag2[=value] ; list of tags ; no blank around optional "=value"
 
 ### conf.yml : metroloy servers
 
@@ -187,7 +187,7 @@ Checks have options available to all checks, and options specific to the type of
 	      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
 	      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
           [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
-          [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank space aroung optional "=value"
+          [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank around optional "=value"
 
 	      arg1               : specific to module (see doc for each module)
 	      arg2               : specific to module  
@@ -201,7 +201,7 @@ Checks have options available to all checks, and options specific to the type of
 
 
 
-### `enable: [timerange option]`
+### enable: [timerange option]
 
 Scope: global, metrology, pager, module, check
 
@@ -217,7 +217,7 @@ See `timerange option` for possible values.
 
 
 
-### `enable_pager: [timerange option]`
+### enable_pager: [timerange option]
 
 Scope: global, pager, check
 
@@ -234,7 +234,7 @@ For an alert to be sent to a pager, this option must be set at *ALL* levels:
 
 
 
-### `pager_rate_limit : seconds`
+### pager_rate_limit : seconds
 
 Scope: global
 
@@ -246,7 +246,7 @@ Pager notifications won't be sent more frequently than `pager_rate_limit` second
 
 
 
-### `alert_delay : seconds`
+### alert_delay : seconds
 
 Scope: global, module, check
 
@@ -260,7 +260,7 @@ Before that delay, an alert is sent as a warning.
 
 
 
-### `alert_max_level`
+### alert_max_level
 
 Scope:  global, module, check ; lower wins.
 
@@ -280,7 +280,7 @@ When set to none, all level are discarded, no values are reported to metrolgoy s
 
 
 
-### `load_confd : yes/no`
+### load_confd : yes/no
 
 Scope: global
 
@@ -290,7 +290,7 @@ It defines if a conf.d/ folder must be scanned and .yml files merged to current 
 
 
 
-### `conf_url`
+### conf_url
 
 Scope: global
 
@@ -305,7 +305,7 @@ Remote configuration is designed to implement muting for alerts/pagers/metrology
 
 
 
-### `max_execution_time : seconds`
+### max_execution_time : seconds
 
 Scope: global
 
@@ -315,7 +315,7 @@ when run from crontab, the CMT process kills itself after this amount of time. A
 
 
 
-### `timerange field values`
+### timerange field values
 
 `timerage` fields can take more values than the basic yes/no:
 
@@ -332,7 +332,7 @@ when run from crontab, the CMT process kills itself after this amount of time. A
 
 
 
-### `root_required`
+### root_required
 
 Scope: check
 
@@ -367,18 +367,21 @@ It may be the name of the Server or Virtual Machine.
 
 ### cmt_node_role
 *new v1.0.0*
-Optional.
+
+Optional
 
 
 
 ### cmt_node_env
 *new v1.0.0*
-Optional.
+
+Optional
 
 
 ### cmt_node_location
 *new v1.0.0*
-Optional.
+
+Optional
 
 
 ### tags
@@ -386,7 +389,7 @@ Optional.
 
 Scope: global, check
 
-Values : line of tagname blank separated, with optional =value for each tag
+Values : line of tag names, blankspace separated, with optional =value for each tag
 
 Default : none
 
@@ -485,6 +488,7 @@ Available moules
 	  - folder
 	  - certificate
 	  - socket
+	  - send
 
 
 
@@ -497,18 +501,5 @@ See the various document (from the sidebar) for each check/module configuration.
 ## Example configuration conf.yml
 	
 See the page [config_example.md](configuration_example) for a complete configuration.
-
-
-
-## Alternate / deprecated checks structure
-
-You can specficy individual checks in the following (deprecated) format:
-
-    checks:
-         my_checkname:
-             module: module_name
-             arg1: value1
-             arg2: value2 
-             (...)
 
 

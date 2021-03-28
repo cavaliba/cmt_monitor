@@ -27,6 +27,7 @@ title: configuration example
       load_confd: yes
       alert_max_level: alert
       alert_delay: 90
+      tags: mytag1 mytag2=value2
 
     metrology_servers:
       graylog_test1:
@@ -100,32 +101,28 @@ title: configuration example
     # ------
 
     load:
-
       myload:
         enable: yes
         alert_max_level: alert
+        tags: localtag1 localtag2=value2
 
     cpu:
-
       mycpu:
         enable: yes
         alert_max_level: alert
 
     memory:
-
       mymemory:
         enable: yes
         alert_max_level: alert
         frequency: 10
 
     boottime:
-
       myboottime:
         enable: yes
         alert_max_level: alert
 
     swap:
-
       myswap:
         enable: yes
         alert_max_level: alert
@@ -320,6 +317,12 @@ title: configuration example
         connect: yes
         #send: 
         #pattern:
+
+      send:
+        test_token1:
+          attribute: test
+          comment: "a test comment for token1 - cmt_test will be created in elastic"
+          unit: "no_unit"
 
 
     # ------------------------------------
