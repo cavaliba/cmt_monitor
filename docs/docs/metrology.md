@@ -10,7 +10,7 @@ CMT can send data to metrology servers, when run from cron `--cron` or with the 
 
 CMT can send data to:
 
-* ElasticSearch 6 with standard json over HTTP
+* ElasticSearch 6 with standard json over HTTP (CMT version 1.6 alpha release on Git)
 * Graylog 2 or 3 with a GELF connector over HTTP protocol
 * Graylog 2 or 3 with a GELF connector over UDP network protocol
 

@@ -4,6 +4,10 @@ title: version
 
 # Releases
 
+## 1.6-alpha - git only
+
+    feature: Elastic Search 6 remote metrology server
+
 
 ## 1.5 - 2021/03/28
 

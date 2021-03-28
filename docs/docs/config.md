@@ -119,6 +119,11 @@ Metrology servers represent remote graylog/elasticsearch systems where collected
 	      url: http://10.10.10.13:8080/gelf
 	      [enable]                : timerange ; default = yes ; master switch      
 
+	  # CMT version 1.6+
+	  my_el6_remote_server:
+	          type: elastic6_http_json
+	          url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
+	          enable: yes
 
 ### conf.yml : pager services
 
