@@ -41,7 +41,7 @@ metrology_servers:
       url: http://10.10.10.13:8080/gelf
       enable: yes
 
-  el6_test:
+  my_el6_test:
       type: elastic6_http_json
       url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
       enable: yes
@@ -68,11 +68,11 @@ modules:
 
 # SYNTAX
 #
-#   modulename:
-#     enable            : timerange ; default yes
-#     [alert_max_level] : alert, warn, notice, none  (scale down)  ; overwrites global entry
-#     [alert_delay]     : delay before transition from to alert ; seconds/DEFAULT 120 
-#     [frequency]       : min seconds between runs ; needs --cron in ARGS
+# modulename:
+#    enable            : timerange ; default yes
+#    [alert_max_level] : alert, warn, notice, none  (scale down)  ; overwrites global entry
+#    [alert_delay]     : delay before transition from to alert ; seconds/DEFAULT 120 
+#    [frequency]       : min seconds between runs ; needs --cron in ARGS
 
 
   load:

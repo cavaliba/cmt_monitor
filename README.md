@@ -140,7 +140,7 @@ CLI - run manually
     NOTICE  mount        path /merge not found
     OK      url          demo.cavaliba.com - http://demo.cavaliba.com/ [Host: ] - http=200 - 183 ms ; pattern OK
 
-    2020/12/06 - 16:42:52 : Done - 34 checks - 21 ok - 13 nok - 8 alerts - 3 warning - 2 notice.
+    2020/12/06 - 16:42:52 : Done - 34 checks - 21 ok - 13 nok - 8 alerts - 3 warning - 2 notice.
 
 
 
