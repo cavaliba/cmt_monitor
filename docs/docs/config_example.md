@@ -8,10 +8,13 @@ title: configuration example
 
     ---
     # Cavaliba / cmt_monitor / conf.yml
+    # CMT Version: 1.6
 
 
-    # Global
-    # ------
+    # Example configuration / template 
+
+    # Global section
+    # --------------
 
     global:
       cmt_group: cavaliba
@@ -21,40 +24,64 @@ title: configuration example
       cmt_node_location: Ladig
       enable: yes
       enable_pager: yes
-      conf_url: http://localhost/cmt/txt/
+      conf_url: http://localhost/txt/
       pager_rate_limit: 3600
-      max_execution_time: 500
+      max_execution_time: 55
       load_confd: yes
-      alert_max_level: alert
+      alert_max_level: warn
       alert_delay: 90
-      tags: mytag1 mytag2=value2
+      tags: global_tag1 global_tag2=value2
+
+
+    # Metrology section
+    # -----------------
 
     metrology_servers:
+
       graylog_test1:
           type: graylog_udp_gelf
           host: 10.10.10.13
           port: 12201
           enable: yes
+      
       graylog_test2:
           type: graylog_http_gelf
           url: http://10.10.10.13:8080/gelf
           enable: yes
 
+      elastic_test:
+          type: elastic_http_json
+          url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
+          enable: yes
+
+    # Pager section
+    # -------------
+
     pagers:
+
       alert:
         type: team_channel
-        url: https://outlook.office.com/webhook/xxxx/IncomingWebhook/yyyyy
+        url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
         enable: yes
+
       test:
         type: team_channel
-        url: https://outlook.office.com/webhook/xxxx/IncomingWebhook/yyyyy
+        url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
         enable: no
 
-    # -------     
-    # Modules
-    # -------
+    # Modules section
+    # ---------------
 
     modules:
+
+    # SYNTAX
+    #
+    # modulename:
+    #    enable            : timerange ; default yes
+    #    [alert_max_level] : alert, warn, notice, none  (scale down)  ; overwrites global entry
+    #    [alert_delay]     : delay before transition from to alert ; seconds/DEFAULT 120 
+    #    [frequency]       : min seconds between runs ; needs --cron in ARGS
+
 
       load:
         enable: yes
@@ -69,22 +96,30 @@ title: configuration example
 
       swap:
         enable: yes
+
       boottime:
         enable: yes
+
       ntp:
         enable: yes
+
       disk:
         enable: yes
+
       url:
         enable: yes
+
       mount:
         enable: yes
-        alert_max_level: notice    
+        alert_max_level: notice
+
       process:
         enable: yes
+
       ping:
         enable: yes
-        alert_max_level: warn    
+        alert_max_level: warn
+
       folder:
         enable: yes
         #alert_delay: 70
@@ -96,26 +131,47 @@ title: configuration example
       socket:
         enable: yes
 
-    # ------
-    # checks
-    # ------
+      send:
+        enable: yes
+
+
+    # checks section
+    # --------------
+
+    # module_name:
+    #
+    #   checkname:
+    #      [enable]           : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
+    #      [enable_pager]     : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
+    #      [alert_max_level]  : alert, warn, notice, none (scale down)  ; overwrites global & module entry
+    #      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
+    #      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
+    #      [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
+    #      [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank space aroung optional "=value"
+    #      arg1               : specific to module (see doc for each module)
+    #      arg2               : specific to module  
+    #      (...)
+
 
     load:
       myload:
         enable: yes
-        alert_max_level: alert
-        tags: localtag1 localtag2=value2
+        alert_max_level: warn
+        tags: local1 local2=43
+
 
     cpu:
       mycpu:
         enable: yes
         alert_max_level: alert
 
+
     memory:
       mymemory:
         enable: yes
         alert_max_level: alert
         frequency: 10
+
 
     boottime:
       myboottime:
@@ -165,7 +221,7 @@ title: configuration example
       via_proxy_cavaliba:
         enabled: yes
         url: https://www.cavaliba.com/
-        http_proxy: http://192.168.0.1:8080
+        http_proxy: http://62.210.205.232:8080
 
       url_noenv_proxy:
         url: http://www.monip.org/
@@ -197,6 +253,7 @@ title: configuration example
       cron:
         psname: cron
         search_arg: "-f"
+      
       ssh:
         psname: sshd
 
@@ -318,18 +375,27 @@ title: configuration example
         #send: 
         #pattern:
 
-      send:
+    send:
+
         test_token1:
           attribute: test
           comment: "a test comment for token1 - cmt_test will be created in elastic"
           unit: "no_unit"
 
 
+    #  -------------------------------------
+    #  timerange field (from documentation)
+    #  -------------------------------------
+    #  - yes
+    #  - no
+    #  - after YYYY-MM-DD hh:mm:ss
+    #  - before YYYY-MM-DD hh:mm:ss
+    #  - hrange hh:mm:ss hh:mm:ss
+    #  - ho   (8h30/18h mon>fri) - business hours
+    #  - hno  (! (8h30/18h mon>fri)) - non business hours
+
     # ------------------------------------
     # conf.d/*.yml also included with :
     # - main conf has higher priority
     # - first level lists merged
     # ------------------------------------
-
-
-

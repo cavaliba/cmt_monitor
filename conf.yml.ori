@@ -1,6 +1,6 @@
 ---
 # Cavaliba / cmt_monitor / conf.yml
-# CMT Version: 1.5
+# CMT Version: 1.6
 
 
 # Example configuration / template 
@@ -280,53 +280,88 @@ ping:
 
 folder:
 
-  dir_usrshare_doc:
-    path: /usr/share/doc
-    alert_max_level: none
+  test_extension:
+    path: /opt/cmt/testdata
     recursive: yes
     filter_extension: ".conf .hl7"
 
-  dir_usrshare_doc2:
-    path: /usr/share/doc
-    alert_max_level: none
+  test_regexp:
+    path: /opt/cmt/testdata
     recursive: yes
     filter_regexp: '^Makefile$'
 
-  dir_usrshare_alsa:
-    path: /usr/share/alsa
-    alert_max_level: none
+  test_regexp_ext:
+    path: /opt/cmt/testdata
     recursive: yes
     filter_regexp: '.*.conf$'
 
-  folder_mytmp:
-    path: /tmp
-    alert_max_level: alert
-    #alert_delay: 30
-    recursive: no
+  test_wrong_target:
+    path: /opt/cmt/testdata
     target:
        is_blabla:
-       #age_min: 1000
-       #age_max: 300
-       #files_min: 3
-       #files_max: 10
-       #size_min: 100000
-       #size_max: 10
+
+  test_hasfile:
+    path: /opt/cmt/testdata
+    recursive: no
+    target:
        has_files:
             - secret.pdf
             #- secret2.pdf
 
-  folder_number2:
-    path: /missing
+  test_age_min:
+    path: /opt/cmt/testdata
+    target:
+       age_min: 1000
 
-  a_file:
-    path: /tmp/ab.txt
-    no_store: no
+  test_age_max:
+    path: /opt/cmt/testdata
+    target:
+       age_max: 300
 
-  folder_big_nostore:
-    path: /usr/lib
+  test_files_min:
+    path: /opt/cmt/testdata
+    target:       
+       files_min: 3
+
+  test_files_max:
+    path: /opt/cmt/testdata
+    target:
+       files_max: 10
+
+  test_size_min:
+    path: /opt/cmt/testdata
+    target:
+       size_min: 100000
+       
+  test_size_max:
+    path: /opt/cmt/testdata
+    target:
+       size_max: 10
+
+  test_has_recent:
+    path: /opt/cmt/testdata
+    target:
+       has_recent: 3600
+
+  test_has_old:
+    path: /opt/cmt/testdata
+    target:
+       has_old: 86400
+
+  test_missing:
+    path: /opt/cmt/testdata/missing
+
+  test_missing:
+    path: /opt/cmt/testdata/file.txt
+
+  test_nostore:
+    path: /opt/cmt/testdata/file.txt
     recursive: yes
     no_store: yes
 
+  folder_root:
+    path: /root
+    root_required: yes
 
 certificate:
 

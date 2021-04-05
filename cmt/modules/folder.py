@@ -100,10 +100,10 @@ def check(c):
 
     # scan
     # ----
-    s_count = 0
-    s_size = 0
-    s_minage = -1
-    s_maxage = 0
+    s_count = 0      # total file count
+    s_size = 0       # total size sum
+    s_minage = -1    # youngest file age
+    s_maxage = 0     # oldest file age
     s_files = []
 
     # single file
@@ -226,6 +226,7 @@ def check(c):
             return c            
 
     # target : age_max: 
+    # all files must be younger than age_max
     if 'age_max' in targets:
         tgcount += 1
         if s_minage != -1:
@@ -235,6 +236,7 @@ def check(c):
                 return c                
 
     # target : age_min: 
+    # all files must be older than age_min
     if 'age_min' in targets:
         tgcount += 1
         if s_maxage != 0:
@@ -242,6 +244,27 @@ def check(c):
                 c.alert += 1
                 c.add_message("folder {} : some files too young ({} sec)".format(path,int(now - s_maxage)))
                 return c   
+
+    # target : has_recent: 
+    # some files must be younger than has_recent
+    if 'has_recent' in targets:
+        tgcount += 1
+        if s_minage != -1:
+            if int(now - s_minage) > targets ['has_recent']:
+                c.alert += 1
+                c.add_message("folder {} : missing young file (min {} sec)".format(path,int(now - s_minage)))
+                return c   
+
+    # target : has_old: 
+    # some files must be older than has_old
+    if 'has_old' in targets:
+        tgcount += 1
+        if s_maxage != 0:
+            if int(now - s_maxage) < targets ['has_old']:
+                c.alert += 1
+                c.add_message("folder {} : missing old file (max {} sec)".format(path,int(now - s_maxage)))
+                return c   
+
 
     if no_store:
         c.add_message("folder {} ({}) OK - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(

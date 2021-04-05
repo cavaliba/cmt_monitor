@@ -39,8 +39,10 @@ This check requires additional parameters to define each FOLDER to be checked :
 		     files_min       : 2
 		     size_max:       : (folder)
 		     size_min:       : (folder)      
-		     age_max:        : seconds, (file)
-		     age_min:        : seconds (file)
+		     age_max:        : seconds, (file)  : all files must be younger than value (queue)
+		     age_min:        : seconds (file)   : all files must be older than value
+		     has_recent      : seconds - some files must be younger than value - V1.6
+		     has_old         : seconds - some files must be older than value - V1.6
 		     has_files: 
 		         - filename1
 		         - filename2
@@ -57,18 +59,27 @@ This check requires additional parameters to define each FOLDER to be checked :
 
 ## Targets
 
-Targets define the desired state of a folder.
+Targets define the desired state of a folder, folder hierarchy (recurse) or single file.
 
-- `exist` (implicit target) : the folder must exist.
+- `exist` (implicit target) : the folder or file must exist.
 
-- `age_min`, `age_max` (seconds) : the youngest file must be older than age_min. The oldest file must be younger than age_max. Useful for checking buffers that should be empty, or backup folders that should have old versions of backups.
+- `files_min`: minimum number of files in the folder ; usefull for backup folders
 
-- `files_min`, `files_max`: min or max number of files in the folder (or recursively in the folder hierarchy).
+- `files_max`: maximum number of files in the folder ; usefull for queues/buffer
 
+- `size_min`: minimal total size of the folder (bytes)
 
-- `size_min`, `size_max`: min/max size of the folder (and subfolders if recursive is set to yes).
+- `size_max`: maximal  size of the folder (bytes)
 
-- `has_files`: list of exact filenames to be found in the folder (subfolders if recursive is set to yes).
+- `age_min`: **all** files must be older than age_min  (seconds)
+ 
+- `age_max`:  **all** files must be younger than age_max (seconds) ; usefull for queues/buffer
+
+- `has_recent`: **some** files must be young ; useful to check backup folders (fresh backups)
+
+- `has_old`: **some** files must be old ; useful to check backup folders (archive/historical backups)
+
+- `has_files`: list of exact filenames to be found
 
 
 ## Alerts
@@ -85,6 +96,8 @@ Alert message:
 - too small
 - some files are too old 
 - some files are too young
+- missing young file
+- missing old file
 - expected file not found
 
 ## Output to ElasticSearch

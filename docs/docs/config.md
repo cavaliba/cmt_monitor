@@ -120,7 +120,7 @@ Metrology servers represent remote graylog/elasticsearch systems where collected
 	      [enable]                : timerange ; default = yes ; master switch      
 
 	  # CMT version 1.6+
-	  my_el6_remote_server:
+	  my_elastic_remote_server:
 	          type: elastic_http_json
 	          url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
 	          enable: yes
