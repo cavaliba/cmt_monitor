@@ -12,18 +12,20 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	modules:
-  	  swap:
+	swap:
+  	  myswap:
   	     enable: yes
+  	     alert_max_level: warn
+  	     threshold: 5.4
 
 ## Additional parameters
+*new v1.6*
 
-This module as no additional parameter.
-
+    thresholdd: float ; percentage threshold before raising an alert
 
 ## Alerts
 
-This module doesn't compute nor report alerts.
+Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
 
 
 ## Output to ElasticSearch

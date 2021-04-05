@@ -72,9 +72,12 @@ class Report():
                 notice += 1
         nok = alert + warn + notice
         ok = ck - nok
+        
         print()
         logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
               ck, ok, nok, alert, warn, notice))
+        print()
+
 
     def dispatch_alerts(self):
 
@@ -91,34 +94,39 @@ class Report():
         ''' print pager/alerts to CLI '''
 
         print()
-        print("Notification Summary")
-        print("--------------------")
+        print(bcolors.WHITE + bcolors.BOLD + "Notification Summary" + bcolors.ENDC )
+        print(bcolors.WHITE + bcolors.BOLD + "--------------------" + bcolors.ENDC )
         print()
+        
         if self.notice == 0:
-            print(bcolors.OKBLUE + bcolors.BOLD + "No notice", bcolors.ENDC)
+            #print(bcolors.OKBLUE + bcolors.BOLD + "No notice", bcolors.ENDC)
+            print("No Notice.")
         else:
-            print(bcolors.OKBLUE + bcolors.BOLD + "Notice", bcolors.ENDC)
+            print(bcolors.CYAN + bcolors.BOLD + "NOTICE", bcolors.ENDC)
             for c in self.checks:
                 if c.notice > 0:
                     print("{:15s} : {}".format(c.module, c.get_message_as_str()))
+            print()
 
-        print()
         if self.warn == 0:
-            print(bcolors.OKGREEN + bcolors.BOLD + "No warnings", bcolors.ENDC)
+            #print(bcolors.OKGREEN + bcolors.BOLD + "No warnings", bcolors.ENDC)
+            print("No Warning.")
         else:
-            print(bcolors.WARNING + bcolors.BOLD + "Warnings", bcolors.ENDC)
+            print(bcolors.WARNING + bcolors.BOLD + "WARNINGS", bcolors.ENDC)
             for c in self.checks:
                 if c.warn > 0:
                     print("{:15s} : {}".format(c.module, c.get_message_as_str()))
-        print()
+            print()
+
         if self.alert == 0:
-            print(bcolors.OKGREEN + bcolors.BOLD + "No alerts", bcolors.ENDC)
+            #print(bcolors.OKGREEN + bcolors.BOLD + "No alerts", bcolors.ENDC)
+            print("No Alert.")
         else:
-            print(bcolors.FAIL + bcolors.BOLD + "Alerts", bcolors.ENDC)
+            print(bcolors.FAIL + bcolors.BOLD + "ALERTS", bcolors.ENDC)
             for c in self.checks:
                 if c.alert > 0:
                     print("{:15s} : {}".format(c.module, c.get_message_as_str()))
-        print()
+            #print()
 
 
     def send_alerts_to_pager(self):

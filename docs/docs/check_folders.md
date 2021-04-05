@@ -51,10 +51,15 @@ This check requires additional parameters to define each FOLDER to be checked :
 		   ]
 
 
-- `path`: the path to the folder
+- `path`:  path to the folder or file
+
 - `name`: the reported name to the monitoring server
+
 - `recursive`: if set to yes, the folder is analyzed recusirvely. Beware of large folders.
+
 - `target`: one or more command / subchecks against that folder, to be expressed in desired target state (think idempotence like in Ansible). See below for explanation of the various targets.
+
+- `no_store`: default to no ; set to yes for big folders, don't store in-memory, don't compute some targets (has_files)
 
 
 ## Targets
@@ -79,7 +84,7 @@ Targets define the desired state of a folder, folder hierarchy (recurse) or sing
 
 - `has_old`: **some** files must be old ; useful to check backup folders (archive/historical backups)
 
-- `has_files`: list of exact filenames to be found
+- `has_files`: list of exact filenames to be found ; `no_store` must be set to no.
 
 
 ## Alerts

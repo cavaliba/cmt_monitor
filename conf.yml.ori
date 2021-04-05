@@ -148,7 +148,10 @@ modules:
 load:
   myload:
     enable: yes
-    alert_max_level: warn
+    alert_max_level: alert
+    threshold1: 10.3
+    threshold5: 8.4
+    threshold15: 4.4
     tags: local1 local2=43
 
 
@@ -163,29 +166,31 @@ memory:
     enable: yes
     alert_max_level: alert
     frequency: 10
+    # percent
+    threshold: 80.5
 
 
 boottime:
   myboottime:
     enable: yes
     alert_max_level: alert
+    # days
+    threshold: 180
 
 swap:
   myswap:
     enable: yes
-    alert_max_level: alert
-
+    alert_max_level: warn
+    # percent
+    threshold: 11.3
 
 disk:
-
   disk_root:
     path: /
     alert: 80
-
   disk_boot:
     path: /boot
     alert: 90
-
 
 url:
 

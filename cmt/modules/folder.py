@@ -100,8 +100,8 @@ def check(c):
 
     # scan
     # ----
-    s_count = 0      # total file count
-    s_size = 0       # total size sum
+    s_count = 0      # total file count
+    s_size = 0       # total size sum
     s_minage = -1    # youngest file age
     s_maxage = 0     # oldest file age
     s_files = []

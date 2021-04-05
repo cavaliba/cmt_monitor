@@ -24,16 +24,18 @@ Enable the module in the configuration :
 	  my_boottime
 	  	enable: yes
 	  	alert_max_level: alert
+        threshold: 75               # days
 
 
 ## Additional parameters
+*new v1.6*
 
-This module as no additional parameter.
+    threshold: float ; days before raising an alert
 
 
 ## Alerts
 
-This module doesn't compute nor report alerts.
+Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
 
 
 ## Output to ElasticSearch

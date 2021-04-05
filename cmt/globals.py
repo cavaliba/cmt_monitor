@@ -9,7 +9,7 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - (c) cavaliba.com - Version 1.6-alpha - 2021/03/28"
+VERSION = "CMT - (c) cavaliba.com - Version 1.6 - 2021/04/04"
 
 # default ; can be overrided in configuration files
 MAX_EXECUTION_TIME = 55
@@ -51,6 +51,14 @@ class bcolors:
     OKGREEN = '\033[92m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
+    BLACK = '\033[90m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    GREEN = '\033[92m'
+    BLUE = '\033[94m'
+    MAGENTA = '\033[95m'
+    CYAN = '\033[96m'
+    WHITE = '\033[97m'
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'

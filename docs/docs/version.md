@@ -4,10 +4,18 @@ title: version
 
 # Releases
 
-## 1.6-alpha - git only
+## 1.6 - 2021/04/04
 
     feature: ElasticSearch 6/7 remote metrology server type
+    feature: module folder : has_recent, has_old targets
+    feature: module load : alert on threshold1/5/15 in config
+    feature: module swap : alert on threshold percentage
+    feature: module memory : alert on threshold percentage
+    feature: module boottime : alert on threshold days
+    feature: module cpu : alert on threshold percentage
+    feature: updated CLI color output
     deprecated : cmt_alert/cmt_warning/cmt_notice ; cmt_notification=1/2/3 instead
+
 
 ## 1.5 - 2021/03/28
 

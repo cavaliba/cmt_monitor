@@ -7,6 +7,10 @@ from checkitem import CheckItem
 def check(c):
     '''Collect memory percent, used, free, available'''
 
+
+    threshold = c.conf.get('threshold',101)
+
+
     # svmem(total=2749374464, available=1501151232, percent=45.4, used=979968000, 
     # free=736043008, active=1145720832, inactive=590102528, buffers=107663360, 
     # cached=925700096, shared=86171648)
@@ -29,6 +33,12 @@ def check(c):
     c.add_item(m4)
 
 
-    c.add_message("mem used {} % - used {} - avail {} - total {}".format(memory.percent, h_used, h_avail, h_total) )
+    # alerts ?
+    if float(memory.percent) > float(threshold):
+        c.alert += 1
+        c.add_message("memory above threshold : {} % > {} %".format(memory.percent, threshold))
+        return c
 
+    # OK
+    c.add_message("mem used {} % - used {} - avail {} - total {}".format(memory.percent, h_used, h_avail, h_total) )
     return c

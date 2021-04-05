@@ -94,7 +94,7 @@ In the following lines :
 	  [max_execution_time] : seconds ; DEFAULT 55
 	  [load_confd]         : yes/no ; DEFAULT no
 	  [alert_max_level]    : alert, warn, notice, none  ; levels are shifted to respect this limit.
-	  [alert_delay]        : delay before transition to alert (if alert) ; seconds/DEFAULT 120 
+	  [alert_delay]        : min. seconds before alert  ; DEFAULT 120  ; lower precedence
       [tags]               : tag1 tag2[=value] ; list of tags ; no blank around optional "=value"
 
 ### conf.yml : metroloy servers
@@ -164,7 +164,7 @@ Modules are code plugin to perform specific kind of data collection. Think as a 
 	  name:               : load 
 	    enable            : timerange ; default yes
 	    [alert_max_level] : alert, warn, notice, none  (scale down)  ; overwrites global entry
-	    [alert_delay]     : delay before transition from to alert ; seconds/DEFAULT 120 
+	    [alert_delay]     : min. seconds before alert  ; DEFAULT 120  ; medium precedence
 	    [frequency]       : min seconds between runs ; needs --cron in ARGS
 
 
@@ -189,7 +189,7 @@ Checks have options available to all checks, and options specific to the type of
           [enable]           : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
 	      [enable_pager]     : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
 	      [alert_max_level]  : alert, warn, notice, none (scale down)  ; overwrites global & module entry
-	      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
+	      [alert_delay]      : min. seconds before alert  ; DEFAULT 120  ; higher precedence
 	      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
           [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
           [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank around optional "=value"

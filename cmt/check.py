@@ -234,7 +234,7 @@ class Check():
         elif self.warn > 0:
             head = bcolors.WARNING + "WARN   " + bcolors.ENDC
         elif self.notice > 0:
-            head = bcolors.OKBLUE  + "NOTICE " + bcolors.ENDC
+            head = bcolors.CYAN  + "NOTICE " + bcolors.ENDC
 
         # print(head, self.get_message_as_str())
         print("{:12} {:12} {}".format(head, self.module, self.get_message_as_str()))
@@ -243,7 +243,7 @@ class Check():
     def print_to_cli_detail(self):
 
         print()
-        print(bcolors.OKBLUE + bcolors.BOLD + "Check", self.module, bcolors.ENDC)
+        print(bcolors.WHITE + bcolors.BOLD + "Check", self.module, bcolors.ENDC)
 
         for i in self.checkitems:
 
@@ -259,16 +259,16 @@ class Check():
             print("cmt_{:20} {}".format(i.name, v))
 
 
-        head = bcolors.OKGREEN     + "OK     " + bcolors.ENDC
+        head = bcolors.OKGREEN  + bcolors.BOLD + "OK     " + bcolors.ENDC
 
         if self.alert > 0:
-            head = bcolors.FAIL    + "NOK    " + bcolors.ENDC
+            head = bcolors.FAIL + bcolors.BOLD + "NOK    " + bcolors.ENDC
         elif self.warn > 0:
-            head = bcolors.WARNING + "WARN   " + bcolors.ENDC
+            head = bcolors.WARNING + bcolors.BOLD + "WARN   " + bcolors.ENDC
         elif self.notice > 0:
-            head = bcolors.OKBLUE  + "NOTICE " + bcolors.ENDC
+            head = bcolors.CYAN + bcolors.BOLD + "NOTICE " + bcolors.ENDC
 
-        print("{:33} {}".format(head, self.get_message_as_str()))
+        print("{:37} {}".format(head, self.get_message_as_str()))
 
 
     def send_metrology(self):

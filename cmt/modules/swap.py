@@ -5,6 +5,9 @@ from checkitem import CheckItem
 
 def check(c):
 
+    threshold = c.conf.get('threshold',101)
+
+
     # sswap(total=2147479552, used=0, free=2147479552, percent=0.0, sin=0, sout=0)
     swap = psutil.swap_memory()
 
@@ -20,5 +23,12 @@ def check(c):
     c.add_item(m3)
 
 
+    # alerts ?
+    if float(swap.percent) > float(threshold):
+        c.alert += 1
+        c.add_message("swap above threshold : {} % > {} %".format(swap.percent, threshold))
+        return c
+
+    # OK
     c.add_message("swap used: {} % /  {} - total {}".format(swap.percent, h_used, h_total))
     return c

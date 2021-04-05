@@ -12,18 +12,22 @@ Enable the module in the configuration :
 
     # conf.yml
 
-	modules:
-  	  memory:
+	memory:
+  	  mymemory:
   	     enable: yes
+  	     enable_pager: no
+  	     alert_max_level: warn
+  	     threshold: 75.8              # percentage
 
 ## Additional parameters
+*new v1.6*
 
-This module as no additional parameter.
+    threshold: float ; percentage threshold before raising an alert
 
 
 ## Alerts
 
-This module doesn't compute nor report alerts.
+Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
 
 
 ## Output to ElasticSearch
