@@ -3,8 +3,7 @@ title: configuration example
 ---
 
 
-
-## Full configuration example for Version 1.4.0
+## Full configuration example
 
     ---
     # Cavaliba / cmt_monitor / conf.yml

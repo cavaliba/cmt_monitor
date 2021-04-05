@@ -10,7 +10,7 @@ CMT can send data to metrology servers, when run from cron `--cron` or with the 
 
 CMT can send data to:
 
-* ElasticSearch 6 with standard json over HTTP (CMT version 1.6 alpha release on Git)
+* ElasticSearch 6 / 7 with standard json over HTTP (since CMT version 1.6)
 * Graylog 2 or 3 with a GELF connector over HTTP protocol
 * Graylog 2 or 3 with a GELF connector over UDP network protocol
 
@@ -68,8 +68,18 @@ You need to configure :
 * optionally, an alias and and index automatic rollover
 * a kibana system to visualize and process ingested CMT data.
 
+Your CMT  configuration will thus be :
 
-Here is a minimal Elastic6 cheatsheet you may use from the server hosting elastic to get started:
+    metrology_servers:      
+
+        my_elastic_remote_server:
+          type: elastic_http_json
+          url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
+          enable: yes
+
+
+
+Here is a minimal Elastic cheatsheet you may use from the server hosting elastic to get started:
 
     
     ## open access (dev mode only)  elasticsearch.yml
@@ -104,15 +114,5 @@ Here is a minimal Elastic6 cheatsheet you may use from the server hosting elasti
     '
     ## insert with pipeline
     curl -XPOST -H "Content-Type: application/json" localhost:9200/cmt/data/?pipeline=timestamp -d '{ "key1":"value1" }'
-
-
-Your CMT  configuration will thus be :
-
-    metrology_servers:      
-
-        my_elastic_remote_server:
-          type: elastic_http_json
-          url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
-          enable: yes
 
 
