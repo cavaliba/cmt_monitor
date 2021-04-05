@@ -16,21 +16,17 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     Global Output JSON/GELF
     -------------------------------------------
 
-    cmt_group         : Customer / Platform ...
-    cmt_node          : VM / instance
-    cmt_node_env      : prod / qa / test / dev ...
-    cmt_node_role     : string - free
-    cmt_node_location : geographical / hosting
-    cmt_module        : module name
-    cmt_check         : check name (user choosen string in config)
-    cmt_id            : group.node.module.check  => primary key
-
-    cmt_alert         : yes/no
-    cmt_warning       : yes/no
-    cmt_notice        : yes/no
-    cmt_notification  : int : number of alert/warning/notice 
-    cmt_message       : one line for human / full recap / id. compact mode
-
+    cmt_group          : Customer / Platform ...
+    cmt_node           : VM / instance
+    cmt_node_env       : prod / qa / test / dev ...
+    cmt_node_role      : string - free
+    cmt_node_location  : geographical / hosting
+    cmt_module         : module name
+    cmt_check          : check name (user choosen string in config)
+    cmt_id             : group.node.module.check  => primary key
+    [cmt_notification] : nature of alert if any : 1 = alert, 2 = warning, 3 = notice
+    cmt_message        : one line for human / full recap / id. compact mode
+    [cmt_tag_XXX]      : tag values ; = 1 or = giver value in config
 
     specific
       +cmt_*module*_*
@@ -155,5 +151,20 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_socket_alive     : yes/no  [LISTEN]
     cmt_socket_ping      : ok/nok
 
+    -------------------------------------------
+    Module: send
+    -------------------------------------------
+    2021/03/21 - V1.4
 
-    
+    cmt_XXXXX            : attribute/value as specified in configuration
+
+
+## Deprecated
+   
+
+   V1.6
+   ----
+   cmt_alert
+   cmt_warning
+   cmt_notice
+   => replaced by cmt_notification

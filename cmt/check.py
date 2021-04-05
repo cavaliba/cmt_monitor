@@ -89,8 +89,16 @@ class Check():
         return "{}.{}.{}.{}".format(self.group, self.node, self.module, self.check)
 
     def get_notification(self):
-        ''' Returns notification has sum of alert + warn + nocive '''
-        return int(self.alert + self.warn + self.notice)
+        #return int(self.alert + self.warn + self.notice)
+        # NEW V 1.6
+        # notification is 1/2/3 if alert/warn/notice
+        if self.alert > 0:
+            return 1
+        if self.warn > 0:
+            return 2
+        if self.notice > 0:
+            return 3
+        return 0
 
     def get_message_as_str(self):
 
@@ -295,9 +303,9 @@ class Check():
                 metrology.graylog_send_http_gelf(url=url, data=gelf_data)
                 debug("Data sent to metrology server ", metro)
 
-            elif metrotype == "elastic6_http_json":
+            elif metrotype == "elastic_http_json":
                 url = metroconf['url']
-                metrology.elastic6_send_http_json(url=url, data=json_data)
+                metrology.elastic_send_http_json(url=url, data=json_data)
                 debug("Data sent to metrology server ", metro)
 
             else:

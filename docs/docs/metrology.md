@@ -71,6 +71,11 @@ You need to configure :
 
 Here is a minimal Elastic6 cheatsheet you may use from the server hosting elastic to get started:
 
+    
+    ## open access (dev mode only)  elasticsearch.yml
+    network.host: 0.0.0.0
+    discovery.type: single-node
+    
     ## version
     curl localhost:9200
     curl localhost:9200/_cat
@@ -105,8 +110,8 @@ Your CMT  configuration will thus be :
 
     metrology_servers:      
 
-        my_el6_remote_server:
-          type: elastic6_http_json
+        my_elastic_remote_server:
+          type: elastic_http_json
           url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
           enable: yes
 

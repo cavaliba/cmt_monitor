@@ -6,14 +6,13 @@ title: version
 
 ## 1.6-alpha - git only
 
-    feature: Elastic Search 6 remote metrology server
-
+    feature: ElasticSearch 6/7 remote metrology server type
+    deprecated : cmt_alert/cmt_warning/cmt_notice ; cmt_notification=1/2/3 instead
 
 ## 1.5 - 2021/03/28
 
     feature: display config_file in report header
     feature: tags/key-value option in global/check conf sections
-
 
 
 ## 1.4.0 - 2021/03/21
@@ -22,7 +21,7 @@ title: version
     feature: module folder: send_content option in folder module
     feature: module url: timeout and http proxy options : http_proxy, https_proxy, noenv
     feature: --check option for specific checkname filtering when run as CLI
-    NEW module send: pipe a result to cmt for immediate send to metrology
+    feature: new module send ; pipe a result to cmt for immediate send to metrology
 
 
 ## 1.3.1 - 2021/01/10

@@ -30,7 +30,7 @@ It needs a configuration entry to map the  received value from STDIN to an attri
 
 It waits at most 5 seconds for the data to be available on STDIN.
 
-Don't forget the `--report\ option to send to metrology servers.
+Don't forget the `--report` option to send to metrology servers.
 
 
 

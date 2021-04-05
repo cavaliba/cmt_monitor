@@ -121,7 +121,7 @@ Metrology servers represent remote graylog/elasticsearch systems where collected
 
 	  # CMT version 1.6+
 	  my_el6_remote_server:
-	          type: elastic6_http_json
+	          type: elastic_http_json
 	          url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
 	          enable: yes
 
