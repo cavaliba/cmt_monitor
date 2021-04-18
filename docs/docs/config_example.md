@@ -146,7 +146,7 @@ title: configuration example
     #      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
     #      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
     #      [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
-    #      [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank space aroung optional "=value"
+    #      [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank space aroung optional "=value"
     #      arg1               : specific to module (see doc for each module)
     #      arg2               : specific to module  
     #      (...)

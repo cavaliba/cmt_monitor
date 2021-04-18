@@ -4,6 +4,13 @@ title: version
 
 # Releases
 
+## 1.6.1 - 2021/04/18
+
+    bugfix : folder module : has_recent, has_old mismatch
+    feature: folder module : check valid targets
+    feature: send cmt_version in metrology events
+
+
 ## 1.6 - 2021/04/04
 
     feature: ElasticSearch 6/7 remote metrology server type

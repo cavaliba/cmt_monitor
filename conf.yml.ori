@@ -22,7 +22,7 @@ global:
   load_confd: yes
   alert_max_level: warn
   alert_delay: 90
-  tags: global_tag1 global_tag2=value2
+  tags: demo os=linux os_ver=debian10
 
 
 # Metrology section
@@ -77,23 +77,26 @@ modules:
 
   load:
     enable: yes
-    alert_max_level: notice
+    alert_max_level: warn
 
   cpu:
     enable: yes
-  
+    alert_max_level: notice
+
   memory:
     enable: yes
-    frequency: 600
+    alert_max_level: warn
 
   swap:
     enable: yes
+    alert_max_level: warn
 
   boottime:
     enable: yes
+    alert_max_level: notice
 
-  ntp:
-    enable: yes
+#  ntp:
+#    enable: yes
 
   disk:
     enable: yes
@@ -103,7 +106,6 @@ modules:
 
   mount:
     enable: yes
-    alert_max_level: notice
 
   process:
     enable: yes
@@ -115,10 +117,11 @@ modules:
   folder:
     enable: yes
     #alert_delay: 70
-    #alert_max_level: alert
   
   certificate:
     enable: yes
+    frequency: 600
+    alert_max_level: warn
 
   socket:
     enable: yes
@@ -139,7 +142,7 @@ modules:
 #      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
 #      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
 #      [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
-#      [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank space aroung optional "=value"
+#      [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank space aroung optional "=value"
 #      arg1               : specific to module (see doc for each module)
 #      arg2               : specific to module  
 #      (...)
@@ -192,6 +195,7 @@ disk:
     path: /boot
     alert: 90
 
+# ---------
 url:
 
   www.cavaliba.com:
@@ -228,7 +232,7 @@ url:
     url: http://slowwly.robertomurray.co.uk/delay/4000/url/http://google.co.uk
     timeout: 2
 
-
+# ---------
 mount:
 
   mount_root:
@@ -238,6 +242,7 @@ mount:
     path: /mnt
 
 
+# ---------
 process:
 
   redis:
@@ -264,7 +269,7 @@ process:
     psname: php-fpm
     enable_pager: yes
 
-
+# ---------
 ping:
 
   ping_vm1:
@@ -282,7 +287,7 @@ ping:
   badname:
     host: www.averybadnammme_indeed.com  
 
-
+# ---------
 folder:
 
   test_extension:
@@ -368,6 +373,7 @@ folder:
     path: /root
     root_required: yes
 
+# ---------
 certificate:
 
   cert_google:
@@ -391,7 +397,7 @@ certificate:
     port: 443
     alert_in: 2 week
 
-
+# ---------
 socket:
 
   redis:
@@ -406,6 +412,7 @@ socket:
     connect: yes
     #send: 
     #pattern:
+
 
 send:
 

@@ -1,0 +1,308 @@
+---
+# (c) Cavaliba.com  - 2021 - CMT V1.6 - conf.yml
+
+# ##################################################
+# ### ANSIBLE MANAGED - DO NOT EDIT MANUALLY
+# ##################################################
+
+global:
+  cmt_group: {{ cmt_group }}
+  cmt_node: {{ cmt_node | default(inventory_hostname) }}
+  cmt_node_env: {{ cmt_node_env }}
+  cmt_node_role: {{ cmt_node_role }}
+  cmt_node_location: {{ cmt_node_location }}
+  enable: {{ cmt_enable  }}
+  enable_pager: {{ cmt_enable_pager  }}
+  pager_rate_limit: 3600
+  alert_max_level: {{ cmt_alert_max_level }}
+  alert_delay: 180
+  #conf_url: http://localhost/cmt/conf/
+  max_execution_time: 50
+  load_confd: yes
+  #tags: tag1 tag2=value
+
+
+# GELF servers for data reports
+# -----------------------------
+
+metrology_servers:
+
+  my_graylog__http:
+    type: graylog_http_gelf
+    url: {{ cmt_default_graylog }}
+    enable: yes
+
+#  my_graylog_udp:
+#      type: graylog_udp_gelf
+#      host: 10.10.10.13
+#      port: 12201
+#      enable: yes
+
+#  my_elastic:
+#      type: elastic_http_json
+#      url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
+#      enable: yes
+
+
+# Teams channels for alerts
+# ---------------------------
+
+pagers:
+
+  alert:
+    type: team_channel
+    url: {{ cmt_alert_pager }}
+    enable: yes
+
+  test:
+    type: team_channel
+    url: {{ cmt_alert_pager }}
+    enable: yes
+
+# Modules section
+# ---------------
+
+modules:
+
+# SYNTAX
+#
+# modulename:
+#    enable            : timerange ; default yes
+#    [alert_max_level] : alert, warn, notice, none  (scale down)  ; overwrites global entry
+#    [alert_delay]     : delay before transition from to alert ; seconds/DEFAULT 120
+#    [frequency]       : min seconds between runs ; needs --cron in ARGS
+
+modules:
+
+  load:
+    enable: yes
+
+  cpu:
+    enable: yes
+
+  memory:
+    enable: yes
+
+  swap:
+    enable: yes
+
+  boottime:
+    enable: yes
+
+  disk:
+    enable: yes
+
+  mount:
+    enable: yes
+
+  process:
+    enable: yes
+
+  url:
+    enable: yes
+
+  ping:
+    enable: yes
+
+  folder:
+    enable: yes
+
+  certificate:
+    enable: yes
+    frequency: 3600
+
+  socket:
+    enable: yes
+
+  send:
+    enable: yes
+
+# checks section
+# --------------
+
+# module_name:
+#
+#   checkname:
+#      [enable]           : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
+#      [enable_pager]     : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
+#      [alert_max_level]  : alert, warn, notice, none (scale down)  ; overwrites global & module entry
+#      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120
+#      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
+#      [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
+#      [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank space aroung optional "=value"
+#      arg1               : specific to module (see doc for each module)
+#      arg2               : specific to module
+#      (...)
+
+
+load:
+  myload:
+    enable: yes
+    alert_max_level: warn
+    threshold1: 20
+    threshold5: 10
+    threshold15: 6
+
+cpu:
+  mycpu:
+    enable: yes
+    threshold1: 95
+    alert_delay: 180
+    alert_max_level: warn
+
+
+memory:
+  mymemory:
+    enable: yes
+    alert_max_level: warn
+    alert_delay: 180
+    threshold: 90
+
+
+boottime:
+  myboottime:
+    enable: yes
+    alert_max_level: notice
+    threshold: 120
+
+swap:
+  myswap:
+    enable: yes
+    alert_max_level: warn
+    alert_delay: 180
+    threshold: 20
+
+disk:
+  disk_root:
+    path: /
+    alert: 80
+    alert_max_level: warn
+  disk_boot:
+    path: /boot
+    alert: 90
+    alert_max_level: warn
+
+#url:
+
+#  www.cavaliba.com:
+#    enabled: after 2020-01-01
+#    url: https://www.cavaliba.com/
+#    pattern: "Cavaliba"
+#    allow_redirects: yes
+#    ssl_verify: yes
+#    host: myvhost
+#    http_proxy: http://62.210.205.232:8080
+#    http_proxy: noenv
+#    timeout: 2
+
+
+mount:
+
+  mount_root:
+    path: /
+
+  mount_mnt:
+    path: /mnt
+
+
+process:
+
+#  redis:
+#    psname: redis
+#    enable_pager: no
+
+#  apache:
+#    psname: httpd
+
+#  cron:
+#    psname: cron
+#    search_arg: "-f"
+
+#  ssh:
+#    psname: sshd
+
+#  ntp:
+#    psname: ntpd
+
+#  mysql:
+#    psname: mysqld
+
+#  php-fpm:
+#    psname: php-fpm
+#    enable_pager: yes
+
+
+#ping:
+#
+#  ping_vm1:
+#    host: 192.168.0.1
+
+#  ping_locahost:
+#    host: localhost
+
+#folder:
+#
+#  test_extension:
+#    path: /opt/cmt/testdata
+#    recursive: yes
+#    filter_extension: ".conf .hl7"
+#    filter_regexp: '^Makefile$'
+#    filter_regexp: '.*.conf$'
+#    root_required: yes
+#    target:
+#       is_blabla:
+#       has_files:
+#            - secret.pdf
+#            #- secret2.pdf
+#       age_min: 1000
+#       age_max: 300
+#       files_min: 3
+#       files_max: 10
+#       size_min: 100000
+#       size_max: 10
+#       has_recent: 3600
+#       has_old: 86400
+
+#certificate:
+#
+#  cert_google:
+#    hostname: google.com
+#    port: 443
+#    alert_in: 1 week
+#    warning_in: 3 months
+#    notice_in: 6 months
+
+#socket:
+#
+#  redis:
+#    socket: local tcp 6379
+#    #socket: local tcp port | remote tcp host port
+#    connect: yes
+#    #send:
+#    #pattern:
+
+#send:
+#
+#    test_token1:
+#      attribute: test
+#      comment: "a test comment for token1 - cmt_test will be created in elastic"
+#      unit: "no_unit"
+
+
+#  -------------------------------------
+#  timerange field (from documentation)
+#  -------------------------------------
+#  - yes
+#  - no
+#  - after YYYY-MM-DD hh:mm:ss
+#  - before YYYY-MM-DD hh:mm:ss
+#  - hrange hh:mm:ss hh:mm:ss
+#  - ho   (8h30/18h mon>fri) - business hours
+#  - hno  (! (8h30/18h mon>fri)) - non business hours
+
+# ------------------------------------
+# conf.d/*.yml also included with :
+# - main conf has higher priority
+# - first level lists merged
+# ------------------------------------
+

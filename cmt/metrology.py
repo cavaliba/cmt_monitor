@@ -28,6 +28,8 @@ def build_gelf_message(check):
     graylog_data += ',"cmt_node_role":"{}"'.format(check.node_role)
     graylog_data += ',"cmt_node_location":"{}"'.format(check.node_location)
 
+    graylog_data += ',"cmt_version":"{}"'.format(check.version)
+
     graylog_data += ',"cmt_module":"{}"'.format(check.module)
     graylog_data += ',"cmt_check":"{}"'.format(check.check)    # deprecated
     graylog_data += ',"cmt_id":"{}"'.format(check.get_id())
@@ -75,6 +77,9 @@ def build_json_message(check):
     json_data += ',"cmt_node_env":"{}"'.format(check.node_env)
     json_data += ',"cmt_node_role":"{}"'.format(check.node_role)
     json_data += ',"cmt_node_location":"{}"'.format(check.node_location)
+
+    json_data += ',"cmt_version":"{}"'.format(check.version)
+
 
     json_data += ',"cmt_module":"{}"'.format(check.module)
     json_data += ',"cmt_check":"{}"'.format(check.check)    # deprecated

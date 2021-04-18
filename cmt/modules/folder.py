@@ -9,6 +9,14 @@ s_dirs = 0
 conf_filter_extension = []
 conf_filter_regexp = None
 
+VALID_TARGET_LIST = [
+        'files_min','files_max',
+        'size_min','size_max',
+        'age_min','age_max',
+        'has_old', 'has_recent',
+        'has_files',
+        ]
+
 def scanRecurse(path):
     global s_dirs
     try:
@@ -102,8 +110,8 @@ def check(c):
     # ----
     s_count = 0      # total file count
     s_size = 0       # total size sum
-    s_minage = -1    # youngest file age
-    s_maxage = 0     # oldest file age
+    s_mintime = -1    # oldest file (minimal unix timestamp)
+    s_maxtime = 0     # most recent file (maximal unix timestamp)
     s_files = []
 
     # single file
@@ -111,8 +119,8 @@ def check(c):
         statinfo = os.stat(path)
         s_size = statinfo.st_size
         s_count = 1
-        s_maxage = statinfo.st_mtime
-        s_minage = statinfo.st_mtime
+        s_mintime = statinfo.st_mtime
+        s_maxtime = statinfo.st_mtime
 
         # option : send_content
         if send_content:
@@ -139,10 +147,10 @@ def check(c):
                     s_files.append(entry.name)
                 statinfo = os.stat(entry.path)
                 s_size += statinfo.st_size
-                if statinfo.st_mtime > s_maxage:
-                    s_maxage = statinfo.st_mtime
-                if statinfo.st_mtime < s_minage or s_minage == -1 :
-                    s_minage = statinfo.st_mtime
+                if statinfo.st_mtime > s_maxtime:
+                    s_maxtime = statinfo.st_mtime
+                if statinfo.st_mtime < s_mintime or s_mintime == -1 :
+                    s_mintime = statinfo.st_mtime
         else:
             for entry in scanNoRecurse(path):
                 if has_filter_extension:
@@ -153,10 +161,10 @@ def check(c):
                     s_files.append(entry.name)
                 statinfo = os.stat(entry.path)
                 s_size += statinfo.st_size
-                if statinfo.st_mtime > s_maxage:
-                    s_maxage = statinfo.st_mtime
-                if statinfo.st_mtime < s_minage or s_minage == -1 :
-                    s_minage = statinfo.st_mtime
+                if statinfo.st_mtime > s_maxtime:
+                    s_maxtime = statinfo.st_mtime
+                if statinfo.st_mtime < s_mintime or s_mintime == -1 :
+                    s_mintime = statinfo.st_mtime
 
     else:
         c.warn = 1
@@ -178,13 +186,13 @@ def check(c):
 
     # age
     now = time.time()
-    if s_maxage > 0:
-        ci = CheckItem('folder_age_min',"","Min age (seconds)", unit="sec")
-        ci.value = int(now - s_maxage)
+    if s_maxtime > 0:
+        ci = CheckItem('folder_youngest',"","most recent file (seconds)", unit="sec")
+        ci.value = int(now - s_maxtime)
         c.add_item(ci)
-    if s_minage != -1:
-        ci = CheckItem('folder_age_max',"","Max age (seconds)", unit="sec")
-        ci.value = int(now - s_minage)
+    if s_mintime != -1:
+        ci = CheckItem('folder_oldest',"","oldest file (seconds)", unit="sec")
+        ci.value = int(now - s_mintime)
         c.add_item(ci)
 
 
@@ -192,6 +200,13 @@ def check(c):
     # --------------
     tgcount = 0
     tgtotal = len(targets)
+
+    # check valid target name
+    for t in targets:
+        if not t in VALID_TARGET_LIST:
+            c.warn = 1
+            c.add_message("folder {} : unknown target {}".format(path,t))
+            return c 
 
     # target : files_min: 4
     if 'files_min' in targets:
@@ -226,49 +241,49 @@ def check(c):
             return c            
 
     # target : age_max: 
-    # all files must be younger than age_max
+    # all files must be more recent than age_max seconds
     if 'age_max' in targets:
         tgcount += 1
-        if s_minage != -1:
-            if int(now - s_minage) > targets ['age_max']:
+        if s_mintime != -1:
+            if int(now - s_mintime) > targets ['age_max']:
                 c.alert += 1
-                c.add_message("folder {} : some files too old ({} sec)".format(path,int(now - s_minage)))
+                c.add_message("folder {} : some files are too old ({} sec)".format(path,int(now - s_mintime)))
                 return c                
 
     # target : age_min: 
     # all files must be older than age_min
     if 'age_min' in targets:
         tgcount += 1
-        if s_maxage != 0:
-            if int(now - s_maxage) < targets ['age_min']:
+        if s_maxtime != 0:
+            if int(now - s_maxtime) < targets ['age_min']:
                 c.alert += 1
-                c.add_message("folder {} : some files too young ({} sec)".format(path,int(now - s_maxage)))
+                c.add_message("folder {} : some files are too young ({} sec)".format(path,int(now - s_maxtime)))
                 return c   
 
     # target : has_recent: 
-    # some files must be younger than has_recent
+    # some files must be recent (more than has_recent)
     if 'has_recent' in targets:
         tgcount += 1
-        if s_minage != -1:
-            if int(now - s_minage) > targets ['has_recent']:
+        if s_maxtime != 0:
+            if int(now - s_maxtime) > targets ['has_recent']:
                 c.alert += 1
-                c.add_message("folder {} : missing young file (min {} sec)".format(path,int(now - s_minage)))
+                c.add_message("folder {} : missing young file (min {} sec)".format(path,int(now - s_maxtime)))
                 return c   
 
     # target : has_old: 
     # some files must be older than has_old
     if 'has_old' in targets:
         tgcount += 1
-        if s_maxage != 0:
-            if int(now - s_maxage) < targets ['has_old']:
+        if s_mintime != -1:
+            if int(now - s_mintime) < targets ['has_old']:
                 c.alert += 1
-                c.add_message("folder {} : missing old file (max {} sec)".format(path,int(now - s_maxage)))
+                c.add_message("folder {} : missing old file (max {} sec)".format(path,int(now - s_mintime)))
                 return c   
 
 
     if no_store:
-        c.add_message("folder {} ({}) OK - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(
-            name, path, s_count, s_dirs, s_size, h_size, tgcount, tgtotal ))
+        c.add_message("folder {} OK - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(
+            path, s_count, s_dirs, s_size, h_size, tgcount, tgtotal ))
         return c
 
     # NEED flist to be stored at scan time
@@ -282,6 +297,6 @@ def check(c):
                 c.add_message("folder {} : expected file not found ({})".format(path,f))
                 return c
 
-    c.add_message("folder {} ({}) OK - {} files, {} dirs, {} bytes - targets {}/{}".format(
-        name, path, s_count, s_dirs, s_size, tgcount, tgtotal))
+    c.add_message("folder {} OK - {} files, {} dirs, {} bytes - targets {}/{}".format(
+        path, s_count, s_dirs, s_size, tgcount, tgtotal))
     return c

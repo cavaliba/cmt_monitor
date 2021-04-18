@@ -39,6 +39,7 @@ class Check():
         self.opt = opt         # opt given at init time by perform_check external creator
         self.result = "ok"     # ok, nok, skip
         self.result_info = ""  # human info about check run
+        self.version = cmt.VERSION_NUMBER   # new 1.6.1
 
         self.message = []
 
@@ -410,6 +411,7 @@ def perform_check(checkname, modulename):
             debug ("check %s must run as root." % checkname)   
             check_result.result = "skip"         
             check_result.result_info =  "must run as root"
+            #print("SKIPPED - ROOT REQUIRED")
             return "continue"
 
     # verify frequency in cron mode

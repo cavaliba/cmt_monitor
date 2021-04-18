@@ -18,16 +18,16 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
 
     cmt_group          : Customer / Platform ...
     cmt_node           : VM / instance
+    cmt_id             : group.node.module.check  => primary key
     cmt_node_env       : prod / qa / test / dev ...
     cmt_node_role      : string - free
     cmt_node_location  : geographical / hosting
     cmt_module         : module name
     cmt_check          : check name (user choosen string in config)
-    cmt_id             : group.node.module.check  => primary key
+    cmt_version        : ex "1.6.1"  // new in 1.6.1 by the way
     [cmt_notification] : nature of alert if any : 1 = alert, 2 = warning, 3 = notice
     cmt_message        : one line for human / full recap / id. compact mode
-    [cmt_tag_XXX]      : tag values ; = 1 or = giver value in config
-
+    [cmt_tag_XXX]      : tag values ; = 1 or = given value in config
     specific
       +cmt_*module*_*
 
@@ -167,4 +167,4 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
    cmt_alert
    cmt_warning
    cmt_notice
-   => replaced by cmt_notification
+   => replaced by cmt_notification (int=1/2/3)

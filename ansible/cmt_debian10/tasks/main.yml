@@ -1,0 +1,150 @@
+---
+# tasks file for cmt_debian10
+# 2021 (c) cavaliba.com
+
+
+- name: CMT - create /opt/cmt
+  file:
+    path: /opt/cmt
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  tags: role_cmt
+
+#----
+#conf
+
+- name: CMT - create /opt/cmt/conf.d
+  file:
+    path: /opt/cmt/conf.d
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  tags: role_cmt, role_cmt_conf
+
+- name: CMT - create conf.yml
+  template:
+    src: templates/cmt_conf.yml.j2
+    dest: /opt/cmt/conf.yml
+    owner: root
+    group: root
+    mode: '0644'
+    backup: no
+  tags: role_cmt, role_cmt_conf
+
+- name: CMT - create conf.d/host specific config
+  template:
+    src: templates/cmt_{{ inventory_hostname }}.yml.j2
+    dest: /opt/cmt/conf.d/{{ inventory_hostname }}.yml
+    owner: root
+    group: root
+    mode: '0644'
+    backup: no
+  tags: role_cmt, role_cmt_conf
+
+#----
+#Binary
+
+- name: CMT - install cmt binay to /usr/local/bin/cmt
+  copy:
+    src: "{{ cmt_local_bin }}"
+    dest: /usr/local/bin/cmt
+    owner: root
+    group: root
+    mode: 0755
+  tags: role_cmt, role_cmt_bin
+
+- name: CMT - install cmt binay to /opt/cmt/
+  copy:
+    src: "{{ cmt_local_bin }}"
+    dest: /usr/local/bin/
+    owner: root
+    group: root
+    mode: 0755
+  tags: role_cmt, role_cmt_bin
+
+#----
+#logs
+
+- name: CMT - create /var/log/cmt.log
+  copy:
+    content: ""
+    dest: /var/log/cmt.log
+    force: no
+    group: root
+    owner: root
+    mode: 0755
+  tags: role_cmt, role_cmt_log
+
+- name: CMT - create /opt/cmt/cmt.log
+  copy:
+    content: ""
+    dest: /opt/cmt/cmt.log
+    force: no
+    group: root
+    owner: root
+    mode: 0755
+  tags: role_cmt, role_cmt_log
+
+- name: CMT - install logrotate
+  copy:
+    src: files/cmt_logrotate
+    dest: /etc/logrotate.d/cmt
+    owner: root
+    group: root
+    mode: '0644'
+  tags: role_cmt, role_cmt_log
+
+#---
+#src
+
+- name: CMT - create /opt/cmt/src
+  file:
+    path: /opt/cmt/src
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  tags: role_cmt, role_cmt_src
+
+- name: CMT - create /opt/cmt/src/modules
+  file:
+    path: /opt/cmt/src/modules
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  tags: role_cmt, role_cmt_src
+
+
+- name: CMT - install cmt src to /opt/cmt/src
+  copy:
+    src: "{{ cmt_local_src }}/cmt/"
+    dest: /opt/cmt/src
+    owner: root
+    group: root
+    mode: 0644
+  tags: role_cmt, role_cmt_src
+
+- name: CMT - install cmt src/modules to /opt/cmt/src/modules
+  copy:
+    src: "{{ cmt_local_src }}/cmt/modules"
+    dest: /opt/cmt/src
+    owner: root
+    group: root
+    mode: 0644
+  tags: role_cmt, role_cmt_src
+
+# -----
+
+- name: CMT - install crontab
+  cron:
+    name: cmt
+    state: present
+    user: root
+    #job: "/usr/bin/python3 /opt/cmt_monitor/cmt.py --report --alert >> /var/log/cmt/cmt.log 2>&1"
+    job: "/usr/local/bin/cmt --cron >> /opt/cmt/cmt.log 2>&1"
+  tags: role_cmt, role_cmt_cron
+

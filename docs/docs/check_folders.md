@@ -76,11 +76,11 @@ Targets define the desired state of a folder, folder hierarchy (recurse) or sing
 
 - `size_max`: maximal  size of the folder (bytes)
 
-- `age_min`: **all** files must be older than age_min  (seconds)
+- `age_min`: **all** files must be old ; older than age_min  (seconds)
  
-- `age_max`:  **all** files must be younger than age_max (seconds) ; usefull for queues/buffer
+- `age_max`:  **all** files must be recent ; younger than age_max (seconds) ; usefull for queues/buffer
 
-- `has_recent`: **some** files must be young ; useful to check backup folders (fresh backups)
+- `has_recent`: **some** files must be recent ; useful to check backup folders (fresh backups)
 
 - `has_old`: **some** files must be old ; useful to check backup folders (archive/historical backups)
 

@@ -4,7 +4,7 @@ title: Home
 
 # Welcome to CMT Documentation
 
-*Current release : 1.6 - 2021/04/04*
+*Current release : 1.6.1 - 2021/04/18*
 
 ## Overwiew - CMT is a simple monitoring agent
 

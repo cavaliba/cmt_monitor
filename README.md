@@ -3,31 +3,35 @@ CAVALIBA - CMT Monitor
 
 (c) Cavaliba.com 2020-2021  - Version 1.6 - 2021/04/04
 
-CMT Monitor is a simple software agent to  :
+
+CMT Monitor is a simple software agent to :
 
 * collect standard OS, Middleware, Network ... and Custom metrics
-* check application and remote URLs  for response and pattern
+* check application status and remote URLs  for response and pattern
 * send alerts to Pager (Teams channels)
-* send data to Metrology servers (GELF/graylog) based on ElasticStack for futur reporting and alerting
-* help troubleshoot outage when run as CLI
-* easy automation and deploy with Ansible ; easy one-file configuration
+* send data to Metrology servers (Elastic/Graylog) for additional reporting and alerting
+* help troubleshoot outage when run as CLI (interactive : cmt -s)
+* easy one-file configuration
+* easy automation and deployment with Ansible-like tools.
 
-get from github
----------------
+
+download standalone binary
+--------------------------
+
+    http://www.cavaliba.com/download/cmt/
+    sudo cp cmt-XX.bin /usr/local/bin/cmt
+    sudo chmod 755 /usr/local/bin/cmt
+    cmt --version
+
+get source from github if needed
+---------------------------------
 
     git clone https://github.com/cavaliba/cmt_monitor.git
 
-Elastic Index template
-----------------------
+read documentation
+------------------
 
-Load template to elasticsearch for proper field type definition :
-
-    curl -X PUT -d @'cmt_elastic_template.json' -H 'Content-Type: application/json' 'http://localhost:9200/_template/cavaliba-custom-mapping?pretty'
-
-documentation
---------------
-
-http://www.cavaliba.com/cmt/doc/index.html
+    http://www.cavaliba.com/cmt/doc/index.html
 
 
 see help
@@ -67,82 +71,57 @@ see help
       --short, -s           short compact cli output
 
 
-setup from binary
------------------
-
-    sudo cp cmt.###.bin /usr/local/bin/cmt
-    sudo chown root:root /usr/loca/bin/cmt
-    sudo chmod 755 /usr/local/bin/cmt
-    $ cmt --version
-
-setup from source
------------------
-
-Install requirements.txt.
-
-    python3 -m pip install -r requirements.txt
-
-Copy conf.yml.ori to conf.yml and adapt.
-
-    cp conf.yml.ori conf.yml
-    vi conf.yml
-
-Add additional configurations
-
-    vi conf.d/demo.yml
-
-Use locally as CLI with --available option to identifiy items to monitor.
-
-
 CLI - run manually
 ------------------
 
-    $ ./cmt.py -s
+      $ cmt -s
 
-    ------------------------------------------------------------
-    CMT - Version 1.3.0 - (c) Cavaliba.com - 2021/01/02
-    ------------------------------------------------------------
-    cmt_group      :  cavaliba
-    cmt_node       :  vmxupm
+      ------------------------------------------------------------
+      CMT - (c) cavaliba.com - Version 1.6.1 - 2021/04/18
+      ------------------------------------------------------------
+      cmt_group      :  cavaliba
+      cmt_node       :  vmxupm2
+      config file    :  /opt/cmt/conf.yml
 
-    OK      load         1/5/15 min : 0.11  0.17  0.22
-    OK      cpu          usage : 1.5 %
-    OK      memory       used 66.7 % - used 1.5 GB - avail 915.4 MB - total 2.7 GB
-    OK      boottime     days since last reboot : 0 days - 7:25:51 sec.
-    OK      swap         used: 0.4 % /  9.2 MB - total 2.1 GB
-    OK      disk         path : / - used: 32.7 % - used: 20.9 GB - free: 43.0 GB - total: 67.4 GB 
-    OK      disk         path : /boot - used: 32.7 % - used: 20.9 GB - free: 43.0 GB - total: 67.4 GB 
-    OK      url          www.cavaliba.com - https://www.cavaliba.com/ [Host: ] - http=200 - 102 ms ; pattern OK
-    NOK     url          www_non_existing - http://www.nonexisting/ [Host: ] - no response to query
-    OK      mount        path / found
-    NOTICE  mount        path /mnt not found
-    OK      socket       local redis localhost tcp/6379 - alive: yes - count: 0
-    NOK     process      apache missing (httpd)
-    OK      process      cron found (cron) - memory rss 2.9 MB - cpu 0.01 sec.
-    OK      process      ssh found (sshd) - memory rss 5.3 MB - cpu 0.04 sec.
-    NOK     process      ntp missing (ntpd)
-    OK      process      mysql found (mysqld) - memory rss 88.5 MB - cpu 3.9 sec.
-    NOK     process      php-fpm missing (php-fpm)
-    OK      ping         192.168.0.1 ok
-    OK      ping         localhost ok
-    OK      ping         www.google.com ok
-    WARN    ping         www.test.com not responding
-    WARN    ping         www.averybadnammme_indeed.com not responding
-    NOK     folder       /tmp : expected file not found (secret.pdf)
-    NOK     folder       /missing missing
-    NOK     folder       /tmp/ab.txt missing
-    OK      folder       folder_big_nostore (/usr/lib) ok - 20874 files, 2038 dirs, 2617963928 bytes [2.6 GB] - targets 0/0
-    WARN    certificate  50 day(s) left for SSL certificate google.com:443
-    OK      certificate  338 day(s) left for SSL certificate duckduckgo.com:443
-    NOK     certificate  no certificate found for duckduckgo.com:80
-    OK      certificate  114 day(s) left for SSL certificate yahoo.com:443
-    OK      socket       remote www_google www.google.com tcp/443 - alive: yes - count: 0
-    NOTICE  mount        path /merge not found
-    OK      url          demo.cavaliba.com - http://demo.cavaliba.com/ [Host: ] - http=200 - 183 ms ; pattern OK
+      OK      boottime     boot : 0 days since last reboot - 0:51:56 sec.
+      OK      load         load 1/5/15 min : 0.25  0.22  0.2
+      WARN    certificate  57 day(s) left for SSL certificate google.com:443
+      OK      certificate  205 day(s) left for SSL certificate duckduckgo.com:443
+      NOK     certificate  no certificate found for duckduckgo.com:80
+      OK      certificate  128 day(s) left for SSL certificate yahoo.com:443
+      OK      cpu          cpu usage : 3.8 %
+      OK      disk         disk / - used: 41.8 % - used: 26.7 GB - free: 37.2 GB - total: 67.4 GB 
+      OK      disk         disk /boot - used: 41.8 % - used: 26.7 GB - free: 37.2 GB - total: 67.4 GB 
+      NOK     folder       folder /tmp : expected file not found (secret.pdf)
+      OK      folder       folder folder_bad_target (/tmp) OK - 3 files, 16 dirs, 425 bytes - targets 0/1
+      NOK     folder       folder /missing missing
+      NOK     folder       folder /tmp/ab.txt missing
+      NOK     folder       folder /tmp/ab.txt missing
+      OK      folder       folder folder_big_nostore (/usr/lib) OK - 20881 files, 2040 dirs, 2630640432 bytes [2.6 GB] - targets 0/0
+      OK      memory       mem used 54.9 % - used 1.2 GB - avail 1.2 GB - total 2.7 GB
+      OK      mount        mount / found
+      NOTICE  mount        mount /mnt not found
+      OK      ping         ping 192.168.0.1 ok
+      OK      ping         ping localhost ok
+      OK      ping         ping www.google.com ok
+      WARN    ping         ping www.test.com not responding
+      WARN    ping         ping www.averybadnammme_indeed.com not responding
+      NOK     process      process redis missing (redis, None)
+      NOK     process      process apache missing (httpd, None)
+      OK      process      process cron found (cron, None) - memory rss 3.0 MB - cpu 0.0 sec.
+      OK      process      process ssh found (sshd, None) - memory rss 5.6 MB - cpu 0.01 sec.
+      NOK     process      process ntp missing (ntpd, None)
+      OK      process      process mysql found (mysqld, None) - memory rss 90.2 MB - cpu 0.68 sec.
+      NOK     process      process php-fpm missing (php-fpm, None)
+      OK      socket       socket local redis localhost tcp/6379 - alive: yes - count: 0
+      OK      socket       socket remote www_google www.google.com tcp/443 - alive: yes - count: 0
+      OK      swap         swap used: 0.1 % /  1.3 MB - total 2.1 GB
+      OK      url          url www.cavaliba.com - https://www.cavaliba.com/ [Host: ] - http=200 - 98 ms ; pattern OK
+      NOK     url          url www_non_existing - http://www.nonexisting/ [Host: ] - timeout/no response to query
+      OK      url          url google - https://www.google.com/ [Host: ] - http=200 - 99 ms ; pattern OK
+      OK      url          url yahoo - https://www.yahoo.com/ [Host: ] - http=200 - 691 ms ; pattern OK
 
-    2020/12/06 - 16:42:52 : Done - 34 checks - 21 ok - 13 nok - 8 alerts - 3 warning - 2 notice.
-
-
+      2021/04/18 - 13:54:44 : Done - 37 checks - 23 ok - 14 nok - 10 alerts - 3 warning - 1 notice.
 
 crontab
 -------
