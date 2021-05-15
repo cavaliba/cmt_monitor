@@ -21,7 +21,7 @@ Enable the module in the configuration :
 	# conf.yml
 	
 	boottime:
-	  my_boottime
+	  my_boottime:
 	  	enable: yes
 	  	alert_max_level: alert
         threshold: 75               # days

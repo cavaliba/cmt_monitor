@@ -290,6 +290,10 @@ ping:
 # ---------
 folder:
 
+  test_recursive100:
+    path: /opt/cmt/testdata/arbo100
+    recursive: yes
+
   test_extension:
     path: /opt/cmt/testdata
     recursive: yes
@@ -298,6 +302,11 @@ folder:
   test_regexp:
     path: /opt/cmt/testdata
     recursive: yes
+    filter_regexp: '^Makefile$'
+
+  test_regexp_no_recurse:
+    path: /opt/cmt/testdata
+    recursive: no
     filter_regexp: '^Makefile$'
 
   test_regexp_ext:
@@ -362,7 +371,7 @@ folder:
     path: /opt/cmt/testdata/missing
 
   test_missing:
-    path: /opt/cmt/testdata/file.txt
+    path: /opt/cmt/testdata/file_missing.txt
 
   test_nostore:
     path: /opt/cmt/testdata/file.txt
