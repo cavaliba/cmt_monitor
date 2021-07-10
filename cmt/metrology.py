@@ -2,9 +2,12 @@
 # metrology.py
 
 import socket
+import time
 
 import globals as cmt
 from logger import logit, debug, debug2
+import conf
+import args
 
 
 # ------------------------------------------------------------
@@ -12,6 +15,60 @@ from logger import logit, debug, debug2
 # ------------------------------------------------------------
 # send messages to metrology servers
 
+
+# ------------------------------------------------------------
+# Main entry point : send_metrology(check)
+# ------------------------------------------------------------
+
+def send_metrology(mycheck):
+
+    ''' Send Check results (event, multiple CheckItems)
+        to metrology servers.
+    '''
+
+    gelf_data = build_gelf_message(mycheck)
+    json_data = build_json_message(mycheck)
+    influxdb_data = build_influxdb_message(mycheck)
+
+    for metro in cmt.CONF['metrology_servers']:
+
+        metroconf = cmt.CONF['metrology_servers'][metro]
+        metrotype = metroconf.get('type', 'unknown')
+
+        timerange = metroconf.get("enable", "yes")
+        if not conf.is_timeswitch_on(timerange):
+            debug("Metrology server disabled in conf : ", metro)
+            return
+
+        if metrotype == "graylog_udp_gelf":
+            host = metroconf['host']
+            port = metroconf['port']
+            graylog_send_udp_gelf(host=host, port=port, data=gelf_data)
+            debug("Data sent to metrology server ", metro)
+
+        elif metrotype == "graylog_http_gelf":
+            url = metroconf['url']
+            graylog_send_http_gelf(url=url, data=gelf_data)
+            debug("Data sent to metrology server ", metro)
+
+        elif metrotype == "elastic_http_json":
+            url = metroconf['url']
+            elastic_send_http_json(url=url, data=json_data)
+            debug("Data sent to metrology server ", metro)
+
+        elif metrotype == "influxdb_v1":
+            url = metroconf['url']
+            username = metroconf.get('username','')
+            password = metroconf.get('password','')
+            influxdbv1_send_http(url, username=username, password=password, data=influxdb_data)
+            debug("Data sent to metrology server ", metro)
+
+        else:
+            debug("Unknown metrology server type in conf.")
+
+# ------------------------------------------------------------
+# Metrology data structures
+# ------------------------------------------------------------
 
 # GRAYLOG / GELF
 def build_gelf_message(check):
@@ -114,6 +171,25 @@ def build_json_message(check):
     return json_data
 
 
+
+# V1.7+
+def build_influxdb_message(check):
+
+    ''' Prepare a string with and influxdb protocol formatted message.'''
+
+    # timestamp in milliseconds
+    tsms = round(time.time() * 1000)
+
+    # module,cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
+
+    return "cmt_test,cmt_node=test,cmt_group=test,cmt_check=mytest,cmt_node_env=test cmt_value1=1,cmt_value2=2"
+
+
+# ------------------------------------------------------------
+# metrology sender functions
+# ------------------------------------------------------------
+
+
 def graylog_send_http_gelf(url, data=""):
 
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
@@ -155,8 +231,6 @@ def graylog_send_udp_gelf(host, port=12201, data=""):
     except Exception as e:
         logit("Error - couldn't send graylod message (udp/gelf) to {} - {}".format(host, e))
 
-# ----
-
 
 def elastic_send_http_json(url, data=""):
 
@@ -176,5 +250,39 @@ def elastic_send_http_json(url, data=""):
     except Exception as e:
         logit("Error - couldn't send elastic message (http/json) to {} - {}".format(url, e))
         cmt.METROLOGY_HTTP_SUSPENDED = True
+
+
+
+def influxdbv1_send_http(url, username="", password="", data=""):
+
+    headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': '*/*'}
+
+    if cmt.METROLOGY_INFLUXDB_SUSPENDED:
+        logit("suspended - INFLUXDB message suspended/not sent to " + str(url))
+        return
+
+    if cmt.ARGS['devmode']:
+        print("DEVMODE : INFLUXDB : ", url, data)
+        return
+
+    try:
+        # basic authentication
+        if len(username)>0:
+            r = cmt.SESSION.post(url, 
+                data=data, 
+                headers=headers, 
+                auth=(username, passwword),
+                timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)
+        else:
+        # no auth / auth in URL ?u=XXX&p=XXX
+            r = cmt.SESSION.post(url, 
+                data=data, 
+                headers=headers, 
+                timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)        
+        debug("Message sent to INFLUXDB ; status = " + str(r.status_code))
+
+    except Exception as e:
+        logit("Error - couldn't send INFLUXDB message to {} - {}".format(url, e))
+        cmt.METROLOGY_INFLUXDB_SUSPENDED = True
 
 

@@ -46,6 +46,16 @@ metrology_servers:
       url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
       enable: yes
 
+  # V1.7+
+  influxdbv1_test:
+      type: influxdb_v1
+      url: http://10.10.10.13:8086/write?db=cmt
+      db : cmt
+      #username: cmt
+      #password : cmt
+      enable: yes
+
+
 # Pager section
 # -------------
 

@@ -272,45 +272,45 @@ class Check():
         print("{:37} {}".format(head, self.get_message_as_str()))
 
 
-    def send_metrology(self):
+    # def send_metrology(self):
 
-        ''' Send Check results (event, multiple CheckItems)
-            to metrology servers.
-        '''
+    #     ''' Send Check results (event, multiple CheckItems)
+    #         to metrology servers.
+    #     '''
 
-        gelf_data = metrology.build_gelf_message(self)
-        json_data = metrology.build_json_message(self)
-
-
-        for metro in cmt.CONF['metrology_servers']:
+    #     gelf_data = metrology.build_gelf_message(self)
+    #     json_data = metrology.build_json_message(self)
 
 
-            metroconf = cmt.CONF['metrology_servers'][metro]
-            metrotype = metroconf.get('type', 'unknown')
+    #     for metro in cmt.CONF['metrology_servers']:
 
-            timerange = metroconf.get("enable", "yes")
-            if not conf.is_timeswitch_on(timerange):
-                debug("Metrology server disabled in conf : ", metro)
-                return
 
-            if metrotype == "graylog_udp_gelf":
-                host = metroconf['host']
-                port = metroconf['port']
-                metrology.graylog_send_udp_gelf(host=host, port=port, data=gelf_data)
-                debug("Data sent to metrology server ", metro)
+    #         metroconf = cmt.CONF['metrology_servers'][metro]
+    #         metrotype = metroconf.get('type', 'unknown')
 
-            elif metrotype == "graylog_http_gelf":
-                url = metroconf['url']
-                metrology.graylog_send_http_gelf(url=url, data=gelf_data)
-                debug("Data sent to metrology server ", metro)
+    #         timerange = metroconf.get("enable", "yes")
+    #         if not conf.is_timeswitch_on(timerange):
+    #             debug("Metrology server disabled in conf : ", metro)
+    #             return
 
-            elif metrotype == "elastic_http_json":
-                url = metroconf['url']
-                metrology.elastic_send_http_json(url=url, data=json_data)
-                debug("Data sent to metrology server ", metro)
+    #         if metrotype == "graylog_udp_gelf":
+    #             host = metroconf['host']
+    #             port = metroconf['port']
+    #             metrology.graylog_send_udp_gelf(host=host, port=port, data=gelf_data)
+    #             debug("Data sent to metrology server ", metro)
 
-            else:
-                debug("Unknown metrology server type in conf.")
+    #         elif metrotype == "graylog_http_gelf":
+    #             url = metroconf['url']
+    #             metrology.graylog_send_http_gelf(url=url, data=gelf_data)
+    #             debug("Data sent to metrology server ", metro)
+
+    #         elif metrotype == "elastic_http_json":
+    #             url = metroconf['url']
+    #             metrology.elastic_send_http_json(url=url, data=json_data)
+    #             debug("Data sent to metrology server ", metro)
+
+    #         else:
+    #             debug("Unknown metrology server type in conf.")
 
 
     def add_tags(self):
@@ -470,7 +470,8 @@ def perform_check(checkname, modulename):
 
     # Metrology
     if cmt.ARGS['cron'] or cmt.ARGS["report"]:
-        check_result.send_metrology()
+        # check_result.send_metrology()
+        metrology.send_metrology(check_result)
 
     # add Check to report
     return check_result
