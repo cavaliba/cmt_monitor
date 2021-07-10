@@ -4,6 +4,8 @@ import re
 
 # import globals as cmt
 from checkitem import CheckItem
+from logger import logit, debug, debug2
+
 
 s_dirs = 0
 conf_filter_extension = []
@@ -17,29 +19,19 @@ VALID_TARGET_LIST = [
         'has_files',
         ]
 
-def scanRecurse(path):
+def scanCommon(path, recursive=False):
     global s_dirs
-    try:
-        for entry in os.scandir(path):
-            if entry.is_file(follow_symlinks=False):
-                yield entry
-            elif entry.is_dir(follow_symlinks=False):
-                s_dirs += 1
-                yield from scanRecurse(entry.path)
-    except Exception:
-        pass
+    if not os.path.exists(path):
+        return
+    for entry in os.scandir(path):
+        if entry.is_file(follow_symlinks=False):
+            debug(entry.path)
+            yield entry
+        elif entry.is_dir(follow_symlinks=False):
+            s_dirs += 1                
+            if recursive:
+                yield from scanCommon(entry.path)
 
-def scanNoRecurse(path):
-    global s_dirs
-    try:
-        for entry in os.scandir(path):
-            if entry.is_file(follow_symlinks=False):
-                yield entry
-            elif entry.is_dir(follow_symlinks=False):
-                s_dirs += 1
-                #yield from scanRecurse(entry.path)
-    except Exception:
-        pass
 
 def filter_extension(entry):
     for e in conf_filter_extension:
@@ -47,24 +39,24 @@ def filter_extension(entry):
             return True
     return False
 
+
 def filter_regexp(entry):
     if re.match(conf_filter_regexp, entry.name):
         return True
     return False
 
+
 def get_file_content(path):
+    if not os.path.exists(path):
+        return
     r = ""
-    try:
-        with open(path,"r") as f:
-            for line in f.readlines():
-                r = r + line
-                if len(r) > 100:
-                    break
-    except:
-        pass
+    with open(path,"r") as f:
+        for line in f.readlines():
+            r = r + line
+            if len(r) > 100:
+                break
     if len(r) > 100:
         r = r[:100] + "(...)"
-    #print("r=",r)
     return r
 
 def check(c):
@@ -132,39 +124,23 @@ def check(c):
     # directory
     elif os.path.isdir(path):
         #for entry in os.scandir(path):
-        if recursive:
-            for entry in scanRecurse(path):
+        for entry in scanCommon(path, recursive = recursive):
+            if has_filter_extension:
+                if not filter_extension(entry):
+                    continue
+            if has_filter_regexp:
+                if not filter_regexp(entry):
+                    continue
+            s_count += 1
+            if not no_store:
+                s_files.append(entry.name)
+            statinfo = os.stat(entry.path)
+            s_size += statinfo.st_size
+            if statinfo.st_mtime > s_maxtime:
+                s_maxtime = statinfo.st_mtime
+            if statinfo.st_mtime < s_mintime or s_mintime == -1 :
+                s_mintime = statinfo.st_mtime
 
-                if has_filter_extension:
-                    if not filter_extension(entry):
-                        continue
-                if has_filter_regexp:
-                    if not filter_regexp(entry):
-                        continue
-
-                s_count += 1
-                if not no_store:
-                    s_files.append(entry.name)
-                statinfo = os.stat(entry.path)
-                s_size += statinfo.st_size
-                if statinfo.st_mtime > s_maxtime:
-                    s_maxtime = statinfo.st_mtime
-                if statinfo.st_mtime < s_mintime or s_mintime == -1 :
-                    s_mintime = statinfo.st_mtime
-        else:
-            for entry in scanNoRecurse(path):
-                if has_filter_extension:
-                    if not filter_extension(entry):
-                        continue                
-                s_count += 1
-                if not no_store:
-                    s_files.append(entry.name)
-                statinfo = os.stat(entry.path)
-                s_size += statinfo.st_size
-                if statinfo.st_mtime > s_maxtime:
-                    s_maxtime = statinfo.st_mtime
-                if statinfo.st_mtime < s_mintime or s_mintime == -1 :
-                    s_mintime = statinfo.st_mtime
 
     else:
         c.warn = 1
@@ -205,7 +181,7 @@ def check(c):
     for t in targets:
         if not t in VALID_TARGET_LIST:
             c.warn = 1
-            c.add_message("folder {} : unknown target {}".format(path,t))
+            c.add_message("{} {} : unknown target {}".format(name, path,t))
             return c 
 
     # target : files_min: 4
@@ -213,7 +189,7 @@ def check(c):
         tgcount += 1
         if s_count < targets['files_min']:
             c.alert += 1
-            c.add_message ("folder {} :  too few files ({})".format(path,s_count))
+            c.add_message ("{} {} :  too few files ({})".format(name, path,s_count))
             return c
 
     # target : files_max: 23
@@ -221,7 +197,7 @@ def check(c):
         tgcount += 1
         if s_count > targets['files_max']:
             c.alert += 1
-            c.add_message ("folder {} : too many files ({})".format(path,s_count))
+            c.add_message ("{} {} : too many files ({})".format(name, path,s_count))
             return c
 
     # target : size_max (folder max bytes)
@@ -229,7 +205,7 @@ def check(c):
         tgcount += 1
         if s_size > targets['size_max']:
             c.alert += 1
-            c.add_message("folder {} : too big ({})".format(path,s_size))
+            c.add_message("{} {} : too big ({})".format(name, path,s_size))
             return c            
 
     # target : size_min (folder min bytes)
@@ -237,7 +213,7 @@ def check(c):
         tgcount += 1
         if s_size < targets['size_min']:
             c.alert += 1
-            c.add_message("folder {} : too small ({})".format(path,s_size))
+            c.add_message("{} {} : too small ({})".format(name, path,s_size))
             return c            
 
     # target : age_max: 
@@ -247,7 +223,7 @@ def check(c):
         if s_mintime != -1:
             if int(now - s_mintime) > targets ['age_max']:
                 c.alert += 1
-                c.add_message("folder {} : some files are too old ({} sec)".format(path,int(now - s_mintime)))
+                c.add_message("{} {} : some files are too old ({} sec)".format(name, path,int(now - s_mintime)))
                 return c                
 
     # target : age_min: 
@@ -257,7 +233,7 @@ def check(c):
         if s_maxtime != 0:
             if int(now - s_maxtime) < targets ['age_min']:
                 c.alert += 1
-                c.add_message("folder {} : some files are too young ({} sec)".format(path,int(now - s_maxtime)))
+                c.add_message("{} {} : some files are too young ({} sec)".format(name, path,int(now - s_maxtime)))
                 return c   
 
     # target : has_recent: 
@@ -267,7 +243,7 @@ def check(c):
         if s_maxtime != 0:
             if int(now - s_maxtime) > targets ['has_recent']:
                 c.alert += 1
-                c.add_message("folder {} : missing young file (min {} sec)".format(path,int(now - s_maxtime)))
+                c.add_message("{} {} : missing young file (min {} sec)".format(name, path,int(now - s_maxtime)))
                 return c   
 
     # target : has_old: 
@@ -277,13 +253,13 @@ def check(c):
         if s_mintime != -1:
             if int(now - s_mintime) < targets ['has_old']:
                 c.alert += 1
-                c.add_message("folder {} : missing old file (max {} sec)".format(path,int(now - s_mintime)))
+                c.add_message("{} {} : missing old file (max {} sec)".format(name, path,int(now - s_mintime)))
                 return c   
 
 
     if no_store:
-        c.add_message("folder {} OK - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(
-            path, s_count, s_dirs, s_size, h_size, tgcount, tgtotal ))
+        c.add_message("{} {} OK - {} files, {} dirs, {} bytes [{}] - targets {}/{}".format(
+            name, path, s_count, s_dirs, s_size, h_size, tgcount, tgtotal ))
         return c
 
     # NEED flist to be stored at scan time
@@ -297,6 +273,6 @@ def check(c):
                 c.add_message("folder {} : expected file not found ({})".format(path,f))
                 return c
 
-    c.add_message("folder {} OK - {} files, {} dirs, {} bytes - targets {}/{}".format(
-        path, s_count, s_dirs, s_size, tgcount, tgtotal))
+    c.add_message("{} {} OK - {} files, {} dirs, {} bytes - targets {}/{}".format(
+        name, path, s_count, s_dirs, s_size, tgcount, tgtotal))
     return c

@@ -10,7 +10,7 @@ import args
 import metrology
 
 from globals import bcolors
-from logger import logit, debug
+from logger import logit, debug, debug2
 from checkitem import CheckItem
 
 
@@ -343,7 +343,7 @@ class Check():
 
 def perform_check(checkname, modulename):
 
-    debug("Starting check : ", checkname)
+    debug2("Starting check : ", checkname)
 
     # Is module in GLOBAL MAP ?
     if modulename not in cmt.GLOBAL_MODULE_MAP:
@@ -360,10 +360,10 @@ def perform_check(checkname, modulename):
     if ts_check == "n/a":
         # module level ?
         if not conf.is_module_active_in_conf(modulename):
-            debug("  module disabled in conf")
+            debug2("  module disabled in conf")
             return "continue"   # no
     elif not conf.is_timeswitch_on(ts_check):
-        debug("  check disabled by conf")
+        debug2("  check disabled by conf")
         return "continue"
 
     # check if module is filtered in ARGS
@@ -388,10 +388,10 @@ def perform_check(checkname, modulename):
     my_opt["specific_checkname_run"]=False
     if cmt.ARGS["check"]:
         if cmt.ARGS["check"] == checkname:
-            debug("  specific check name : match %s" % checkname)
+            debug2("  specific check name : match %s" % checkname)
             my_opt["specific_checkname_run"]=True
         else:
-            debug("  specific check name : skip %s" % checkname)
+            debug2("  specific check name : skip %s" % checkname)
             return "continue"
 
 
@@ -408,7 +408,7 @@ def perform_check(checkname, modulename):
     conf_rootreq = checkconf.get('root_required', False) is True
     if conf_rootreq:
         if (os.getuid() != 0):
-            debug ("check %s must run as root." % checkname)   
+            debug("check %s must run as root." % checkname)   
             check_result.result = "skip"         
             check_result.result_info =  "must run as root"
             #print("SKIPPED - ROOT REQUIRED")
@@ -443,7 +443,7 @@ def perform_check(checkname, modulename):
 
     # if check skipped
     if check_result.result == "skip":
-        debug("  skipped in module")
+        debug2("  skipped in module")
         return "continue"
 
     # Hysteresis / alert upd & own

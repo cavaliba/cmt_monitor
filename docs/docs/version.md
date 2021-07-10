@@ -4,6 +4,12 @@ title: version
 
 # Releases
 
+## 1.7beta - 2021/05/15
+
+    bugfix - module folder : filter_regexp missing when not recursive
+    bugfix - module folder : display name in ouputs
+
+
 ## 1.6.1 - 2021/04/18
 
     bugfix : folder module : has_recent, has_old mismatch

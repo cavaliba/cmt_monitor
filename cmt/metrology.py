@@ -80,7 +80,6 @@ def build_json_message(check):
 
     json_data += ',"cmt_version":"{}"'.format(check.version)
 
-
     json_data += ',"cmt_module":"{}"'.format(check.module)
     json_data += ',"cmt_check":"{}"'.format(check.check)    # deprecated
     json_data += ',"cmt_id":"{}"'.format(check.get_id())

@@ -3,7 +3,7 @@
 import argparse
 
 import globals as cmt
-from logger import debug
+from logger import debug, debug2
 
 
 # process args on CLI
@@ -68,7 +68,7 @@ def is_module_allowed_in_args(name):
     modules = cmt.ARGS['modules'][0]
     if name in modules or len(modules) == 0:
         return True
-    debug(name, "module not in ARGS")
+    debug2(name, "module not in ARGS")
     return False
 
 # ------------------
@@ -76,7 +76,7 @@ def is_module_alone_in_args(name):
     modules = cmt.ARGS['modules'][0]
     if name in modules and len(modules) == 1:
         return True
-    debug(name, "module not alone or not in ARGS")
+    debug2(name, "module not alone or not in ARGS")
     return False
 
 # -------------------
