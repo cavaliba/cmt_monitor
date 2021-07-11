@@ -453,6 +453,9 @@ mysql:
 
     mydb:
        alert_max_level: notice
+       host: localhost
+       user: root
+       password: xxxxx
        #is_master: no
        is_slave: yes
        max_behind: 300

@@ -18,7 +18,12 @@ def check(c):
     #is_master = c.conf.get("is_master", False) is True
 
 
-    db=_mysql.connect(host=host,user=user,passwd=password)
+    try:
+        db=_mysql.connect(host=host,user=user,passwd=password)
+    except:
+        c.alert += 1
+        c.add_message("mysql - can't connect to {} with user {}".format(host,user))        
+        return c
 
     vars = {}
     db.query("show variables;")
