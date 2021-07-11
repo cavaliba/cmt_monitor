@@ -28,7 +28,7 @@ def check(c):
     except Exception as e:
         c.alert += 1
         c.add_message("mysql - can't connect to {} with user {}".format(host,user))        
-        debug(e)
+        logit("Error {}".format(e))
         return c
 
     vars = {}
