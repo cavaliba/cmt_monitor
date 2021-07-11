@@ -11,7 +11,7 @@ def check(c):
     # get conf
     host = c.conf.get('host','localhost')
     user = c.conf.get('user','root')
-    password = c.conf.get('password','tset')
+    password = c.conf.get('password','')
     is_slave = c.conf.get("is_slave", False) is True
     max_behind = c.conf.get('max_behind',900)
 
