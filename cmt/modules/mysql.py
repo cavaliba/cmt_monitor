@@ -20,9 +20,10 @@ def check(c):
 
     try:
         db=_mysql.connect(host=host,user=user,passwd=password)
-    except:
+    except Exception as e:
         c.alert += 1
         c.add_message("mysql - can't connect to {} with user {}".format(host,user))        
+        debug(e)
         return c
 
     vars = {}
