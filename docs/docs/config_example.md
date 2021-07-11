@@ -53,6 +53,22 @@ title: configuration example
           url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
           enable: yes
 
+      # CMT V1.7+ ; compatible with influxdb V1 & V2
+      influxdb_test:
+          type: influxdb
+          # V1
+          url: http://10.10.10.13:8086/write?db=cmt
+          # V2
+          # url: 
+          # msec, sec, nsec ; anything else, no timestamp
+          time_format: msec
+          batch: yes
+          token: toto
+          #username: cmt
+          #password : cmt
+          enable: yes
+
+
     # Pager section
     # -------------
 
