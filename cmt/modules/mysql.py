@@ -1,8 +1,13 @@
 import os
 
+from MySQLdb import _mysql
+
+
 # import globals as cmt
 import checkitem
-from MySQLdb import _mysql
+from logger import logit, debug, debug2
+
+
 
 
 def check(c):
