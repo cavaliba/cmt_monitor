@@ -1,7 +1,7 @@
 CAVALIBA - CMT Monitor 
 ======================
 
-(c) Cavaliba.com 2020-2021  - Version 1.7beta - 2021/05/15
+(c) Cavaliba.com 2020-2021  - Version 1.7 - 2021/07/11
 
 
 CMT Monitor is a simple software agent to :
@@ -9,7 +9,7 @@ CMT Monitor is a simple software agent to :
 * collect standard OS, Middleware, Network ... and Custom metrics
 * check application status and remote URLs  for response and pattern
 * send alerts to Pager (Teams channels)
-* send data to Metrology servers (Elastic/Graylog) for additional reporting and alerting
+* send data to Metrology servers (Elastic/Graylog/InfluxDB) for additional reporting and alerting
 * help troubleshoot outage when run as CLI (interactive : cmt -s)
 * easy one-file configuration
 * easy automation and deployment with Ansible-like tools.
@@ -28,8 +28,8 @@ get source from github if needed
 
     git clone https://github.com/cavaliba/cmt_monitor.git
 
-read documentation
-------------------
+read the documentation
+----------------------
 
     http://www.cavaliba.com/cmt/doc/index.html
 

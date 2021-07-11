@@ -15,6 +15,8 @@ import args
 # ------------------------------------------------------------
 # send messages to metrology servers
 
+influxdb_batch = ""
+
 
 # ------------------------------------------------------------
 # Main entry point : send_metrology(check)
@@ -24,11 +26,9 @@ def send_metrology(mycheck):
 
     ''' Send Check results (event, multiple CheckItems)
         to metrology servers.
+        Or add to batch for batch sending at the end of run.
     '''
 
-    gelf_data = build_gelf_message(mycheck)
-    json_data = build_json_message(mycheck)
-    influxdb_data = build_influxdb_message(mycheck)
 
     for metro in cmt.CONF['metrology_servers']:
 
@@ -41,33 +41,66 @@ def send_metrology(mycheck):
             return
 
         if metrotype == "graylog_udp_gelf":
+            gelf_data = build_gelf_message(mycheck)
             host = metroconf['host']
             port = metroconf['port']
             graylog_send_udp_gelf(host=host, port=port, data=gelf_data)
             debug("Data sent to metrology server ", metro)
 
         elif metrotype == "graylog_http_gelf":
+            gelf_data = build_gelf_message(mycheck)
             url = metroconf['url']
             graylog_send_http_gelf(url=url, data=gelf_data)
             debug("Data sent to metrology server ", metro)
 
         elif metrotype == "elastic_http_json":
+            json_data = build_json_message(mycheck)
             url = metroconf['url']
             elastic_send_http_json(url=url, data=json_data)
             debug("Data sent to metrology server ", metro)
 
-        elif metrotype == "influxdb_v1":
+        elif metrotype == "influxdb":
+            influxdb_data = build_influxdb_message(mycheck, metroconf)
             url = metroconf['url']
             username = metroconf.get('username','')
             password = metroconf.get('password','')
-            influxdbv1_send_http(url, username=username, password=password, data=influxdb_data)
-            debug("Data sent to metrology server ", metro)
+            token = metroconf.get('token','')
+            batch = metroconf.get("batch", False) is True
+            if batch:
+                influxdb_add_to_batch(influxdb_data)
+                debug("Data sent to influx server ", metro)
+            else:
+                influxdb_send_http(url, username=username, password=password, token=token, data=influxdb_data)
+                debug("Data added to influx/batch server ", metro)
 
         else:
             debug("Unknown metrology server type in conf.")
 
+
+def send_metrology_batch():
+
+    for metro in cmt.CONF['metrology_servers']:
+
+        metroconf = cmt.CONF['metrology_servers'][metro]
+        metrotype = metroconf.get('type', 'unknown')        
+
+        if metrotype == "influxdb":
+            url = metroconf['url']
+            username = metroconf.get('username','')
+            password = metroconf.get('password','')
+            token = metroconf.get('token','')
+            #influxdb_send_http_batch(url, username=username, password=password, data=influxdb_batch)
+            # same function for batch / no btch
+            influxdb_send_http(url, username=username, password=password, token=token, data=influxdb_batch)
+            debug("Data (batch) sent to metrology server ", metro)
+
+        else:
+            pass
+            # no batch mode for other metrotype
+
+
 # ------------------------------------------------------------
-# Metrology data structures
+# GRAYLOG GELF 
 # ------------------------------------------------------------
 
 # GRAYLOG / GELF
@@ -121,6 +154,166 @@ def build_gelf_message(check):
     return graylog_data
 
 
+
+def graylog_send_http_gelf(url, data=""):
+
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+
+    if cmt.GRAYLOG_HTTP_SUSPENDED:
+        logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
+        return
+
+    if cmt.ARGS['devmode']:
+        print("DEVMODE : graylog http : ", url, data, headers)
+        return
+
+    try:
+        r = cmt.SESSION.post(url, data=data, headers=headers, timeout=cmt.GRAYLOG_HTTP_TIMEOUT)
+        debug("Message sent to graylog(http/gelf) ; status = " + str(r.status_code))
+    except Exception as e:
+        logit("Error - couldn't send graylog message (http/gelf) to {} - {}".format(url, e))
+        cmt.GRAYLOG_HTTP_SUSPENDED = True
+
+
+def graylog_send_udp_gelf(host, port=12201, data=""):
+
+    # data = '"demo":"42"'
+    # mess = '{ "version":"1.1", "host":"host-test", "short_message":"CMT gelf test", ' + data + ' }'
+
+    if cmt.ARGS['devmode']:
+        print("DEVMODE : graylog udp : ", host, port, data)
+        return
+
+    binpayload = bytes(str(data), "utf-8")
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_address = (host, port)
+
+    try:
+        sock.sendto(binpayload, server_address)
+        sock.close()
+        debug("Message sent to graylog(udp/gelf)")
+    except Exception as e:
+        logit("Error - couldn't send graylod message (udp/gelf) to {} - {}".format(host, e))
+
+
+# ------------------------------------------------------------
+# InfluxDB V1 & V2
+# ------------------------------------------------------------
+# V1.7+
+
+
+def build_influxdb_message(check, metroconf):
+
+    ''' Prepare a string with and influxdb protocol formatted message.'''
+
+    influx_data = ''
+
+    # module,cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
+    influx_data += check.module
+    influx_data += ',cmt_group={},cmt_node={},cmt_check={},cmt_node_env={} '.format(
+        check.group,
+        check.node,
+        check.check,
+        check.node_env
+        )
+    
+    first_item = True
+    for item in check.checkitems:
+        
+        # skip tags (to help reduce influx cardinatlity issue)
+        if item.name.startswith('tag_'):
+            continue
+
+        if not first_item:
+            influx_data += ','
+
+        try:
+            float(item.value)
+            influx_data += 'cmt_{}={}'.format(item.name, item.value)
+            first_item = False
+        except ValueError:
+            influx_data += 'cmt_{}="{}"'.format(item.name, item.value)
+            first_item = False
+
+    notif = check.get_notification()
+    influx_data += ',cmt_notification={}'.format(notif)
+
+    # timestamp in milliseconds
+    tsms = round(time.time() * 1000)
+    time_format = metroconf.get('time_format','')
+    if time_format == 'msec':
+        influx_data += " {}".format(tsms)
+    elif time_format == 'sec':
+        influx_data += " {}".format(round(tsms/1000))
+    elif time_format == 'nsec':
+        influx_data += " {}".format(round(tsms) * 1000000)
+    else:
+        pass # no timestamp ; provided by influxdb server
+
+    #return "cmt_test,cmt_node=test,cmt_group=test,cmt_check=mytest,cmt_node_env=test cmt_value1=1,cmt_value2=2 time"
+    return influx_data
+
+
+def influxdb_add_to_batch(influxdb_data):
+    
+    global influxdb_batch
+    influxdb_batch += influxdb_data
+    influxdb_batch += "\n"
+
+
+def influxdb_send_http(url, username="", password="", token="", data=""):
+
+    headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': '*/*'}
+
+    if cmt.METROLOGY_INFLUXDB_SUSPENDED:
+        logit("suspended - INFLUXDB message suspended/not sent to " + str(url))
+        return
+
+    if cmt.ARGS['devmode']:
+        print("DEVMODE : INFLUXDB : ", url, data)
+        return
+
+    try:
+        # token authentication (V1/V2)
+        # --header "Authorization: Token YOURAUTHTOKEN" \
+        if len(token) > 0:   
+            headers["Authorization"] = "Token {}".format(token)
+            r = cmt.SESSION.post(url, 
+                data=data, 
+                headers=headers, 
+                timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)        
+            
+        # basic authentication
+        elif len(username)>0:
+            r = cmt.SESSION.post(url, 
+                data=data, 
+                headers=headers, 
+                auth=(username, passwword),
+                timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)
+
+        # no auth / auth in URL ?u=XXX&p=XXX
+        else:
+            r = cmt.SESSION.post(url, 
+                data=data, 
+                headers=headers, 
+                timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)        
+
+        debug("Message sent to INFLUXDB ; status = " + str(r.status_code))
+
+    except Exception as e:
+        logit("Error - couldn't send INFLUXDB message to {} - {}".format(url, e))
+        cmt.METROLOGY_INFLUXDB_SUSPENDED = True
+
+
+#def influxdb_send_http_batch(url, username="", password="", token="", data=""):
+#    pass
+
+# ------------------------------------------------------------
+# ElasticSearch
+# ------------------------------------------------------------
+
+
 def build_json_message(check):
     
     '''Prepare a JSON message suitable to be sent to an Elatic server.'''
@@ -172,66 +365,6 @@ def build_json_message(check):
 
 
 
-# V1.7+
-def build_influxdb_message(check):
-
-    ''' Prepare a string with and influxdb protocol formatted message.'''
-
-    # timestamp in milliseconds
-    tsms = round(time.time() * 1000)
-
-    # module,cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
-
-    return "cmt_test,cmt_node=test,cmt_group=test,cmt_check=mytest,cmt_node_env=test cmt_value1=1,cmt_value2=2"
-
-
-# ------------------------------------------------------------
-# metrology sender functions
-# ------------------------------------------------------------
-
-
-def graylog_send_http_gelf(url, data=""):
-
-    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-
-    if cmt.GRAYLOG_HTTP_SUSPENDED:
-        logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
-        return
-
-    if cmt.ARGS['devmode']:
-        print("DEVMODE : graylog http : ", url, data, headers)
-        return
-
-    try:
-        r = cmt.SESSION.post(url, data=data, headers=headers, timeout=cmt.GRAYLOG_HTTP_TIMEOUT)
-        debug("Message sent to graylog(http/gelf) ; status = " + str(r.status_code))
-    except Exception as e:
-        logit("Error - couldn't send graylog message (http/gelf) to {} - {}".format(url, e))
-        cmt.GRAYLOG_HTTP_SUSPENDED = True
-
-
-def graylog_send_udp_gelf(host, port=12201, data=""):
-
-    # data = '"demo":"42"'
-    # mess = '{ "version":"1.1", "host":"host-test", "short_message":"CMT gelf test", ' + data + ' }'
-
-    if cmt.ARGS['devmode']:
-        print("DEVMODE : graylog udp : ", host, port, data)
-        return
-
-    binpayload = bytes(str(data), "utf-8")
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server_address = (host, port)
-
-    try:
-        sock.sendto(binpayload, server_address)
-        sock.close()
-        debug("Message sent to graylog(udp/gelf)")
-    except Exception as e:
-        logit("Error - couldn't send graylod message (udp/gelf) to {} - {}".format(host, e))
-
-
 def elastic_send_http_json(url, data=""):
 
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
@@ -252,37 +385,5 @@ def elastic_send_http_json(url, data=""):
         cmt.METROLOGY_HTTP_SUSPENDED = True
 
 
-
-def influxdbv1_send_http(url, username="", password="", data=""):
-
-    headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': '*/*'}
-
-    if cmt.METROLOGY_INFLUXDB_SUSPENDED:
-        logit("suspended - INFLUXDB message suspended/not sent to " + str(url))
-        return
-
-    if cmt.ARGS['devmode']:
-        print("DEVMODE : INFLUXDB : ", url, data)
-        return
-
-    try:
-        # basic authentication
-        if len(username)>0:
-            r = cmt.SESSION.post(url, 
-                data=data, 
-                headers=headers, 
-                auth=(username, passwword),
-                timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)
-        else:
-        # no auth / auth in URL ?u=XXX&p=XXX
-            r = cmt.SESSION.post(url, 
-                data=data, 
-                headers=headers, 
-                timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)        
-        debug("Message sent to INFLUXDB ; status = " + str(r.status_code))
-
-    except Exception as e:
-        logit("Error - couldn't send INFLUXDB message to {} - {}".format(url, e))
-        cmt.METROLOGY_INFLUXDB_SUSPENDED = True
 
 

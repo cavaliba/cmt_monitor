@@ -4,15 +4,15 @@ title: Home
 
 # Welcome to CMT Documentation
 
-*Current release : 1.7beta - 2021/05/15*
+*Current release : 1.7 - 2021/07/11*
 
 ## Overwiew - CMT is a simple monitoring agent
 
 CMT is a small footprint agent, with a single file configuration, available for most standard Linux OS. Once deployed on a system, it collects various data and monitors local/remote services. 
 
-## Send to ElasticSearch/Graylog
+## Send to ElasticSearch/InfluxDB/Graylog
 
-Collected data is sent to Metrology servers like ElasticSearch/Graylog. These data points may carry alert information or warning levels for central alerting or display (Kibana for example).
+Collected data is sent to Metrology servers like ElasticSearch, InfluxDB V1/V2 or Graylog. These data points may carry alert information or warning levels for central alerting or display (Kibana for example).
 
 ## Alerts and Pager to Teams
 
@@ -22,7 +22,7 @@ If various conditions are met (or not met), CMT can also send direct alerts / pa
 
 For sysadmin, CMT can be used as command line tool on each server during various sysadmin or software configuration tasks. One single run provides an immediate health check of all the configured check items.
 
-## Data model / ElasticStack data storage
+## Data model / data storage
 
 CMT provides a clean and well organized  data model to enable an efficient metrology storage and further processing of collected data. You can then build various dashborad for data analysis and correlation,  for reporting, finer alerting, etc.
 
@@ -74,11 +74,11 @@ executing to overcrowd a server.
 
     /opt/cmt            # Home dir
         cmt             # cmt binary agent if prefered over /usr/local/bin
-        cmt*.py         # python3 version
-        checks/*.py     # modular checks
+        cmt*.py         # python3 version if pure python code prefered
+        checks/*.py     # modular checks (idem)
         conf.yml        # configuration what to measure / where to send
         conf.d/         # additional configuration (eg. ansible additive deployment)
-        persist.json    # optional data persistance across run
+        persist.json    # optional data persistance across run (crontab mode mostly)
 
 ## Why another monitoring tool ?
 
@@ -89,7 +89,7 @@ The initial requirements were :
 * simple configuration file (one for all)
 * data agnostic: technical, business, ...
 * push rather than pull : push data to metrology servers
-* data is sent to very standard ElasticSearch DataStore, private or in the cloud
+* data is sent to very standard ElasticSearch / INfluxDB DataStore, private or in the cloud
 * modular design for easy extension / additional checks or modules
 * minimal learning curve : drop the binary, edit the conf, run as cron/CLI, send to Elasticsearch, create Dashboard.
 * ansible aware for mass deployement and standardization

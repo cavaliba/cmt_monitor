@@ -16,6 +16,7 @@ import persist
 import check
 import report
 import pager
+import metrology
 
 from logger import logit, debug
 
@@ -103,8 +104,15 @@ if __name__ == "__main__":
 
     # -- end of check loop --
 
+    # -- send batch metrology
+    metrology.send_metrology_batch()
+
+    # send alerts to pagers
     myreport.dispatch_alerts()
+
+    # display report recap to CLI
     myreport.print_recap()
 
+    # persist data across runs
     cmt.PERSIST.set_key("cmt_last_run", int(time.time()))
     cmt.PERSIST.save()
