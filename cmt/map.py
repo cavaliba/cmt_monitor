@@ -16,6 +16,7 @@ import modules.socket
 import modules.swap
 import modules.url
 import modules.send
+import modules.mysql
 
 cmt.GLOBAL_MODULE_MAP = {
     "boottime"   : {"check": modules.boottime.check    },
@@ -32,4 +33,5 @@ cmt.GLOBAL_MODULE_MAP = {
     "swap"       : {"check": modules.swap.check        },
     "url"        : {"check": modules.url.check         },
     "send"       : {"check": modules.send.check        },
+    "mysql"      : {"check": modules.mysql.check       },
 }

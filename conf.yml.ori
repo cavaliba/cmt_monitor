@@ -145,6 +145,8 @@ modules:
   send:
     enable: yes
 
+  mysql:
+     enable: yes
 
 # checks section
 # --------------
@@ -445,6 +447,17 @@ send:
       attribute: test
       comment: "a test comment for token1 - cmt_test will be created in elastic"
       unit: "no_unit"
+
+
+mysql:
+
+    mydb:
+       alert_max_level: notice
+       #is_master: no
+       is_slave: yes
+       max_behind: 300
+
+
 
 
 #  -------------------------------------

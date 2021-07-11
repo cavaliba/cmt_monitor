@@ -4,15 +4,19 @@ title: version
 
 # Releases
 
-## 1.7 - 2021/07/11 - LATEST
+## 1.8 - 2021/07/11 BETA
 
-    feature - added influxdb V1/V2 metrology server support ; batch mode, V1/V2, timestamp options...
+    feature: module mysql
+
+## 1.7 - 2021/07/11
+
+    feature: added influxdb V1/V2 metrology server support ; batch mode, V1/V2, timestamp options...
 
 
 ## 1.7beta - 2021/05/15
 
-    bugfix - module folder : filter_regexp missing when not recursive
-    bugfix - module folder : display name in ouputs
+    bugfix: module folder : filter_regexp missing when not recursive
+    bugfix: module folder : display name in ouputs
 
 
 ## 1.6.1 - 2021/04/18
