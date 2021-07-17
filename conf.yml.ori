@@ -454,6 +454,7 @@ mysql:
     mydb:
        alert_max_level: notice
        host: localhost
+       port: 3306
        user: root
        password: xxxxx
        #is_master: no

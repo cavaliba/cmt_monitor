@@ -105,7 +105,8 @@ if __name__ == "__main__":
     # -- end of check loop --
 
     # -- send batch metrology
-    metrology.send_metrology_batch()
+    if cmt.ARGS['cron'] or cmt.ARGS["pager"]:
+        metrology.send_metrology_batch()
 
     # send alerts to pagers
     myreport.dispatch_alerts()
