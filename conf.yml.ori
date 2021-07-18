@@ -457,6 +457,7 @@ mysql:
        port: 3306
        user: root
        password: xxxxx
+       defaults_file: /opt/cmt/mysql.cnf
        #is_master: no
        is_slave: yes
        max_behind: 300
