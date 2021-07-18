@@ -7,7 +7,7 @@ title: configuration example
 
     ---
     # Cavaliba / cmt_monitor / conf.yml
-    # CMT Version: 1.6
+    # CMT Version: 1.8
 
 
     # Example configuration / template 
@@ -398,6 +398,21 @@ title: configuration example
           unit: "no_unit"
 
 
+    mysql:
+
+        mydb:
+          defaults_file: /opt/cmt/mysql.cnf
+              #  [client]
+              #  host     = 127.0.0.1
+              #  user     = root
+              #  password = xxxxxxx
+              #  port     = 3306
+              #  socket   = /var/run/mysqld/mysqld.sock
+          is_slave: yes
+          max_behind: 300
+          alert_max_level: notice
+          alert_delay: 300
+          
     #  -------------------------------------
     #  timerange field (from documentation)
     #  -------------------------------------

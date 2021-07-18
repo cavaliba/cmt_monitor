@@ -21,20 +21,21 @@ nav:
   - 'CLI': 'cli.md'
   - 'Cron / Automatic run' : 'cron.md'
   - 'Modules':
-      - load: check_load.md
-      - cpu: check_cpu.md
-      - memory: check_memory.md
       - boottime: check_boottime.md
-      - swap: check_swap.md
-      - disk: check_disks.md
-      - mount: check_mounts.md
-      - process: check_process.md
-      - url: check_urls.md
-      - folder: check_folders.md
-      - ping: check_pings.md
       - certificate: check_certificate.md
-      - socket: check_socket.md
+      - cpu: check_cpu.md
+      - disk: check_disks.md
+      - folder: check_folders.md
+      - load: check_load.md
+      - memory: check_memory.md
+      - mount: check_mounts.md
+      - mysql: check_mysql.md
+      - ping: check_pings.md
+      - process: check_process.md
       - send: check_send.md
+      - socket: check_socket.md
+      - swap: check_swap.md
+      - url: check_urls.md
   - 'Metrology servers': metrology.md
   - 'Advanced':
       - 'Data model' : 'data_model.md'

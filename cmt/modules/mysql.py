@@ -1,27 +1,30 @@
-import os
+## CMT - MySQL/MariaDB Module
+## V1.8.1+
+## (c) Cavaliba.com 2021
 
+
+import os
+import time
 import subprocess
 from MySQLdb import _mysql
 
 
-# import globals as cmt
+import globals as cmt
 import checkitem
 from logger import logit, debug, debug2
 
 
 defaults_file = ""
-mysql_cmd = "mysql"
+
 
 
 
 def subprocess_query(q):
 
-    global mysql_cmd
     global defaults_file
 
     #r = subprocess.run(["ls", "-l", "/tmp"], stdout=subprocess.PIPE, timeout=5)
-    action = [mysql_cmd , '--defaults-file='+defaults_file, '-e',q]
-    debug(action)
+    action = ['mysql' , '--defaults-file='+defaults_file, '-e',q]
     r = subprocess.run(action, stdout=subprocess.PIPE, timeout=5)
     return r.stdout
     #output = subprocess.check_output(["ls", "/tmp"], shell=True)
@@ -29,34 +32,43 @@ def subprocess_query(q):
     #print(q,output)
 
 
+def get_derivative(c,vars,name):
+    
+    lastrun = cmt.PERSIST.get_key("cmt_last_run", 0)
+    delta = int(time.time()) - int(lastrun)
+    vnew = float(vars.get(name,0))
+    vold =  float(c.persist.get(name,0))
+    derivative = (vnew-vold)/delta
+    derivative = int( derivative * 100) / 100
+    c.persist[name]=vnew
+    debug('mysql - derivative : ' + name + ':' + str(derivative))
+    return derivative
+
+
+
 def check(c):
 
-    global mysql_cmd
     global defaults_file
 
     # get conf
-    host = c.conf.get('host','localhost')
-    port = c.conf.get('port','3306')
-    user = c.conf.get('user','root')
-    password = c.conf.get('password','')
     defaults_file = c.conf.get('defaults_file','/opt/cmt/mysql.cnf')
-    is_master = c.conf.get("is_master", False) is True
+    # is_master = c.conf.get("is_master", False) is True
     is_slave = c.conf.get("is_slave", False) is True
     max_behind = c.conf.get('max_behind',900)
-
-    #is_master = c.conf.get("is_master", False) is True
 
 
 
     try:
-        db=_mysql.connect(host=host,user=user,passwd=password)
+        #db=_mysql.connect(host=host,user=user,passwd=password)
+        db=_mysql.connect(read_default_file=defaults_file)
     except Exception as e:
         c.alert += 1
-        c.add_message("mysql - can't connect to {} with user {}".format(host,user))        
+        c.add_message("mysql - can't connect to {} with conf {}".format(host,defaults_file))        
         logit("Error {}".format(e))
         return c
 
-    # global variables
+    # -------------------------------------
+    # get global CONF
     vars = {}
     db.query("show variables;")
 
@@ -65,14 +77,77 @@ def check(c):
         k=k.decode()
         v=v.decode()
         vars[k]=v
-        debug2("mysql-vars : ",c.check,':',k,"=",v)
+        debug2("mysql-conf : ",c.check,':',k,"=",v)
         #print(k,v)
 
-    #print(vars["version"])
     version = vars.get('version','n/a')
     c.add_item(checkitem.CheckItem('mysql_version',version))
 
 
+    # -------------------------------------
+    # get global VARS
+    vars = {}
+    db.query("show global status;")
+
+    lines=db.store_result().fetch_row(maxrows=0, how=0)
+    for (k,v) in lines:
+        k=k.decode()
+        v=v.decode()
+        vars[k]=v
+        debug2("mysql-status : ",c.check,':',k,"=",v)
+        #print(k,v)
+
+
+    # Com_select
+    # Com_insert
+    # Com_update
+    # Com_delete
+    
+    # Connections 175
+    # Memory_used 277515936
+    # Queries
+    # Threads_cached 1
+    # Threads_connected 1
+    # Threads_created 16
+    # Threads_running 8
+
+    thread_c = int(vars.get('Threads_connected',0))
+    c.add_item(checkitem.CheckItem('mysql_connection',thread_c))
+
+    thread_r = int(vars.get('Threads_running',0))
+    c.add_item(checkitem.CheckItem('mysql_runner',thread_r))
+
+    mem = int(vars.get('Memory_used',0))
+    c.add_item(checkitem.CheckItem('mysql_memory',mem,unit='bytes'))
+
+    lastrun = cmt.PERSIST.get_key("cmt_last_run", 0)
+    delta = int(time.time()) - int(lastrun)
+    
+    xconn = 0
+    xsel = 0
+    xwri = 0
+    xqu = 0 
+
+    if delta < 900:
+
+        xsel = get_derivative(c, vars,'Com_select')
+        c.add_item(checkitem.CheckItem('mysql_read_rate',xsel,'r/sec'))
+
+        x1 = get_derivative(c, vars,'Com_insert')
+        x2 = get_derivative(c, vars,'Com_update')
+        x3 = get_derivative(c, vars,'Com_delete')
+        xwri = x1 + x2 + x3
+        c.add_item(checkitem.CheckItem('mysql_write_rate',xwri ,'w/sec'))
+
+        xqu = get_derivative(c, vars,'Queries')
+        c.add_item(checkitem.CheckItem('mysql_query_rate',xqu,'q/sec'))
+
+        xconn = get_derivative(c, vars,'Connections')
+        c.add_item(checkitem.CheckItem('mysql_cx_rate',xconn,'connection/sec'))
+
+
+
+    # -------------------------------------
     # SLAVE INFO
     if is_slave:
 
@@ -92,28 +167,28 @@ def check(c):
                 continue
             k=akv[0].rstrip().lstrip()
             v=akv[1].rstrip().lstrip()
-            debug2("mysql-vars_slave : ",c.check,':',k,"=",v)
+            debug2("mysql-slave : ",c.check,':',k,"=",v)
             vars_slave[k]=v               
 
         
         io_running = vars_slave.get('Slave_IO_Running','No')
-        c.add_item(checkitem.CheckItem('slave_io_run',io_running,"Slave_IO_Running"))
+        c.add_item(checkitem.CheckItem('mysql_slave_io_run',io_running,"Slave_IO_Running"))
 
         sql_running = vars_slave.get('Slave_SQL_Running','No')
-        c.add_item(checkitem.CheckItem('slave_sql_run',sql_running,"Slave_SQL_Running"))
+        c.add_item(checkitem.CheckItem('mysql_slave_sql_run',sql_running,"Slave_SQL_Running"))
         
         master_log = vars_slave.get('Master_Log_File','n/a')
-        c.add_item(checkitem.CheckItem('slave_master_logfile',master_log,"Master_Log_File"))
+        c.add_item(checkitem.CheckItem('mysql_slave_mpos',master_log,"Master_Log_File"))
 
         relay_log = vars_slave.get('Relay_Master_Log_File','n/a')
-        c.add_item(checkitem.CheckItem('slave_relayfile',relay_log,"Relay_Master_Log_File"))
+        c.add_item(checkitem.CheckItem('mysql_slave_rpos',relay_log,"Relay_Master_Log_File"))
 
         behind_str = vars_slave.get('Seconds_Behind_Master', "999999999")
         try:
             behind = int(behind_str)
         except:
             behind = 999999999
-        c.add_item(checkitem.CheckItem('slave_behind',behind,"Seconds_Behind_Master"))
+        c.add_item(checkitem.CheckItem('mysql_slave_behind',behind,"Seconds_Behind_Master"))
 
 
         if io_running != "Yes":
@@ -131,18 +206,17 @@ def check(c):
             c.add_message("{} - slave too late behind master {} > {} secs".format(c.check, behind,max_behind))
             return c
 
-        c.add_message("{} - slave OK - {} secs behind master (limit = {})".format(c.check, behind,max_behind))
+        c.add_message("{} - slave {} sec. behind (limit = {}) - cx={} cx/s={} r/s={} w/s={} q/s={} mem={}".format(
+                c.check, behind,max_behind,
+                thread_c, xconn, xsel, xwri, xqu, mem,
+                ))
         return c
 
-
-    if is_master:
-        c.add_message("{} - master OK - {}".format(c.check,version))
-        return c
-
-    # not Master / not Slave
 
     # all OK
-    c.add_message("{} - OK - {} ".format(c.check,version))
+    c.add_message("{} - cx={} cx/s={} r/s={} w/s={} q/s={} mem={}".format(
+                c.check, thread_c, xconn, xsel, xwri, xqu, mem,
+                ))
     return c
 
 

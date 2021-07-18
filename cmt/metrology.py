@@ -210,8 +210,8 @@ def build_influxdb_message(check, metroconf):
     influx_data = ''
 
     # module,cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
-    influx_data += check.module
-    influx_data += ',cmt_group={},cmt_node={},cmt_check={},cmt_node_env={} '.format(
+    influx_data += 'cmt_'+check.module
+    influx_data += ',cmt_group="{}",cmt_node="{}",cmt_check="{}",cmt_node_env="{}"" '.format(
         check.group,
         check.node,
         check.check,
@@ -270,8 +270,10 @@ def influxdb_send_http(url, username="", password="", token="", data=""):
         logit("suspended - INFLUXDB message suspended/not sent to " + str(url))
         return
 
+    #print("********************************",cmt.ARGS['devmode'])
     if cmt.ARGS['devmode']:
-        print("DEVMODE : INFLUXDB : ", url, data)
+        print("DEVMODE : INFLUXDB : ", url)
+        print(data)
         return
 
     try:

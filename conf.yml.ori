@@ -452,15 +452,17 @@ send:
 mysql:
 
     mydb:
-       alert_max_level: notice
-       host: localhost
-       port: 3306
-       user: root
-       password: xxxxx
-       defaults_file: /opt/cmt/mysql.cnf
-       #is_master: no
-       is_slave: yes
-       max_behind: 300
+      defaults_file: /opt/cmt/mysql.cnf
+          #  [client]
+          #  host     = 127.0.0.1
+          #  user     = root
+          #  password = xxxxxxx
+          #  port     = 3306
+          #  socket   = /var/run/mysqld/mysqld.sock
+      is_slave: yes
+      max_behind: 300
+      alert_max_level: notice
+      alert_delay: 300
 
 
 

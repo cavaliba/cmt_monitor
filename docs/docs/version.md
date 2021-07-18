@@ -4,7 +4,18 @@ title: version
 
 # Releases
 
-## 1.8 - 2021/07/11 BETA
+
+## 1.8.1 - 2021/07/18
+
+    bugfix - batch send metrology (influx) only if --report/cron
+    bugfix - added double quotes around tags values in Influxdb line protocol
+    feature - added cmt_ prefix before Influx measurement names (to avoid collision in single db usecase)
+    bugfix - mysql module - slave status retrieval
+    feature - mysql module - credentials in defaults-file only (security)
+    feature - mysql module - standard indicators
+
+
+## 1.8beta - 2021/07/11 BETA
 
     feature: module mysql
 
