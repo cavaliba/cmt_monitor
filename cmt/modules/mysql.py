@@ -1,9 +1,7 @@
-## CMT - MySQL/MariaDB Module
-## V1.8.1+
-## (c) Cavaliba.com 2021
+# CMT - MySQL/MariaDB Module
+# V1.8.1+
+# (c) Cavaliba.com 2021
 
-
-import os
 import time
 import subprocess
 from MySQLdb import _mysql
@@ -17,14 +15,12 @@ from logger import logit, debug, debug2
 defaults_file = ""
 
 
-
-
 def subprocess_query(q):
 
     global defaults_file
 
     #r = subprocess.run(["ls", "-l", "/tmp"], stdout=subprocess.PIPE, timeout=5)
-    action = ['mysql' , '--defaults-file='+defaults_file, '-e',q]
+    action = ['mysql' , '--defaults-file=' + defaults_file, '-e',q]
     r = subprocess.run(action, stdout=subprocess.PIPE, timeout=5)
     return r.stdout
     #output = subprocess.check_output(["ls", "/tmp"], shell=True)
@@ -33,7 +29,7 @@ def subprocess_query(q):
 
 
 def get_derivative(c,vars,name):
-    
+
     lastrun = cmt.PERSIST.get_key("cmt_last_run", 0)
     delta = int(time.time()) - int(lastrun)
     vnew = float(vars.get(name,0))
@@ -63,7 +59,7 @@ def check(c):
         db=_mysql.connect(read_default_file=defaults_file)
     except Exception as e:
         c.alert += 1
-        c.add_message("mysql - can't connect to {} with conf {}".format(host,defaults_file))        
+        c.add_message("mysql - can't connect with conf {}".format(defaults_file))        
         logit("Error {}".format(e))
         return c
 
@@ -161,8 +157,8 @@ def check(c):
         # cut on newlines, remove trailing spaces, split on first space, get k,v
         vars_slave = {}
         lines = r.split('\n')
-        for l in lines:
-            akv = l.split(':')
+        for line in lines:
+            akv = line.split(':')
             if len(akv) < 2:
                 continue
             k=akv[0].rstrip().lstrip()

@@ -28,14 +28,17 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     [cmt_notification] : nature of alert if any : 1 = alert, 2 = warning, 3 = notice
     cmt_message        : one line for human / full recap / id. compact mode
     [cmt_tag_XXX]      : tag values ; = 1 or = given value in config
+
     specific
       +cmt_*module*_*
 
-    +GELF mandatory fields
+    +GELF mandatory fields (for Graylog targets)
       source: group_node
       short_message
       timestamps
 
+
+## load
 
     -------------------------------------------
     Module: load
@@ -45,11 +48,17 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_load5: #float
     cmt_load15: #float
 
+
+## cpu
+
     -------------------------------------------
     Module: cpu
     -------------------------------------------
 
     cmt_cpu: #float
+
+
+## memory
 
     -------------------------------------------
     Module: memory
@@ -60,12 +69,17 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_memory_percent: #float (percent)
 
 
+## swap
+
     -------------------------------------------
     Module: swap
     -------------------------------------------
 
     cmt_swap_used: #int (bytes)
     cmt_swap_percent: #float (percent)
+
+
+## boottime
 
     -------------------------------------------
     Module: boottime
@@ -74,11 +88,17 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_boottime_days: #int (days)
     cmt_boottime_seconds: #int (seconds)
 
+
+## mount
+
     -------------------------------------------
     Module: mount
     -------------------------------------------
 
     cmt_mount            : /path/to/mount
+
+
+## disk
 
     -------------------------------------------
     Module: disk
@@ -89,6 +109,9 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_disk_free    : #int (bytes)
     cmt_disk_percent : #float (percent)  [used]
 
+
+## process
+
     -------------------------------------------
     Module: process
     -------------------------------------------
@@ -96,6 +119,9 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_process_name: string   (config name, not process real name)
     cmt_process_cpu: float?
     cmt_process_memory: int (bytes)
+
+
+## url
 
     -------------------------------------------
     Module: url
@@ -105,11 +131,17 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_url_name: url name
     cmt_url_msec: int        [response time in millisecond if available]
 
+
+## ping
+
     -------------------------------------------
     Module: ping
     -------------------------------------------
 
     cmt_ping: hostname
+
+
+## folder
 
     -------------------------------------------
     Module: folder
@@ -127,6 +159,9 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_folder_age_min         :
     cmt_folder_age_max         :
 
+
+## certificate 
+
     -------------------------------------------
     Module: certificate
     -------------------------------------------
@@ -137,6 +172,9 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_certificate_seconds       int (seconds)  # seconds before expiration
     cmt_certificate_days          int (days)     # days before expiration
     cmt_certificate_subject       string         # domain/subject name
+
+
+## socket
 
     -------------------------------------------
     Module: socket
@@ -151,6 +189,9 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_socket_alive     : yes/no  [LISTEN]
     cmt_socket_ping      : ok/nok
 
+
+## send
+
     -------------------------------------------
     Module: send
     -------------------------------------------
@@ -159,12 +200,34 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_XXXXX            : attribute/value as specified in configuration
 
 
+## mysql
+
+    -------------------------------------------
+    Module: mysql
+    -------------------------------------------
+    2021/07/18 - V1.8
+
+    cmt_mysql_version       :  10.3.23-MariaDB-1:10.3.23+maria~bionic
+    cmt_mysql_connection    :  2
+    cmt_mysql_runner        :  14
+    cmt_mysql_memory        :  277474777 bytes  [277.5 MB]
+    cmt_mysql_read_rate     :  20.5 - r/sec
+    cmt_mysql_write_rate    :  14.3 - w/sec
+    cmt_mysql_query_rate    :  60.2 - q/sec
+    cmt_mysql_cx_rate       :  0.8 - connection/sec
+    cmt_mysql_slave_io_run  :  Yes - Slave_IO_Running
+    cmt_mysql_slave_sql_run :  Yes - Slave_SQL_Running
+    cmt_mysql_slave_mpos    :  mysql-bin.000004 - Master_Log_File
+    cmt_mysql_slave_rpos    :  mysql-bin.000004 - Relay_Master_Log_File
+    cmt_mysql_slave_behind  :  0 - Seconds_Behind_Master
+
+
 ## Deprecated
    
 
-   V1.6
-   ----
-   cmt_alert
-   cmt_warning
-   cmt_notice
-   => replaced by cmt_notification (int=1/2/3)
+    V1.6
+    ----
+    cmt_alert
+    cmt_warning
+    cmt_notice
+    => replaced by cmt_notification (int=1/2/3)

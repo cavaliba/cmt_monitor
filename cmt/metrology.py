@@ -7,8 +7,6 @@ import time
 import globals as cmt
 from logger import logit, debug, debug2
 import conf
-import args
-
 
 # ------------------------------------------------------------
 # Metrology Servers
@@ -65,7 +63,7 @@ def send_metrology(mycheck):
             username = metroconf.get('username','')
             password = metroconf.get('password','')
             token = metroconf.get('token','')
-            batch = metroconf.get("batch", False) is True
+            batch = metroconf.get("batch", True) is True
             if batch:
                 influxdb_add_to_batch(influxdb_data)
                 debug("Data sent to influx server ", metro)
@@ -210,31 +208,42 @@ def build_influxdb_message(check, metroconf):
     influx_data = ''
 
     # module,cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
-    influx_data += 'cmt_'+check.module
-    influx_data += ',cmt_group="{}",cmt_node="{}",cmt_check="{}",cmt_node_env="{}"" '.format(
+    influx_data += 'cmt_' + check.module
+    influx_data += ',cmt_group={},cmt_node={},cmt_check={},cmt_node_env={}'.format(
         check.group,
         check.node,
         check.check,
         check.node_env
-        )
-    
+    )
+
+    # add tags
+    send_tags = metroconf.get('send_tags',False) is True
+    if send_tags:
+        for item in check.checkitems:                
+            if item.name.startswith('tag_'):
+                float(item.value)
+                influx_data += ',cmt_{}={}'.format(item.name, item.value)
+
+
     first_item = True
     for item in check.checkitems:
-        
-        # skip tags (to help reduce influx cardinatlity issue)
+
         if item.name.startswith('tag_'):
             continue
 
-        if not first_item:
+        if first_item:
+            influx_data += ' '
+        else:
             influx_data += ','
 
         try:
             float(item.value)
             influx_data += 'cmt_{}={}'.format(item.name, item.value)
-            first_item = False
         except ValueError:
             influx_data += 'cmt_{}="{}"'.format(item.name, item.value)
-            first_item = False
+
+        first_item = False
+
 
     notif = check.get_notification()
     influx_data += ',cmt_notification={}'.format(notif)
@@ -245,18 +254,18 @@ def build_influxdb_message(check, metroconf):
     if time_format == 'msec':
         influx_data += " {}".format(tsms)
     elif time_format == 'sec':
-        influx_data += " {}".format(round(tsms/1000))
+        influx_data += " {}".format(round(tsms / 1000))
     elif time_format == 'nsec':
         influx_data += " {}".format(round(tsms) * 1000000)
     else:
-        pass # no timestamp ; provided by influxdb server
+        pass    # no timestamp ; provided by influxdb server
 
     #return "cmt_test,cmt_node=test,cmt_group=test,cmt_check=mytest,cmt_node_env=test cmt_value1=1,cmt_value2=2 time"
     return influx_data
 
 
 def influxdb_add_to_batch(influxdb_data):
-    
+
     global influxdb_batch
     influxdb_batch += influxdb_data
     influxdb_batch += "\n"
@@ -285,13 +294,13 @@ def influxdb_send_http(url, username="", password="", token="", data=""):
                 data=data, 
                 headers=headers, 
                 timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)        
-            
+
         # basic authentication
         elif len(username)>0:
             r = cmt.SESSION.post(url, 
                 data=data, 
                 headers=headers, 
-                auth=(username, passwword),
+                auth=(username, password),
                 timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)
 
         # no auth / auth in URL ?u=XXX&p=XXX
@@ -317,7 +326,7 @@ def influxdb_send_http(url, username="", password="", token="", data=""):
 
 
 def build_json_message(check):
-    
+
     '''Prepare a JSON message suitable to be sent to an Elatic server.'''
 
     json_data = ''

@@ -5,6 +5,14 @@ title: version
 # Releases
 
 
+## 1.8.2 - 2021/07/24
+
+    bugfixe : influxdb - password variable mismatch (typo)
+    bugfixe : influxdb - double quote for string field values only
+    feature : influxdb - add send_tags option
+    minor : check if unknown module requested in ARGS
+
+
 ## 1.8.1 - 2021/07/18
 
     bugfix - batch send metrology (influx) only if --report/cron

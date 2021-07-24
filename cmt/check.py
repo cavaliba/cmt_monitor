@@ -61,7 +61,7 @@ class Check():
 
         # compute alert_max_level
         self.alert_max_level = "alert"   # DEFAULT
-        
+
         # at the individual check level ?
         a = conf.get('alert_max_level', '')
         if a in ['alert', 'notice', 'warn', 'none']:
@@ -410,7 +410,7 @@ def perform_check(checkname, modulename):
         if (os.getuid() != 0):
             debug("check %s must run as root." % checkname)   
             check_result.result = "skip"         
-            check_result.result_info =  "must run as root"
+            check_result.result_info = "must run as root"
             #print("SKIPPED - ROOT REQUIRED")
             return "continue"
 
@@ -418,7 +418,7 @@ def perform_check(checkname, modulename):
     if cmt.ARGS['cron']:
         if not check_result.frequency():
             check_result.result = "skip"
-            check_result.result_info =  "check skipped (frequency)"
+            check_result.result_info = "check skipped (frequency)"
             return "continue"
 
     # HERE / Future : give check_result the needed Module Conf, Global Conf ...

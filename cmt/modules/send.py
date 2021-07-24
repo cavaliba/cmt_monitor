@@ -3,7 +3,6 @@
 # Use case
 # - echo "data" | cmt send --token keyid
 
-import os
 import sys
 import select
 
@@ -14,8 +13,8 @@ def get_value():
     # not a problem for single check run accross all cmt
     timeout = 5
     if sys.stdin in select.select([sys.stdin], [], [], timeout)[0]:
-       for line in sys.stdin:
-          return line.rstrip()
+        for line in sys.stdin:
+            return line.rstrip()
     return ""
 
 
@@ -30,7 +29,7 @@ def check(c):
         c.result = "skip"
         return c
 
-    name = c.check
+    #name = c.check
     attribute = c.conf['attribute']
     unit = c.conf.get("unit","")
     comment = c.conf.get("comment","")

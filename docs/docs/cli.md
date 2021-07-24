@@ -4,12 +4,24 @@ title: CLI
 
 # CMT used in command-line mode (CLI)
 
+If cmt is deployed as a binary (recommended):
 
-    $ ./cmt.py -h
-    usage: cmt.py [-h] [--report] [--pager] [--persist] [--conf CONF]
-                  [--pagertest] [--no-pager-rate-limit] [--checkconfig]
-                  [--version] [--debug] [--debug2] [--short] [--devmode]
-                  [--listmodules] [--available]
+   $ cmt
+   $ cmt -s          # standard checks, short output
+   $ sudo cmt -s     # to include checks requesting elevated privileges
+
+If cmt is deployed as python source files :
+
+    $ python3 /my/dir/to/cmt.py 
+
+## help
+
+    $ cmt --help
+
+    usage: cmt.py [-h] [--cron] [--report] [--pager] [--persist] [--conf CONF]
+                  [--listmodules] [--available] [--pagertest]
+                  [--no-pager-rate-limit] [--checkconfig] [--version] [--debug]
+                  [--debug2] [--devmode] [--short] [--check CHECK]
                   [modules [modules ...]]
 
     CMT - Cavaliba Monitoring
@@ -19,10 +31,14 @@ title: CLI
 
     optional arguments:
       -h, --help            show this help message and exit
+      --cron                equiv to report, alert, persist, short output
       --report              send events to Metrology servers
       --pager               send alerts to Pagers
       --persist             persist data accross CMT runs (use in cron)
       --conf CONF           specify alternate yaml config file
+      --listmodules         display available modules
+      --available           display available entries found for modules (manual
+                            run on target)
       --pagertest           send test message to teams and exit
       --no-pager-rate-limit
                             disable pager rate limit
@@ -30,15 +46,15 @@ title: CLI
       --version, -v         display current version
       --debug               verbose/debug output
       --debug2              more debug
-      --short, -s           short compact cli output
       --devmode             dev mode, no pager, no remote metrology
-      --listmodules         display available modules
-      --available           display available entries found for modules (manual
-                            run on target)
+      --short, -s           short compact cli output
+      --check CHECK         check name for single check run
+ 
 
-## Full run, short output
+## Full run, short output (-s)
 
     $ ./cmt.py -s
+
     ------------------------------------------------------------
     CMT - Version 1.0.0 - (c) Cavaliba.com - 2020/11/29
     ------------------------------------------------------------
@@ -100,25 +116,23 @@ title: CLI
     2020/11/29 - 15:59:12 : Done.
 
 
-## Limit to one module
+## Limit to some module
 
-    $ ./cmt.py -s process
+    $ ./cmt.py process load memory
 
-    ------------------------------------------------------------
-    CMT - Version 1.0.0 - (c) Cavaliba.com - 2020/11/29
-    ------------------------------------------------------------
-    2020/11/29 - 15:59:53 : Starting ...
-    cmt_group      :  cavaliba
-    cmt_node       :  vmxupm
 
-    Short output
-    ------------
+## Limit to a specific check
 
-    NOK     process    redis missing (redis)
-    NOK     process    apache missing (httpd)
-    OK      process    cron found (cron) - memory rss 2.9 MB - cpu 0.04 sec.
-    OK      process    ssh found (sshd) - memory rss 3.9 MB - cpu 0.05 sec.
-    NOK     process    ntp missing (ntpd)
-    OK      process    mysql found (mysqld) - memory rss 56.3 MB - cpu 20.84 sec.
-    NOK     process    php-fpm missing (php-fpm)
+    $ ./cmt.py --check mycheckname
 
+
+## Send reports to metrology (force in CLI mode)
+
+  $ cmt --report
+
+
+## devmode (output reports to terminal - no real report send to metrology)
+
+  $ cmt -s --report --devmode
+
+  

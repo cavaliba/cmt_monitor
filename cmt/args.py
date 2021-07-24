@@ -81,6 +81,10 @@ def is_module_alone_in_args(name):
 
 # -------------------
 # check if all module names exist
-def is_module_list_valid_in_args():
-    # TODO
-    return True
+def get_invalid_modules_in_args():
+    err =[]
+    modules = cmt.ARGS['modules'][0]
+    for modulename in modules:
+        if modulename not in cmt.GLOBAL_MODULE_MAP:
+            err.append(modulename)
+    return err

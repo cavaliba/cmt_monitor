@@ -135,6 +135,7 @@ Metrology servers represent remote graylog/elasticsearch systems where collected
 	      # msec, sec, nsec ; anything else, no timestamp
 	      time_format: msec
 	      batch: yes
+	      send_tags: yes
 	      token: toto
 	      #username: cmt
 	      #password : cmt

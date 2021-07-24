@@ -4,7 +4,7 @@ title: Home
 
 # Welcome to CMT Documentation
 
-*Current release : 1.8.1 - 2021/07/18*
+*Current release : 1.8.2 - 2021/07/24*
 
 ## Overwiew - CMT is a simple monitoring agent
 
@@ -26,7 +26,7 @@ For sysadmin, CMT can be used as command line tool on each server during various
     $ cmt -s
 
     ------------------------------------------------------------
-    CMT - (c) cavaliba.com - Version 1.8.1 - 2021/07/18
+    CMT - (c) cavaliba.com - Version 1.8.2 - 2021/07/24
     ------------------------------------------------------------
     cmt_group      :  cavaliba
     cmt_node       :  vmxupm2

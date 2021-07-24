@@ -138,16 +138,15 @@ Your CMT  configuration will thus be :
       # Compatible with influxdb V1 & V2
       influxdb_test:
           type: influxdb
-          # V1
           url: http://10.10.10.13:8086/write?db=cmt
-          # V2
+          # url: http://10.10.10.13:8086/write?db=cmt&u=username&p=password
           # url: http://10.10.10.13:8086/api/v2/write?db=cmt
-          # msec, sec, nsec ; anything else, no timestamp
-          time_format: msec
-          batch: yes
-          token: mysecrettotokenken
-          #username: cmt
-          #password : cmt
+          time_format: msec              # msec, sec, nsec ; anything else, no timestamp
+          batch: yes                     # send all data point at the end of cmt ; default = yes
+          send_tags: yes                 # add all cmt_tag_XX in the influx tag list ; default = no
+          token: mysecrettotokenken      # if token authentication is used server-side
+          username: cmt                  # if header auth is prefered rathen than in the url
+          password : cmt
           enable: yes
 
 

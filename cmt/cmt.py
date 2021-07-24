@@ -34,11 +34,21 @@ def timeout_handler(signum, frame):
 
 if __name__ == "__main__":
 
+    if not sys.version_info >= (3, 6):
+        print ("Should use Python >= 3.6")
+        sys.exit()
+
     cmt.ARGS = args.parse_arguments(sys.argv[1:])
 
     if cmt.ARGS["version"]:
         print(cmt.VERSION)
         sys.exit()
+
+    err = args.get_invalid_modules_in_args()
+    if len(err) > 0:
+        print ("ERR - Unknow module(s)  : " + ','.join(err))
+        sys.exit()
+
 
     # conf.yml,  conf.d/*.yml
     cmt.CONF = conf.load_conf()
@@ -101,8 +111,7 @@ if __name__ == "__main__":
                 continue
             # break from outer for loop
             break
-
-    # -- end of check loop --
+     # -- end of check loop --
 
     # -- send batch metrology
     if cmt.ARGS['cron'] or cmt.ARGS["report"]:
