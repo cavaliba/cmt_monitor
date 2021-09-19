@@ -79,7 +79,7 @@ def sendreal(report):
                 rate_limit_update = True
 
         elif pagertype == "pagerduty":
-            #pagerduty_sendreal(pager,pagerconf, report)
+            pagerduty_sendreal(pager,pagerconf, report)
             pass
 
         elif pagertype == "smtp":
@@ -210,4 +210,65 @@ def teams_sendtest(pager, pagerconf):
 # ------------------------------------------------------------
 # PagerDuty
 # ------------------------------------------------------------
+
+def pagerduty_sendreal(pager, pagerconf, report):
+
+    # get url
+    url = pagerconf.get('url')
+    key = pagerconf.get('key')
+    debug("pager url :", url)
+
+    # prepare message
+    group = cmt.CONF['global']['cmt_group']
+    node = cmt.CONF['global']['cmt_node']
+    title = "CMT ALERT for {} - {} ".format(group,node)
+
+    dedup = group + "." + node 
+
+    message = ""
+    for c in report.checks:
+        if c.alert > 0:
+            message = c.get_message_as_str()
+
+
+    pager_message = """
+{{
+  "payload": {{
+    "summary": "{}",
+    "source": "{}",
+    "severity": "critical",
+    "group": "{}",
+    "class": "{}",
+    "custom_details": {{
+      "cmt_message": "{}"
+    }}
+  }},
+  "routing_key": "{}",
+  "dedup_key": "{}",
+  "event_action": "trigger"
+}}
+""".format(title, node, group, node, message, key, dedup)
+
+    debug("Pager Message : ", pager_message)
+
+    headers = {
+        'Content-Type': 'application/json'
+    }
+ 
+    if cmt.ARGS['devmode']:
+        print("DEVMODE : ", url, headers, pager_message)
+
+    else:
+        try:
+            r = requests.post(url, headers=headers, data=pager_message, timeout=cmt.PAGERDUTY_TIMEOUT)
+        except Exception as e:
+            logit("PagerDuty Send Error for {} : {}".format(pager, e))
+            return False
+
+        if r.status_code != 202:
+            logit("Alert couldn't send to PagerDuty - response  " + str(r))
+            return False
+
+    return True
+
 

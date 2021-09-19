@@ -67,15 +67,8 @@ class Check():
         if a in ['alert', 'notice', 'warn', 'none']:
             self.alert_max_level = a
         else:
-            # at the module level ?
-            b = cmt.CONF['modules'][self.module].get('alert_max_level', '')
-            if b in ['alert', 'notice', 'warn', 'none']:
-                self.alert_max_level = b
-            else:
-                # global level ?
-                c = cmt.CONF['global'].get('alert_max_level', '')
-                if c in ['alert', 'notice', 'warn', 'none']:
-                    self.alert_max_level = c
+            # global level ?
+            self.alert_max_level = cmt.CONF['global'].get('alert_max_level', 'none')
 
     def add_message(self, m):
 
@@ -157,17 +150,9 @@ class Check():
         f = self.conf.get('frequency', -1)
 
         if f == -1:
-            debug("Frequency: no Frequency at check level")
-            # frequency at the module level ?
-            modconf = cmt.CONF['modules'].get(self.module, {})
-            f2 = modconf.get('frequency', -1)
+            debug2("Frequency: no Frequency at check level")
+            return True
 
-            # no frequency specified, return True / no persist
-            if f2 == -1:
-                debug("Frequency: no Frequency at module level")
-                return True
-            else:
-                f = f2
 
         # yes, compare value / delta ; update persist if Run
         now = int(time.time())
@@ -329,16 +314,10 @@ def perform_check(checkname, modulename):
     checkconf = cmt.CONF[modulename][checkname]
 
 
-    # check  enabled in conf ?  (in check or in module)
-    ts_check = checkconf.get('enable', 'n/a')
-    # no info
-    if ts_check == "n/a":
-        # module level ?
-        if not conf.is_module_active_in_conf(modulename):
-            debug2("  module disabled in conf")
-            return "continue"   # no
-    elif not conf.is_timeswitch_on(ts_check):
-        debug2("  check disabled by conf")
+    # check enabled ?
+    ts_check = checkconf.get('enable', 'yes')
+    if not conf.is_timeswitch_on(ts_check):
+        debug("check disabled by conf ",checkname)
         return "continue"
 
     # check if module is filtered in ARGS
@@ -346,7 +325,6 @@ def perform_check(checkname, modulename):
         #check_result.result = "skip"         
         #check_result.result_info =  "module not requested (args)"
         return "continue"
-
 
     # prepare options sent to Module code
     my_opt = {}

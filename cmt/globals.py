@@ -31,6 +31,7 @@ REMOTE_CONFIG_TIMEOUT = 3
 
 # post to Teams
 TEAMS_TIMEOUT = 5
+PAGERDUTY_TIMEOUT = 5
 
 # Hystereis
 # delay before going to alerting state

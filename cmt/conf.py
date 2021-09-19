@@ -51,8 +51,7 @@ def load_conf_master():
     conf["__config_file"] = config_file
     
     conf_add_top_entries(conf)
-    conf_add_default_modules(conf)
-
+    
     return conf
 
 
@@ -192,12 +191,7 @@ def conf_merge(conf1, conf2):
             conf1[topitem][k] = conf2[topitem][k]
 
 
-def conf_add_default_modules(conf):
-    ''' complete conf with optionnal/default module entries.'''
 
-    for key in cmt.GLOBAL_MODULE_MAP:
-        if key not in conf['modules']:
-            conf['modules'][key] = {}
 
 
 def conf_add_top_entries(conf):
@@ -287,22 +281,6 @@ def is_timeswitch_on(myconfig):
     return False
 
 
-def is_module_active_in_conf(module):
-    ''' check if module (name) is enabled in config '''
-
-    if module not in cmt.CONF['modules']:
-        debug("module not in conf :", module)
-        # DEFAULT : True
-        return True
-
-    timerange = cmt.CONF['modules'][module].get("enable", "yes")
-
-    if is_timeswitch_on(timerange):
-        return True
-
-    debug("module not enabled in conf : ", module)
-    return False
-
 
 def get_hysteresis(check):
     ''' return configuration for alert_delay, resume_delay
@@ -314,12 +292,7 @@ def get_hysteresis(check):
     if "alert_delay" in check.conf:
         alert_delay = int(check.conf["alert_delay"])
 
-    elif "alert_delay" in cmt.CONF['modules'][check.module]:
-        alert_delay = int(cmt.CONF['modules'][check.module]['alert_delay'])
-
     else:
-        alert_delay = cmt.CONF['global'].get("alert_delay",
-                                             cmt.DEFAULT_HYSTERESIS_ALERT_DELAY
-                                             )
+        alert_delay = cmt.CONF['global'].get("alert_delay", cmt.DEFAULT_HYSTERESIS_ALERT_DELAY )
 
     return alert_delay

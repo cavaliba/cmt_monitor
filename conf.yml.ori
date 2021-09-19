@@ -65,89 +65,25 @@ metrology_servers:
 
 # Pager section
 # -------------
+# type : team_channel, teams (idem), pagerduty
+# mode : managed (ratelimit, hysteresis by CMT), allnotifications
 
 pagers:
 
-  alert:
-    type: team_channel
+  myteams:
+    type: teams 
+    mode: managed
     url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
     enable: yes
 
-  test:
-    type: team_channel
-    url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
-    enable: no
-
-# Modules section
-# ---------------
-
-modules:
-
-# SYNTAX
-#
-# modulename:
-#    enable            : timerange ; default yes
-#    [alert_max_level] : alert, warn, notice, none  (scale down)  ; overwrites global entry
-#    [alert_delay]     : delay before transition from to alert ; seconds/DEFAULT 120 
-#    [frequency]       : min seconds between runs ; needs --cron in ARGS
-
-
-  load:
-    enable: yes
-    alert_max_level: warn
-
-  cpu:
-    enable: yes
-    alert_max_level: notice
-
-  memory:
-    enable: yes
-    alert_max_level: warn
-
-  swap:
-    enable: yes
-    alert_max_level: warn
-
-  boottime:
-    enable: yes
-    alert_max_level: notice
-
-#  ntp:
-#    enable: yes
-
-  disk:
+  mypagerduty:
+    type: pagerduty
+    mode: allnotifications
+    url: https://events.pagerduty.com/v2/enqueue
+    key: XXXXXXXXXXXXXXXXXXXXXXXx
     enable: yes
 
-  url:
-    enable: yes
 
-  mount:
-    enable: yes
-
-  process:
-    enable: yes
-
-  ping:
-    enable: yes
-    alert_max_level: warn
-
-  folder:
-    enable: yes
-    #alert_delay: 70
-  
-  certificate:
-    enable: yes
-    frequency: 600
-    alert_max_level: warn
-
-  socket:
-    enable: yes
-
-  send:
-    enable: yes
-
-  mysql:
-     enable: yes
 
 # checks section
 # --------------

@@ -61,8 +61,7 @@ The complete configuration for a CMT run has 5 sections :
 1. global section (global)
 2. metrology server section
 3. pager servers section
-4. module section  to enable/disable various modules
-5. checks sections with all  individual checks parameters (module dependent)
+4. checks sections with all individual checks parameters (module dependent)
 
 
 In the following lines : 
@@ -144,46 +143,39 @@ Metrology servers represent remote graylog/elasticsearch systems where collected
 
 ### conf.yml : pager services
 
-Pager services represent remote systmes to which alerts are sent, when human immediate action is needed. Use wisely, syadmin sleep is precious !
+Pager services represent remote systmes to which alerts or notifications are sent, when human immediate action is needed.
 
-You must have a pager with the name `alert`.
+In `managed mode`, CMT handles delay and rate-limit before firing an alert.
+
+In `allnotifications`, CMT sends all alerts/warn/notice to remote Pagers which will be in charge of deduplication, rate-limit and proper human notification. 
+
+Use wisely, syadmin sleep is precious !
+
 
 	# ----------------------
 	# Pager services
 	# ----------------------
 
 	pagers:
-	  alert:             : mandatory entry 'alert'
-	     type            : team_channel
-	     url             : Teams channel URL
-	     [enable]        : timerange ; DEFAULT = no ; master switch / no inheritance
 
-	  test:              : mandatory 'test' entry for ARG --pagertest
-	     type            : team_channel
-	     url             :   
+	  pagername:         
+	     type            : team_channel, teams, pagerduty, smtp (to be done)
+	     mode            : managed(default), allnotifications
+	     url             : Teams channel URL
+	     [enable]        : timerange ; DEFAULT = yes ; master switch / no inheritance
+
+	  myteams_ops:     
+	     type            : teams
+	     url             : https://client.webhook.office.com/webhookb2/XXXXXXX
 	     [enable]        : timerange ; DEFAULT = no 
 
-
-### conf.yml : modules section
-
-Modules are code plugin to perform specific kind of data collection. Think as a class of checks. This section specfies settings shared by  all checks of each modules.
-
-	# ---------------------------
-	# Modules
-	# ---------------------------
-	# modules are enabled by default
-
-	modules:
-	  
-	  name:               : module name : ex load , cpu, swap, ...
-	    enable            : timerange ; default yes
-	  
-	  name:               : load 
-	    enable            : timerange ; default yes
-	    [alert_max_level] : alert, warn, notice, none  (scale down)  ; overwrites global entry
-	    [alert_delay]     : min. seconds before alert  ; DEFAULT 120  ; medium precedence
-	    [frequency]       : min seconds between runs ; needs --cron in ARGS
-
+	  # new V1.9+
+	  pagerduty_dev:
+	    enable: yes
+	    type: pagerduty
+	    mode: managed
+	    url: https://events.pagerduty.com/v2/enqueue
+	    key: xxxxxxxxxxx
 
 
 ### conf.yml : checks to be performed
