@@ -62,3 +62,9 @@ def pager_test():
     # REAL
     r = teams_send(url=url, title=title, message=message, color=color, origin=origin)
     logit("Teams test : " + str(r))
+
+
+# ------------------------------------------------------------
+# PagerDuty
+# ------------------------------------------------------------
+

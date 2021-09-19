@@ -111,6 +111,8 @@ class Check():
         return v
 
     def adjust_alert_max_level(self, level=""):
+        
+        ''' shift level of alert according to config alert_max_level : alert>warn>notice '''
 
         if level == "":
             level = self.alert_max_level
@@ -118,20 +120,24 @@ class Check():
         debug("adjust alert_max_level to : ", level)
 
         if level == "alert":
+            # no change, all range available
             return
 
         if level == "warn":
+            # shift one step : alerts > warn , warn > notice,  alerts = 0
             self.notice = self.warn
             self.warn = self.alert
             self.alert = 0
             return
 
         if level == "notice":
+            # keep only alerts
             self.notice = self.alert
             self.alert = 0
             self.warn = 0
 
         if level == "none":
+            # silence all alerts/warn/notice
             self.notice = 0
             self.alert = 0
             self.warn = 0
@@ -225,6 +231,16 @@ class Check():
         hystpersist[id] = hystpersist_item
         cmt.PERSIST.set_key("hysteresis", hystpersist)
 
+
+    def print_to_cli_skipped(self):
+
+        head = bcolors.WHITE      + "SKIPPED" + bcolors.ENDC
+        print("{:12} {:12} check={} {}".format(head, self.module, self.check, self.result_info))
+
+        #check_result.result = "skip"         
+        #check_result.result_info = "must run as root"
+        #check_result.print_to_cli_skipped()
+
     # --------------
     def print_to_cli_short(self):
 
@@ -235,7 +251,7 @@ class Check():
         elif self.warn > 0:
             head = bcolors.WARNING + "WARN   " + bcolors.ENDC
         elif self.notice > 0:
-            head = bcolors.CYAN  + "NOTICE " + bcolors.ENDC
+            head = bcolors.CYAN    + "NOTICE " + bcolors.ENDC
 
         # print(head, self.get_message_as_str())
         print("{:12} {:12} {}".format(head, self.module, self.get_message_as_str()))
@@ -411,7 +427,7 @@ def perform_check(checkname, modulename):
             debug("check %s must run as root." % checkname)   
             check_result.result = "skip"         
             check_result.result_info = "must run as root"
-            #print("SKIPPED - ROOT REQUIRED")
+            check_result.print_to_cli_skipped()
             return "continue"
 
     # verify frequency in cron mode
@@ -419,11 +435,12 @@ def perform_check(checkname, modulename):
         if not check_result.frequency():
             check_result.result = "skip"
             check_result.result_info = "check skipped (frequency)"
+            check_result.print_to_cli_skipped()
             return "continue"
 
     # HERE / Future : give check_result the needed Module Conf, Global Conf ...
 
-    # TODO : if --available, call diffrent function
+    # TODO : if --available, call different function
 
     # Add  tags/kv
     check_result.add_tags()
@@ -437,20 +454,28 @@ def perform_check(checkname, modulename):
     # results
     # ---------------
 
-    # option list available => not a real run
+    # option = available => not a real run ; just display discovered target and quit
     if cmt.ARGS["available"]:
         return "break"
 
-    # if check skipped
+    # if check skipped by module itself
     if check_result.result == "skip":
+        check_result.print_to_cli_skipped()
         debug2("  skipped in module")
         return "continue"
 
-    # Hysteresis / alert upd & own
-    check_result.hysteresis_filter()
-
     # apply alert_max_level for this check
     check_result.adjust_alert_max_level()
+
+    # Print to CLI
+    if cmt.ARGS['cron'] or cmt.ARGS['short']:
+        check_result.print_to_cli_short()
+    else:
+        check_result.print_to_cli_detail()
+
+    # create alert status triggerd/continue'd/resolved
+    # Hysteresis / alert up & down
+    check_result.hysteresis_filter()
 
     # If pager enabled (at check level), and alert exists : set pager True
     if check_result.alert > 0:
@@ -461,12 +486,6 @@ def perform_check(checkname, modulename):
 
     # keep returned Persist structure in check_result
     cmt.PERSIST.set_key(check_result.get_id(), check_result.persist)
-
-    # Print to CLI
-    if cmt.ARGS['cron'] or cmt.ARGS['short']:
-        check_result.print_to_cli_short()
-    else:
-        check_result.print_to_cli_detail()
 
     # Metrology
     if cmt.ARGS['cron'] or cmt.ARGS["report"]:
