@@ -56,46 +56,12 @@ class Report():
             print()
 
     def print_recap(self):
-        ''' display one line with number of checks, alert, warn, notice.'''
-        pass
-        ck = 0
-        alert = 0
-        warn = 0
-        notice = 0
-        for c in self.checks:
-            ck += 1
-            if c.alert > 0:
-                alert += 1
-            if c.warn > 0:
-                warn += 1
-            if c.notice > 0:
-                notice += 1
-        nok = alert + warn + notice
-        ok = ck - nok
+
+        ''' display each alert/warn notice + one line summary'''
         
         print()
-        logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
-              ck, ok, nok, alert, warn, notice))
-        print()
-
-
-    def dispatch_alerts(self):
-
-        # Alerts : CLI & Pager
-        if not cmt.ARGS['cron'] and not cmt.ARGS['short']:
-            self.print_alerts_to_cli()
-            print()
-
-        if cmt.ARGS['cron'] or cmt.ARGS["pager"]:
-            self.send_alerts_to_pager()
-
-
-    def print_alerts_to_cli(self):
-        ''' print pager/alerts to CLI '''
-
-        print()
-        print(bcolors.WHITE + bcolors.BOLD + "Notification Summary" + bcolors.ENDC )
-        print(bcolors.WHITE + bcolors.BOLD + "--------------------" + bcolors.ENDC )
+        print(bcolors.WHITE + bcolors.BOLD + "Summary" + bcolors.ENDC )
+        print(bcolors.WHITE + bcolors.BOLD + "-------" + bcolors.ENDC )
         print()
         
         if self.notice == 0:
@@ -126,79 +92,28 @@ class Report():
             for c in self.checks:
                 if c.alert > 0:
                     print("{:15s} : {}".format(c.module, c.get_message_as_str()))
-            #print()
 
+        # - one line summary
 
-    def send_alerts_to_pager(self):
-
-        ''' Send alerts to Pagers '''
-
-        # check if alert exists
-        if not self.pager:
-            debug("Pager : no Pager to be fired")
-            return
-
-        # check if Pager enabled globally (global section, master switch)
-        tmp = cmt.CONF['global'].get("enable_pager", "no")
-        if not conf.is_timeswitch_on(tmp):
-            debug("Pager  : disabled/inactive in global config.")
-            return
-
-        # Find 'Alert' Pager
-        if 'alert' not in cmt.CONF['pagers']:
-            debug("No alert pager configured.")
-            return
-
-        pagerconf = cmt.CONF['pagers'].get('alert')
-
-        # check if the 'Alert' Pager is enabled
-        tmp2 = pagerconf.get("enable", "no")
-        if not conf.is_timeswitch_on(tmp2):
-            debug("Pager  : alert pager disbled in conf.")
-            return
-
-        # check rate_limit
-        t1 = int(cmt.PERSIST.get_key("pager_last_send", 0))
-        t2 = int(time.time())
-        rate = int(cmt.CONF['global'].get("pager_rate_limit", 7200))
-
-        if not cmt.ARGS['no_pager_rate_limit']:
-            if t2 - t1 <= rate:
-                logit("Alerts : too many alerts (rate-limit) - no alert sent to Pager")
-                return
-
-        # get Teams alert channel url
-        url = pagerconf.get('url')
-        debug("pager url :", url)
-
-        # prepare message
-        origin = cmt.CONF['global']['cmt_group'] + '/' + cmt.CONF['global']['cmt_node']
-        color = "FF0000"
-        title = "ALERT from " + origin
-
-        message = ""
+        ck = 0
+        alert = 0
+        warn = 0
+        notice = 0
         for c in self.checks:
+            ck += 1
             if c.alert > 0:
-                message += 'ALERT: '
-                message += c.get_message_as_str()
-                message += '<br>\n'
+                alert += 1
             if c.warn > 0:
-                message += 'WARN: '
-                message += c.get_message_as_str()
-                message += '<br>\n'
+                warn += 1
             if c.notice > 0:
-                message += 'NOTICE: '
-                message += c.get_message_as_str()
-                message += '<br>\n'
+                notice += 1
+        nok = alert + warn + notice
+        ok = ck - nok
+        
+        print()
+        logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
+              ck, ok, nok, alert, warn, notice))
+        print()
 
-        debug("Pager Message : ", message)
 
-        # send alert
-        r = pager.teams_send(url=url, title=title, message=message, color=color, origin=origin)
-        if r == 200:
-            logit("Alerts : alert sent to Teams ")
-        else:
-            logit("Alerts : couldn't send alert to Teams - response  " + str(r))
 
-        # update rate_limit
-        cmt.PERSIST.set_key("pager_last_send", t2)

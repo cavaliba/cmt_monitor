@@ -27,6 +27,7 @@ def send_metrology(mycheck):
         Or add to batch for batch sending at the end of run.
     '''
 
+    influxdb_batched = False
 
     for metro in cmt.CONF['metrology_servers']:
 
@@ -36,7 +37,7 @@ def send_metrology(mycheck):
         timerange = metroconf.get("enable", "yes")
         if not conf.is_timeswitch_on(timerange):
             debug("Metrology server disabled in conf : ", metro)
-            return
+            continue
 
         if metrotype == "graylog_udp_gelf":
             gelf_data = build_gelf_message(mycheck)
@@ -65,11 +66,14 @@ def send_metrology(mycheck):
             token = metroconf.get('token','')
             batch = metroconf.get("batch", True) is True
             if batch:
-                influxdb_add_to_batch(influxdb_data)
-                debug("Data sent to influx server ", metro)
+                if not influxdb_batched:
+                    print("****")
+                    influxdb_add_to_batch(influxdb_data)
+                    influxdb_batched = True
+                    debug("Data batched for influx servers")
             else:
                 influxdb_send_http(url, username=username, password=password, token=token, data=influxdb_data)
-                debug("Data added to influx/batch server ", metro)
+                debug("Data sent to influx server ", metro)
 
         else:
             debug("Unknown metrology server type in conf.")

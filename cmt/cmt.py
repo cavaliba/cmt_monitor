@@ -72,9 +72,9 @@ if __name__ == "__main__":
         print("config OK.")
         sys.exit()
 
-    # CLI : Send test message to Teams ?
+    # CLI : Send test message to Pagers ?
     if cmt.ARGS["pagertest"]:
-        pager.pager_test()
+        pager.sendtest()
         sys.exit()
 
     # CLI : List available modules option ?
@@ -113,15 +113,17 @@ if __name__ == "__main__":
             break
      # -- end of check loop --
 
-    # -- send batch metrology
+    # display report recap to CLI
+    if not cmt.ARGS['short']:
+        myreport.print_recap()
+
+    # send batch metrology if needed
     if cmt.ARGS['cron'] or cmt.ARGS["report"]:
         metrology.send_metrology_batch()
 
     # send alerts to pagers
-    myreport.dispatch_alerts()
-
-    # display report recap to CLI
-    myreport.print_recap()
+    if cmt.ARGS['cron'] or cmt.ARGS["pager"]:
+        pager.sendreal(myreport)
 
     # persist data across runs
     cmt.PERSIST.set_key("cmt_last_run", int(time.time()))
