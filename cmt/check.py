@@ -382,9 +382,7 @@ def perform_check(checkname, modulename):
     # Add  tags/kv
     check_result.add_tags()
 
-    # ---------------
-    # perform check 
-    # ---------------
+    # ACTUAL CHECK IS DONE HERE
     check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
 
     # ---------------
@@ -403,6 +401,8 @@ def perform_check(checkname, modulename):
 
     # apply alert_max_level for this check
     check_result.adjust_alert_max_level()
+    #check_result.adjust_severity()
+
 
     # Print to CLI
     if cmt.ARGS['cron'] or cmt.ARGS['short']:
@@ -410,9 +410,9 @@ def perform_check(checkname, modulename):
     else:
         check_result.print_to_cli_detail()
 
-    # create alert status triggerd/continue'd/resolved
-    # Hysteresis / alert up & down
+    # create alert status up/active/down/none - hysteresis
     check_result.hysteresis_filter()
+    #check_result.add_alert()
 
     # If pager enabled (at check level), and alert exists : set pager True
     if check_result.alert > 0:
