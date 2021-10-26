@@ -169,7 +169,7 @@ Use wisely, syadmin sleep is precious !
 	     url             : https://client.webhook.office.com/webhookb2/XXXXXXX
 	     [enable]        : timerange ; DEFAULT = no 
 
-	  # new V1.9+
+	  # new V2.0
 	  pagerduty_dev:
 	    enable: yes
 	    type: pagerduty
@@ -197,17 +197,21 @@ Checks have options available to all checks, and options specific to the type of
 
           [enable]           : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
 	      [enable_pager]     : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
-	      [alert_max_level]  : alert, warn, notice, none (scale down)  ; overwrites global & module entry
 	      [alert_delay]      : min. seconds before alert  ; DEFAULT 120  ; higher precedence
 	      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
           [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
           [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank around optional "=value"
 
+	      [alert_max_level]  : alert, warn, notice, none (scale down)  ; overwrites global & module entry
+          [severity_max]     : critical, error, warning, notice, none  (default : critical)
+
 	      arg1               : specific to module (see doc for each module)
 	      arg2               : specific to module  
 	      (...)
 
-      checkname2
+      checkname2:
+
+          ...
 
 
 
@@ -291,7 +295,21 @@ When set to warn, two shifts are performed : alerts become notice, the rest is d
 
 When set to none, all level are discarded, no values are reported to metrolgoy servers.
 
+**soon to be deprecated**
 
+
+### severity_max
+
+Scope: check
+
+Values: critical (default), error, warning, none
+
+Will replace alert_max_level. Defines the maximum  level of severity of a raw check to be further processed (deduplication, hysteresis, rate_limit of alerts).
+
+* critical : for production and immediate failure of a critical component.
+* error : for production and immediate failure of a non-critical compoent, or failure of non-production items
+* warning : a failure will soon happen
+* notice : attention needed, no failure soon
 
 
 ### load_confd : yes/no
@@ -441,12 +459,42 @@ See Graylog/GELF documentation for more information.
       type: graylog_udp_gelf
       host: 10.10.10.13
       port: 12201
+  
   graylog_test2:
       type: graylog_tcp_gelf
       url: http://10.10.10.13:8080/gelf
 
       [enable]                : timerange ; default = yes ; master switch
       ()secret_key
+
+
+ElasticSearch
+
+  elastic_test:
+      type: elastic_http_json
+      url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
+      ssl_verify: yes
+      enable: yes
+
+InfluxDB 
+
+  # CMT V1.7+ ; compatible with influxdb V1 & V2
+
+  influxdb_test:
+      type: influxdb
+      # V1
+      url: http://10.10.10.13:8086/write?db=cmt
+      # V2
+      # url: 
+      # msec, sec, nsec ; anything else, no timestamp
+      time_format: msec
+      batch: yes
+      send_tags: yes
+      token: toto
+      #username: cmt
+      #password : cmt
+      ssl_verify: yes
+      enable: yes
 
 
 ## Pager / Teams 
@@ -461,24 +509,20 @@ Two Teams channel must  be defined in the configuration :
 
 The Teams URL must be provided for each Channel
 
+  myteams:
+    type: teams 
+    mode: managed
+    url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
+    enable: yes
 
-	pagers:
-	  alert              : mandatory entry 'alert'
-	     type            : team_channel
-	     url             : https://outlook.office.com/webhook/xx../IncomingWebhook/yyyy...
-	     [enable]        : timerange ; DEFAULT = no ; master switch / no inheritance
-	     ()secret_key    : 
-	     ()add_tags
-	         tag: value
-	         tag: value
-	  test               : mandatory 'test' entry for ARG --pagertest
-	     type            : team_channel
-	     url             : https://outlook.office.com/webhook/xx/IncomingWebhook/yyy...
-	     [enable]        : timerange ; DEFAULT = no  test:
-	     ()secret_key    : 
-	     ()add_tags
-	         tag: value
-	         tag: value
+## Pager Pagerduty (experimental)
+
+  mypagerduty:
+    type: pagerduty
+    mode: allnotifications
+    url: https://events.pagerduty.com/v2/enqueue
+    key: XXXXXXXXXXXXXXXXXXXXXXXx
+    enable: yes
 
 
 A global pager rate limit is available in the ... global section. A master switch to disable immediately all Pager notification is also available in the global section.
@@ -503,6 +547,7 @@ Available moules
 	  - certificate
 	  - socket
 	  - send
+	  - mysql
 
 
 

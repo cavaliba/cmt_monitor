@@ -5,9 +5,10 @@ title: configuration example
 
 ## Full configuration example
 
+
     ---
     # Cavaliba / cmt_monitor / conf.yml
-    # CMT Version: 1.8
+    # CMT Version: 2.0beta
 
 
     # Example configuration / template 
@@ -20,16 +21,16 @@ title: configuration example
       cmt_node: vmxupm
       cmt_node_env: dev
       cmt_node_role: dev_cmt
-      cmt_node_location: Ladig
+      cmt_node_location: France
       enable: yes
       enable_pager: yes
-      conf_url: http://localhost/txt/
+      #conf_url: http://localhost/txt/
       pager_rate_limit: 3600
       max_execution_time: 55
       load_confd: yes
       alert_max_level: warn
       alert_delay: 90
-      tags: global_tag1 global_tag2=value2
+      tags: demo os=linux os_ver=debian10
 
 
     # Metrology section
@@ -46,11 +47,13 @@ title: configuration example
       graylog_test2:
           type: graylog_http_gelf
           url: http://10.10.10.13:8080/gelf
+          ssl_verify: yes
           enable: yes
 
       elastic_test:
           type: elastic_http_json
           url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
+          ssl_verify: yes
           enable: yes
 
       # CMT V1.7+ ; compatible with influxdb V1 & V2
@@ -67,88 +70,30 @@ title: configuration example
           token: toto
           #username: cmt
           #password : cmt
+          ssl_verify: yes
           enable: yes
 
 
     # Pager section
     # -------------
+    # type : team_channel, teams (idem), pagerduty
+    # mode : managed (ratelimit, hysteresis by CMT), allnotifications
 
     pagers:
 
-      alert:
-        type: team_channel
+      myteams:
+        type: teams 
+        mode: managed
         url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
         enable: yes
 
-      test:
-        type: team_channel
-        url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
-        enable: no
-
-    # Modules section
-    # ---------------
-
-    modules:
-
-    # SYNTAX
-    #
-    # modulename:
-    #    enable            : timerange ; default yes
-    #    [alert_max_level] : alert, warn, notice, none  (scale down)  ; overwrites global entry
-    #    [alert_delay]     : delay before transition from to alert ; seconds/DEFAULT 120 
-    #    [frequency]       : min seconds between runs ; needs --cron in ARGS
-
-
-      load:
-        enable: yes
-        alert_max_level: notice
-
-      cpu:
-        enable: yes
-      
-      memory:
-        enable: yes
-        frequency: 600
-
-      swap:
+      mypagerduty:
+        type: pagerduty
+        mode: allnotifications
+        url: https://events.pagerduty.com/v2/enqueue
+        key: XXXXXXXXXXXXXXXXXXXXXXXx
         enable: yes
 
-      boottime:
-        enable: yes
-
-      ntp:
-        enable: yes
-
-      disk:
-        enable: yes
-
-      url:
-        enable: yes
-
-      mount:
-        enable: yes
-        alert_max_level: notice
-
-      process:
-        enable: yes
-
-      ping:
-        enable: yes
-        alert_max_level: warn
-
-      folder:
-        enable: yes
-        #alert_delay: 70
-        #alert_max_level: alert
-      
-      certificate:
-        enable: yes
-
-      socket:
-        enable: yes
-
-      send:
-        enable: yes
 
 
     # checks section
@@ -170,47 +115,65 @@ title: configuration example
 
 
     load:
+
       myload:
         enable: yes
-        alert_max_level: warn
+        alert_max_level: alert
+        severity_max: warning
+        threshold1: 10.3
+        threshold5: 8.4
+        threshold15: 4.4
         tags: local1 local2=43
 
-
     cpu:
+
       mycpu:
         enable: yes
         alert_max_level: alert
+        severity_max: warning
 
 
     memory:
+
       mymemory:
         enable: yes
         alert_max_level: alert
         frequency: 10
+        # percent
+        threshold: 80.5
+        severity_max: warning
 
 
     boottime:
+
       myboottime:
         enable: yes
         alert_max_level: alert
+        # days
+        threshold: 180
+        severity_max: warning
 
     swap:
       myswap:
         enable: yes
-        alert_max_level: alert
-
+        alert_max_level: warn
+        # percent
+        threshold: 11.3
+        severity_max: warning
 
     disk:
 
       disk_root:
         path: /
         alert: 80
+        severity_max: warning
 
       disk_boot:
         path: /boot
         alert: 90
+        severity_max: warning
 
-
+    # ---------
     url:
 
       www.cavaliba.com:
@@ -220,138 +183,225 @@ title: configuration example
         allow_redirects: yes
         ssl_verify: yes
         #host: toto
+        severity_max: warning
 
       www_non_existing:
         enabled: after 2020-01-01
         url: http://www.nonexisting/
         #pattern: ""
+        severity_max: warning
 
       google:
         url: https://www.google.com/
+        severity_max: warning
 
       yahoo:
         url: https://www.yahoo.com/
         allow_redirects: yes
         ssl_verify: yes
+        severity_max: warning
 
       via_proxy_cavaliba:
         enabled: yes
         url: https://www.cavaliba.com/
-        http_proxy: http://62.210.205.232:8080
+        http_proxy: http://72.25.7.140:8080
+        severity_max: warning
 
       url_noenv_proxy:
         url: http://www.monip.org/
         http_proxy: noenv
+        severity_max: warning
 
       url_test_timeout:
         url: http://slowwly.robertomurray.co.uk/delay/4000/url/http://google.co.uk
         timeout: 2
+        severity_max: warning
 
-
+    # ---------
     mount:
 
       mount_root:
         path: /
+        severity_max: warning
 
       mount_mnt:
         path: /mnt
+        severity_max: warning
 
 
+    # ---------
     process:
 
       redis:
         psname: redis
         enable_pager: no
+        severity_max: warning
 
       apache:
         psname: httpd
+        severity_max: warning
 
       cron:
         psname: cron
         search_arg: "-f"
+        severity_max: warning
       
       ssh:
         psname: sshd
+        severity_max: warning
 
       ntp:
         psname: ntpd
+        severity_max: warning
 
       mysql:
         psname: mysqld
+        severity_max: warning
 
       php-fpm:
         psname: php-fpm
         enable_pager: yes
+        severity_max: warning
 
-
+    # ---------
     ping:
 
       ping_vm1:
         host: 192.168.0.1
+        severity_max: warning
 
       ping_locahost:
         host: localhost
+        severity_max: warning
 
       www.google.com:
         host: www.google.com
+        severity_max: warning
 
       wwwtest:
         host: www.test.com    
+        severity_max: warning
 
       badname:
         host: www.averybadnammme_indeed.com  
+        severity_max: warning
 
-
+    # ---------
     folder:
 
-      dir_usrshare_doc:
-        path: /usr/share/doc
-        alert_max_level: none
+      test_recursive100:
+        path: /opt/cmt/testdata/arbo100
+        severity_max: critical
+        alert_max_level: alert
+        recursive: yes
+
+      test_extension:
+        path: /opt/cmt/testdata
+        severity_max: warning
         recursive: yes
         filter_extension: ".conf .hl7"
 
-      dir_usrshare_doc2:
-        path: /usr/share/doc
-        alert_max_level: none
+      test_regexp:
+        path: /opt/cmt/testdata
+        severity_max: warning
         recursive: yes
         filter_regexp: '^Makefile$'
 
-      dir_usrshare_alsa:
-        path: /usr/share/alsa
-        alert_max_level: none
+      test_regexp_no_recurse:
+        path: /opt/cmt/testdata
+        severity_max: warning
+        recursive: no
+        filter_regexp: '^Makefile$'
+
+      test_regexp_ext:
+        path: /opt/cmt/testdata
+        severity_max: warning
         recursive: yes
         filter_regexp: '.*.conf$'
 
-      folder_mytmp:
-        path: /tmp
-        alert_max_level: alert
-        #alert_delay: 30
-        recursive: no
+      test_wrong_target:
+        path: /opt/cmt/testdata
+        severity_max: warning
         target:
            is_blabla:
-           #age_min: 1000
-           #age_max: 300
-           #files_min: 3
-           #files_max: 10
-           #size_min: 100000
-           #size_max: 10
+
+      test_hasfile:
+        path: /opt/cmt/testdata
+        severity_max: error
+        recursive: no
+        target:
            has_files:
                 - secret.pdf
                 #- secret2.pdf
 
-      folder_number2:
-        path: /missing
+      test_age_min:
+        path: /opt/cmt/testdata
+        severity_max: error
+        target:
+           age_min: 1000
 
-      a_file:
-        path: /tmp/ab.txt
-        no_store: no
+      test_age_max:
+        path: /opt/cmt/testdata
+        severity_max: notice
+        target:
+           age_max: 300
 
-      folder_big_nostore:
-        path: /usr/lib
+      test_files_min:
+        path: /opt/cmt/testdata
+        severity_max: warning
+        target:       
+           files_min: 3
+
+      test_files_max:
+        path: /opt/cmt/testdata
+        severity_max: warning
+        target:
+           files_max: 10
+
+      test_size_min:
+        path: /opt/cmt/testdata
+        severity_max: warning
+        target:
+           size_min: 100000
+           
+      test_size_max:
+        path: /opt/cmt/testdata
+        severity_max: error
+        target:
+           size_max: 10
+
+      test_has_recent:
+        path: /opt/cmt/testdata
+        target:
+           has_recent: 3600
+        severity_max: warning
+
+      test_has_old:
+        path: /opt/cmt/testdata
+        target:
+           has_old: 86400
+        severity_max: warning
+
+      test_missing:
+        path: /opt/cmt/testdata/missing
+        severity_max: warning
+
+      test_missing:
+        path: /opt/cmt/testdata/file_missing.txt
+        severity_max: warning
+
+      test_nostore:
+        path: /opt/cmt/testdata/file.txt
         recursive: yes
         no_store: yes
+        severity_max: warning
 
+      folder_root:
+        path: /root
+        root_required: yes
+        severity_max: warning
 
+    # ---------
     certificate:
 
       cert_google:
@@ -360,22 +410,26 @@ title: configuration example
         alert_in: 1 week 
         warning_in: 3 months
         notice_in: 6 months
+        severity_max: warning
 
       duck:
         hostname: duckduckgo.com
         alert_in: 1 week
+        severity_max: warning
 
       broken:
         hostname: duckduckgo.com
         port: 80
         alert_in: 2 week
+        severity_max: warning
 
       yahoo:
         hostname: yahoo.com
         port: 443
         alert_in: 2 week
+        severity_max: warning
 
-
+    # ---------
     socket:
 
       redis:
@@ -384,12 +438,15 @@ title: configuration example
         connect: yes
         #send: 
         #pattern:
+        severity_max: warning
 
       www_google:
-        socket: remote www.google.com tcp 443
-        connect: yes
-        #send: 
-        #pattern:
+         socket: remote www.google.com tcp 443
+         connect: yes
+         #send: 
+         #pattern:
+         severity_max: warning
+
 
     send:
 
@@ -397,7 +454,7 @@ title: configuration example
           attribute: test
           comment: "a test comment for token1 - cmt_test will be created in elastic"
           unit: "no_unit"
-
+          severity_max: warning
 
     mysql:
 
@@ -413,7 +470,11 @@ title: configuration example
           max_behind: 300
           alert_max_level: notice
           alert_delay: 300
-          
+          severity_max: warning
+
+
+
+
     #  -------------------------------------
     #  timerange field (from documentation)
     #  -------------------------------------
@@ -430,3 +491,5 @@ title: configuration example
     # - main conf has higher priority
     # - first level lists merged
     # ------------------------------------
+
+
