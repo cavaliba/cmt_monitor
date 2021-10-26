@@ -5,6 +5,21 @@ title: version
 # Releases
 
 
+## 2.0 beta - 2021/10/26
+
+    feature: display skipped tests
+    feature(beta): pagerduty (managed) mode
+    added : severity_max + cmt_severity (critical, error, warning, notice, none )
+    added option ssl_verify to http targets influx/graylog/elasticseach
+    bug : CLI output displays realtime results before hysteris/up/down processing(pager feature only)
+    bug : influxdb/batch mode when mutliple targets
+    bug : tags key/value in influxdb must be sent as string
+    removed modules section from config
+    removed alert_delay in module config
+    removed alert_max_level in module config
+    removed frequency in module_config
+
+
 ## 1.8.2 - 2021/07/24
 
     bugfixe : influxdb - password variable mismatch (typo)

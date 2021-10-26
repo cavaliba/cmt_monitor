@@ -114,8 +114,11 @@ if __name__ == "__main__":
      # -- end of check loop --
 
     # display report recap to CLI
-    if not cmt.ARGS['short']:
+    if cmt.ARGS['short']:
+        myreport.print_line_summary()
+    else:
         myreport.print_recap()
+        myreport.print_line_summary()
 
     # send batch metrology if needed
     if cmt.ARGS['cron'] or cmt.ARGS["report"]:

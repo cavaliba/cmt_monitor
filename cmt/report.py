@@ -64,14 +64,15 @@ class Report():
     def get_severity_string(self):
 
         if self.severity == cmt.SEVERITY_CRITICAL:
-            return "CRITICAL"
+            return bcolors.FAIL + bcolors.BOLD + "CRITICAL" + bcolors.ENDC
         if self.severity == cmt.SEVERITY_ERROR:
-            return "ERROR"
+            return bcolors.FAIL + bcolors.BOLD + "ERROR"  + bcolors.ENDC
         if self.severity == cmt.SEVERITY_WARNING:
-            return "WARNING"
+            return bcolors.WARNING + bcolors.BOLD + "WARNING" + bcolors.ENDC
+        if self.severity == cmt.SEVERITY_NOTICE:
+            return bcolors.CYAN + bcolors.BOLD + "NOTICE" + bcolors.ENDC
         if self.severity == cmt.SEVERITY_NONE:
-            return "NONE"
-
+            return bcolors.WHITE + bcolors.BOLD + "NONE" + bcolors.ENDC
 
 
     def print_recap(self):
@@ -82,10 +83,10 @@ class Report():
         print(bcolors.WHITE + bcolors.BOLD + "Summary" + bcolors.ENDC )
         print(bcolors.WHITE + bcolors.BOLD + "-------" + bcolors.ENDC )
         
-        print ("SEVERITY: ", self.get_severity_string() )
+        #print ("GLOBAL SEVERITY: ", self.get_severity_string() , "\n")
 
         if self.notice == 0:
-            #print(bcolors.OKBLUE + bcolors.BOLD + "No notice", bcolors.ENDC)
+            #print(bcolors.OKBLUE + bcolors.BOLD + "No notice",l bcolors.ENDC)
             print("No Notice.")
         else:
             print(bcolors.CYAN + bcolors.BOLD + "NOTICE", bcolors.ENDC)
@@ -98,7 +99,7 @@ class Report():
             #print(bcolors.OKGREEN + bcolors.BOLD + "No warnings", bcolors.ENDC)
             print("No Warning.")
         else:
-            print(bcolors.WARNING + bcolors.BOLD + "WARNINGS", bcolors.ENDC)
+            print(bcolors.WARNING + bcolors.BOLD + "WARNING", bcolors.ENDC)
             for c in self.checks:
                 if c.warn > 0:
                     print("{:15s} : {}".format(c.module, c.get_message_as_str()))
@@ -108,32 +109,40 @@ class Report():
             #print(bcolors.OKGREEN + bcolors.BOLD + "No alerts", bcolors.ENDC)
             print("No Alert.")
         else:
-            print(bcolors.FAIL + bcolors.BOLD + "ALERTS", bcolors.ENDC)
+            print(bcolors.FAIL + bcolors.BOLD + "ALERT/CRITICAL", bcolors.ENDC)
             for c in self.checks:
                 if c.alert > 0:
                     print("{:15s} : {}".format(c.module, c.get_message_as_str()))
 
+
+
+    def print_line_summary(self):
+
         # - one line summary
 
         ck = 0
-        alert = 0
-        warn = 0
+        ok = 0 
+        nok = 0
+        critical = 0
+        error = 0
+        warning = 0
         notice = 0
         for c in self.checks:
             ck += 1
-            if c.alert > 0:
-                alert += 1
-            if c.warn > 0:
-                warn += 1
-            if c.notice > 0:
+            if c.severity == cmt.SEVERITY_CRITICAL:
+                critical += 1
+            elif c.severity == cmt.SEVERITY_ERROR:
+                error += 1
+            elif c.severity == cmt.SEVERITY_WARNING:
+                warning += 1
+            elif c.severity == cmt.SEVERITY_NOTICE:
                 notice += 1
-        nok = alert + warn + notice
-        ok = ck - nok
+            else:
+                ok += 1
+
+        nok = ck - ok
         
         print()
-        logit("Done - {} checks - {} ok - {} nok - {} alerts - {} warning - {} notice.".format(
-              ck, ok, nok, alert, warn, notice))
+        logit("SEVERITY={} - {} checks - {} ok - {} nok - {} criticial - {} error - {} warning - {} notice.".format(
+              self.get_severity_string(), ck, ok, nok, critical, error, warning, notice))
         print()
-
-
-

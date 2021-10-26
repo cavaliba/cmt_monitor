@@ -167,6 +167,8 @@ def build_gelf_message(check):
     if notif > 0:
         graylog_data += ',"cmt_notification":{}'.format(notif)
 
+    # NEW 2.0
+    graylog_data += ',"cmt_severity":"{}"'.format(check.severity)
 
     graylog_data = '{' + graylog_data + '}'
     return graylog_data
@@ -246,8 +248,8 @@ def build_influxdb_message(check, metroconf):
     if send_tags:
         for item in check.checkitems:                
             if item.name.startswith('tag_'):
-                float(item.value)
-                influx_data += ',cmt_{}={}'.format(item.name, item.value)
+                #float(item.value)
+                influx_data += ',cmt_{}="{}"'.format(item.name, item.value)
 
 
     first_item = True
@@ -272,6 +274,10 @@ def build_influxdb_message(check, metroconf):
 
     notif = check.get_notification()
     influx_data += ',cmt_notification={}'.format(notif)
+
+    # NEW 2.0
+    influx_data += ',cmt_severity={}'.format(check.severity)
+
 
     # timestamp in milliseconds
     tsms = round(time.time() * 1000)
@@ -397,6 +403,10 @@ def build_json_message(check):
     notif = check.get_notification()
     if notif > 0:
         json_data += ',"cmt_notification":{}'.format(notif)
+
+    # NEW 2.0
+    json_data += ',"cmt_severity":"{}"'.format(check.severity)
+
 
     json_data = '{' + json_data + '}'
 

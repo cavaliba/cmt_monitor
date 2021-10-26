@@ -143,11 +143,11 @@ class Check():
             self.severity = cmt.SEVERITY_NOTICE
             if self.severity_max == cmt.SEVERITY_NONE:
                 self.severity = self.severity_max
-                
+
         else:
             self.severity = cmt.SEVERITY_NONE
 
-
+        debug("severity = {}".format(self.severity))
 
     def adjust_alert_max_level(self, level=""):
         
@@ -266,7 +266,8 @@ class Check():
     def print_to_cli_skipped(self):
 
         head = bcolors.WHITE      + "SKIPPED" + bcolors.ENDC
-        print("{:12} {:12} check={} {}".format(head, self.module, self.check, self.result_info))
+        print()
+        print("{:12}  module={} check={} : {}".format(head, self.module, self.check, self.result_info))
 
         #check_result.result = "skip"         
         #check_result.result_info = "must run as root"
@@ -275,14 +276,17 @@ class Check():
     # --------------
     def print_to_cli_short(self):
 
-        head = bcolors.OKGREEN     + "OK     " + bcolors.ENDC
+        head = bcolors.OKGREEN     + "OK      " + bcolors.ENDC
 
-        if self.alert > 0:
-            head = bcolors.FAIL    + "NOK    " + bcolors.ENDC
-        elif self.warn > 0:
-            head = bcolors.WARNING + "WARN   " + bcolors.ENDC
-        elif self.notice > 0:
-            head = bcolors.CYAN    + "NOTICE " + bcolors.ENDC
+        if self.severity == cmt.SEVERITY_CRITICAL:
+            head = bcolors.FAIL  + bcolors.BOLD  + "CRITICAL" + bcolors.ENDC
+        elif self.severity == cmt.SEVERITY_ERROR:
+            head = bcolors.FAIL    + "ERROR   " + bcolors.ENDC
+        elif self.severity == cmt.SEVERITY_WARNING:
+            head = bcolors.WARNING + "WARNING " + bcolors.ENDC
+        elif self.severity == cmt.SEVERITY_NOTICE:
+            head = bcolors.CYAN    + "NOTICE  " + bcolors.ENDC
+
 
         # print(head, self.get_message_as_str())
         print("{:12} {:12} {}".format(head, self.module, self.get_message_as_str()))
@@ -291,7 +295,7 @@ class Check():
     def print_to_cli_detail(self):
 
         print()
-        print(bcolors.WHITE + bcolors.BOLD + "Check", self.module, bcolors.ENDC)
+        print(bcolors.WHITE  + self.module, bcolors.ENDC)
 
         for i in self.checkitems:
 
@@ -307,14 +311,17 @@ class Check():
             print("cmt_{:20} {}".format(i.name, v))
 
 
-        head = bcolors.OKGREEN  + bcolors.BOLD + "OK     " + bcolors.ENDC
+        head = bcolors.OKGREEN + bcolors.BOLD    + "OK      " + bcolors.ENDC
 
-        if self.alert > 0:
-            head = bcolors.FAIL + bcolors.BOLD + "NOK    " + bcolors.ENDC
-        elif self.warn > 0:
-            head = bcolors.WARNING + bcolors.BOLD + "WARN   " + bcolors.ENDC
-        elif self.notice > 0:
-            head = bcolors.CYAN + bcolors.BOLD + "NOTICE " + bcolors.ENDC
+        if self.severity == cmt.SEVERITY_CRITICAL:
+            head = bcolors.FAIL  + bcolors.BOLD  + "CRITICAL" + bcolors.ENDC
+        elif self.severity == cmt.SEVERITY_ERROR:
+            head = bcolors.FAIL  + bcolors.BOLD  + "ERR     " + bcolors.ENDC
+        elif self.severity == cmt.SEVERITY_WARNING:
+            head = bcolors.WARNING + bcolors.BOLD+ "WARN    " + bcolors.ENDC
+        elif self.severity == cmt.SEVERITY_NOTICE:
+            head = bcolors.CYAN   + bcolors.BOLD + "NOTICE  " + bcolors.ENDC
+
 
         print("{:37} {}".format(head, self.get_message_as_str()))
 
@@ -459,8 +466,8 @@ def perform_check(checkname, modulename):
 
     # create alert status up/active/down/none - hysteresis
     check_result.hysteresis_filter()
-    #check_result.add_alert()
 
+    # TODO V2.0 : compute pager state
     # If pager enabled (at check level), and alert exists : set pager True
     if check_result.alert > 0:
         tr = checkconf.get('enable_pager', "no")
