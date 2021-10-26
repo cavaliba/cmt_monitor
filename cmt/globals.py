@@ -81,6 +81,16 @@ METROLOGY_INFLUXDB_SUSPENDED = False
 # map.py with all imports from modules
 GLOBAL_MODULE_MAP = {}
 
+
+# ------------------------
+# SEVERITY
+# ------------------------
+SEVERITY_CRITICAL = 1
+SEVERITY_ERROR = 2
+SEVERITY_WARNING = 3
+SEVERITY_NOTICE = 4
+SEVERITY_NONE = 5
+
 # ------------------------
 # ARGS - cli parameters
 # ------------------------

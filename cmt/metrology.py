@@ -49,13 +49,15 @@ def send_metrology(mycheck):
         elif metrotype == "graylog_http_gelf":
             gelf_data = build_gelf_message(mycheck)
             url = metroconf['url']
-            graylog_send_http_gelf(url=url, data=gelf_data)
+            ssl_verify = metroconf.get("ssl_verify", False) is True
+            graylog_send_http_gelf(url=url, data=gelf_data, ssl_verify=ssl_verify)
             debug("Data sent to metrology server ", metro)
 
         elif metrotype == "elastic_http_json":
             json_data = build_json_message(mycheck)
             url = metroconf['url']
-            elastic_send_http_json(url=url, data=json_data)
+            ssl_verify = metroconf.get("ssl_verify", False) is True
+            elastic_send_http_json(url=url, data=json_data, ssl_verify=ssl_verify)
             debug("Data sent to metrology server ", metro)
 
         elif metrotype == "influxdb":
@@ -64,15 +66,22 @@ def send_metrology(mycheck):
             username = metroconf.get('username','')
             password = metroconf.get('password','')
             token = metroconf.get('token','')
+            ssl_verify = metroconf.get("ssl_verify", False) is True
             batch = metroconf.get("batch", True) is True
             if batch:
                 if not influxdb_batched:
-                    print("****")
+                    # print("****")
                     influxdb_add_to_batch(influxdb_data)
                     influxdb_batched = True
                     debug("Data batched for influx servers")
             else:
-                influxdb_send_http(url, username=username, password=password, token=token, data=influxdb_data)
+                influxdb_send_http(
+                    url, 
+                    username=username, 
+                    password=password, 
+                    token=token, 
+                    ssl_verify=ssl_verify,
+                    data=influxdb_data)
                 debug("Data sent to influx server ", metro)
 
         else:
@@ -91,9 +100,16 @@ def send_metrology_batch():
             username = metroconf.get('username','')
             password = metroconf.get('password','')
             token = metroconf.get('token','')
+            ssl_verify = metroconf.get("ssl_verify", False) is True
             #influxdb_send_http_batch(url, username=username, password=password, data=influxdb_batch)
             # same function for batch / no btch
-            influxdb_send_http(url, username=username, password=password, token=token, data=influxdb_batch)
+            influxdb_send_http(
+                url, 
+                username=username, 
+                password=password, 
+                token=token, 
+                data=influxdb_batch, 
+                ssl_verify=ssl_verify)
             debug("Data (batch) sent to metrology server ", metro)
 
         else:
@@ -157,7 +173,7 @@ def build_gelf_message(check):
 
 
 
-def graylog_send_http_gelf(url, data=""):
+def graylog_send_http_gelf(url, data="", ssl_verify=False):
 
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
@@ -170,7 +186,12 @@ def graylog_send_http_gelf(url, data=""):
         return
 
     try:
-        r = cmt.SESSION.post(url, data=data, headers=headers, timeout=cmt.GRAYLOG_HTTP_TIMEOUT)
+        r = cmt.SESSION.post(
+            url, 
+            data=data, 
+            headers=headers, 
+            verify=ssl_verify,
+            timeout=cmt.GRAYLOG_HTTP_TIMEOUT)
         debug("Message sent to graylog(http/gelf) ; status = " + str(r.status_code))
     except Exception as e:
         logit("Error - couldn't send graylog message (http/gelf) to {} - {}".format(url, e))
@@ -275,7 +296,7 @@ def influxdb_add_to_batch(influxdb_data):
     influxdb_batch += "\n"
 
 
-def influxdb_send_http(url, username="", password="", token="", data=""):
+def influxdb_send_http(url, username="", password="", token="", data="", ssl_verify=False):
 
     headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': '*/*'}
 
@@ -297,13 +318,15 @@ def influxdb_send_http(url, username="", password="", token="", data=""):
             r = cmt.SESSION.post(url, 
                 data=data, 
                 headers=headers, 
+                verify=ssl_verify,
                 timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)        
 
         # basic authentication
         elif len(username)>0:
             r = cmt.SESSION.post(url, 
                 data=data, 
-                headers=headers, 
+                headers=headers,
+                verify=ssl_verify,
                 auth=(username, password),
                 timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)
 
@@ -312,6 +335,7 @@ def influxdb_send_http(url, username="", password="", token="", data=""):
             r = cmt.SESSION.post(url, 
                 data=data, 
                 headers=headers, 
+                verify=ssl_verify,
                 timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)        
 
         debug("Message sent to INFLUXDB ; status = " + str(r.status_code))
@@ -380,7 +404,7 @@ def build_json_message(check):
 
 
 
-def elastic_send_http_json(url, data=""):
+def elastic_send_http_json(url, data="", ssl_verify=False):
 
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
@@ -393,7 +417,12 @@ def elastic_send_http_json(url, data=""):
         return
 
     try:
-        r = cmt.SESSION.post(url, data=data, headers=headers, timeout=cmt.METROLOGY_HTTP_TIMEOUT)
+        r = cmt.SESSION.post(
+            url, 
+            data=data, 
+            headers=headers, 
+            verify=ssl_verify,
+            timeout=cmt.METROLOGY_HTTP_TIMEOUT)
         debug("Message sent to elastic(http/json) ; status = " + str(r.status_code))
     except Exception as e:
         logit("Error - couldn't send elastic message (http/json) to {} - {}".format(url, e))

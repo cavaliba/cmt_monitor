@@ -59,6 +59,7 @@ Your cmt configuration will be
       graylog_test2:
           type: graylog_http_gelf
           url: http://10.10.10.13:8080/gelf
+          ssl_verify: yes
           enable: yes
 
 
@@ -78,6 +79,7 @@ Your CMT  configuration will thus be :
         my_elastic_remote_server:
           type: elastic_http_json
           url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
+          ssl_verify: yes
           enable: yes
 
 
@@ -147,6 +149,7 @@ Your CMT  configuration will thus be :
           token: mysecrettotokenken      # if token authentication is used server-side
           username: cmt                  # if header auth is prefered rathen than in the url
           password : cmt
+          ssl_verify: yes
           enable: yes
 
 

@@ -27,6 +27,9 @@ class Report():
         self.warn = 0
         self.notice = 0
         self.pager = False
+        # new 2.0
+        self.severity = cmt.SEVERITY_NONE
+
 
     def add_check(self, c):
 
@@ -34,6 +37,9 @@ class Report():
         self.alert += c.alert
         self.warn += c.warn
         self.notice += c.notice
+
+        # new 2.0
+        self.severity = min (self.severity, c.severity)
 
         # propagate Pager from check to report
         if c.pager:
@@ -55,6 +61,19 @@ class Report():
             print("config file    : ", cmt.CONF['__config_file'])
             print()
 
+    def get_severity_string(self):
+
+        if self.severity == cmt.SEVERITY_CRITICAL:
+            return "CRITICAL"
+        if self.severity == cmt.SEVERITY_ERROR:
+            return "ERROR"
+        if self.severity == cmt.SEVERITY_WARNING:
+            return "WARNING"
+        if self.severity == cmt.SEVERITY_NONE:
+            return "NONE"
+
+
+
     def print_recap(self):
 
         ''' display each alert/warn notice + one line summary'''
@@ -62,8 +81,9 @@ class Report():
         print()
         print(bcolors.WHITE + bcolors.BOLD + "Summary" + bcolors.ENDC )
         print(bcolors.WHITE + bcolors.BOLD + "-------" + bcolors.ENDC )
-        print()
         
+        print ("SEVERITY: ", self.get_severity_string() )
+
         if self.notice == 0:
             #print(bcolors.OKBLUE + bcolors.BOLD + "No notice", bcolors.ENDC)
             print("No Notice.")

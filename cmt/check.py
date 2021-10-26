@@ -47,6 +47,28 @@ class Check():
         self.warn = 0
         self.notice = 0
         # self.notification = alert + warn + notice
+
+        # new 2.0 
+
+        # severity : 1=critical, 2=error, 3=warning, 4=notice, 5=none
+        self.severity = cmt.SEVERITY_NONE # DEFAULT = nothing wrong  
+
+        # severity_max  ; default = critical
+        a = conf.get('severity_max', 'critical')
+        if a == 'critical':
+            self.severity_max = cmt.SEVERITY_CRITICAL
+        elif a == 'error':
+            self.severity_max = cmt.SEVERITY_ERROR
+        elif a == 'warning':
+            self.severity_max = cmt.SEVERITY_WARNING
+        elif a == 'notice':
+            self.severity_max = cmt.SEVERITY_NOTICE
+        else:
+            debug("Unknown sevrity_max {} in ({},{}) - default to critical.".format(a,module,check) )
+            self.severity_max = cmt.SEVERITY_CRITICAL
+
+
+        # list of individual points of data
         self.checkitems = []
 
         # set by framework after Check is performed, if pager_enable and alert>0
@@ -59,9 +81,8 @@ class Check():
         id = self.get_id()
         self.persist = cmt.PERSIST.get_key(id, {})
 
-        # compute alert_max_level
+        # alert_max_level
         self.alert_max_level = "alert"   # DEFAULT
-
         # at the individual check level ?
         a = conf.get('alert_max_level', '')
         if a in ['alert', 'notice', 'warn', 'none']:
@@ -102,6 +123,31 @@ class Check():
                 v = v + " ; "
             v = v + mm
         return v
+
+    def compute_severity(self):
+        # NEW 2.0
+        '''  set severity to 1-critical/2-error/3-warning/4-notice/5-none 
+             using self.alert/warn/notice set by  module
+             and severity_max from configuration
+        '''
+
+        if self.alert > 0:
+            self.severity = self.severity_max
+
+        elif self.warn > 0:
+            self.severity = cmt.SEVERITY_WARNING
+            if self.severity_max >= cmt.SEVERITY_NOTICE:
+                self.severity = self.severity_max
+
+        elif self.notice > 0:
+            self.severity = cmt.SEVERITY_NOTICE
+            if self.severity_max == cmt.SEVERITY_NONE:
+                self.severity = self.severity_max
+                
+        else:
+            self.severity = cmt.SEVERITY_NONE
+
+
 
     def adjust_alert_max_level(self, level=""):
         
@@ -399,10 +445,11 @@ def perform_check(checkname, modulename):
         debug2("  skipped in module")
         return "continue"
 
+    # new 2.0
+    check_result.compute_severity()
+
     # apply alert_max_level for this check
     check_result.adjust_alert_max_level()
-    #check_result.adjust_severity()
-
 
     # Print to CLI
     if cmt.ARGS['cron'] or cmt.ARGS['short']:

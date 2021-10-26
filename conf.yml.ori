@@ -39,11 +39,13 @@ metrology_servers:
   graylog_test2:
       type: graylog_http_gelf
       url: http://10.10.10.13:8080/gelf
+      ssl_verify: yes
       enable: yes
 
   elastic_test:
       type: elastic_http_json
       url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
+      ssl_verify: yes
       enable: yes
 
   # CMT V1.7+ ; compatible with influxdb V1 & V2
@@ -60,6 +62,7 @@ metrology_servers:
       token: toto
       #username: cmt
       #password : cmt
+      ssl_verify: yes
       enable: yes
 
 
@@ -107,6 +110,7 @@ load:
   myload:
     enable: yes
     alert_max_level: alert
+    severity_max: warning
     threshold1: 10.3
     threshold5: 8.4
     threshold15: 4.4
