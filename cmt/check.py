@@ -268,7 +268,7 @@ class Check():
         head = bcolors.WHITE      + "SKIPPED" + bcolors.ENDC
         print()
         print("{:12}  module={} check={} : {}".format(head, self.module, self.check, self.result_info))
-
+        print()
         #check_result.result = "skip"         
         #check_result.result_info = "must run as root"
         #check_result.print_to_cli_skipped()
