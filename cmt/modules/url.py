@@ -27,6 +27,10 @@ def check(c):
     my_host      = c.conf.get("host","")
     my_timeout   = c.conf.get("timeout",4)
 
+    my_username = c.conf.get('username','')
+    my_password = c.conf.get('password','')
+
+
     # default : use env proxies
     # if "http_proxy:noenv" remove env proxies
     # else use specified proxies
@@ -59,12 +63,21 @@ def check(c):
 
     
     try:
-        resp = requests.get(url, 
-                            headers = headers, 
-                            timeout=my_timeout, 
-                            verify=my_sslverify, 
-                            proxies=proxies,
-                            allow_redirects = my_redirects)
+        if len(my_username)>0:
+            resp = requests.get(url, 
+                headers = headers, 
+                timeout=my_timeout, 
+                verify=my_sslverify, 
+                proxies=proxies,
+                auth=(my_username, my_password),
+                allow_redirects = my_redirects)
+        else:
+            resp = requests.get(url, 
+                headers = headers, 
+                timeout=my_timeout, 
+                verify=my_sslverify, 
+                proxies=proxies,
+                allow_redirects = my_redirects)
 
     except Exception:
         c.alert += 1
