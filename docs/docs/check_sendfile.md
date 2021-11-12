@@ -61,7 +61,7 @@ One **global event**  is sent for each sendfile  check in the configuration with
 
 One or more **data events** are sent for each line/dictionary in the json file with :
 
-    Each key created by appending cmt_sendfile_  before the json key name.
+    Each key created by appending **cmt_m_**  before the json key name.
     An additional attribute is sent : cmt_multievent_id  (line count)
 
 
@@ -69,10 +69,10 @@ Thus json
 
     [ "key1":value1, "key2":value2] ...
     
-will produce one data event 
+will produce *one* data event 
 
-    cmt_sendfile_key1: value1
-    cmt_sendfile_key2: value2
+    cmt_m_key1: value1
+    cmt_m_key2: value2
     ...
 
 and json:
@@ -84,10 +84,10 @@ and json:
         {"key1":value1, "key2":value2] ... }
     ]
     
-will produce 4 data events with each : 
+will produce *4 data events* with each : 
  
-    cmt_sendfile_key1: value1
-    cmt_sendfile_key2: value2
+    cmt_m_key1: value1
+    cmt_m_key2: value2
     ...
 
 

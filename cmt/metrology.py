@@ -188,9 +188,9 @@ def build_gelf_message(check, index=None):
         for k,v in event.items():
             try:
                 float(v)
-                graylog_data += ',"cmt_sendfile_{}":{}'.format(k, v)
+                graylog_data += ',"cmt_m_{}":{}'.format(k, v)
             except:
-                graylog_data += ',"cmt_sendfile_{}":"{}"'.format(k, v)
+                graylog_data += ',"cmt_m_{}":"{}"'.format(k, v)
 
             debug2("Build gelf data multievent: ", str(k), str(v))
 
@@ -312,9 +312,9 @@ def build_influxdb_message(check, metroconf, index=None):
         for k,v in event.items():
             try:
                 float(v)
-                influx_data += ',cmt_sendfile_{}={}'.format(k, v)
+                influx_data += ',cmt_m_{}={}'.format(k, v)
             except ValueError:
-                influx_data += ',cmt_sendfile_{}="{}"'.format(k, v)
+                influx_data += ',cmt_m_{}="{}"'.format(k, v)
 
     # main / standard event
     else:
@@ -459,9 +459,9 @@ def build_json_message(check, index=None):
         for k,v in event.items():
             try:
                 float(v)
-                json_data += ',"cmt_sendfile_{}":{}'.format(k, v)
+                json_data += ',"cmt_m_{}":{}'.format(k, v)
             except:
-                json_data += ',"cmt_sendfile_{}":"{}"'.format(k, v)
+                json_data += ',"cmt_m_{}":"{}"'.format(k, v)
 
             debug2("Build json data multievent: ", str(k), str(v))
 

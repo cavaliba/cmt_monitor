@@ -18,6 +18,7 @@ import modules.url
 import modules.send
 import modules.mysql
 import modules.sendfile
+import modules.mysqldata
 
 cmt.GLOBAL_MODULE_MAP = {
     "boottime"   : {"check": modules.boottime.check    },
@@ -36,4 +37,5 @@ cmt.GLOBAL_MODULE_MAP = {
     "send"       : {"check": modules.send.check        },
     "mysql"      : {"check": modules.mysql.check       },
     "sendfile"   : {"check": modules.sendfile.check    },
+    "mysqldata"  : {"check": modules.mysqldata.check   },
 }

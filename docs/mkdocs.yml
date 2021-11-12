@@ -30,6 +30,7 @@ nav:
       - memory: check_memory.md
       - mount: check_mounts.md
       - mysql: check_mysql.md
+      - mysqldata: check_mysqldata.md
       - ping: check_pings.md
       - process: check_process.md
       - send: check_send.md

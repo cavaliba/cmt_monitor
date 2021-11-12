@@ -466,6 +466,17 @@ send:
       unit: "no_unit"
       severity_max: warning
 
+sendfile:
+
+    # [ { "user":"fred", "last-login-days":4 },
+    #   { "user":"jack", "last-login-days":7 },
+    #   { "user":"igor", "last-login-days":9 }  ]
+  
+    mysendfile:
+      jsonfile: /opt/cmt/demo.json
+      frequency: 3600
+
+
 mysql:
 
     mydb:
@@ -482,16 +493,22 @@ mysql:
       alert_delay: 300
       severity_max: warning
 
+mysqldata:
 
-sendfile:
-
-    # [ { "user":"fred", "last-login-days":4 },
-    #   { "user":"jack", "last-login-days":7 },
-    #   { "user":"igor", "last-login-days":9 }  ]
-  
-    mysendfile:
-      jsonfile: /opt/cmt/demo.json
-      frequency: 3600
+    db_query1:
+      defaults_file: /opt/cmt/mysql.cnf
+          #  [client]
+          #  host     = 127.0.0.1
+          #  user     = root
+          #  password = xxxxxxx
+          #  port     = 3306
+          #  socket   = /var/run/mysqld/mysqld.sock
+      query: select user,age from cmt_test.table1 limit 10
+      columns:
+        user: username
+        age: years
+      maxlines: 10
+      frequency: 300
 
 
 #  -------------------------------------
