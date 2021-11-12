@@ -26,13 +26,11 @@ def check(c):
     except Exception as e:
         debug("ERROR - Persist() : couldn't read file {} - {}".format(jsonfile, e))
 
+    myarray=[]
     try:
         myarray = json.loads(data)
     except Exception as e:
         debug("ERROR - Persist() : couldn't decode data - {}".format(e))
-
-    # TODO : check if file changed / option change_only
-    # TODO : keymap to rewrite key names
 
     c.multievent = myarray
     count = len(myarray)

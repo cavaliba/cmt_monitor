@@ -34,13 +34,28 @@ def check(c):
     except Exception as e:
         c.alert += 1
         c.add_message("mysql - can't connect with conf {}".format(defaults_file))        
-        logit("Error {}".format(e))
+        debug("Error {}".format(e))
         return c
 
     # -------------------------------------
     
-    db.query(query)
-    lines=db.store_result().fetch_row(maxrows=0, how=1)
+    try:
+        db.query(query)
+    except Exception as e:
+        c.alert += 1
+        c.add_message("mysql - couldn't execute query ({})".format(e))
+        debug("Error {}".format(e))
+        return c
+
+    try:
+        lines=db.store_result().fetch_row(maxrows=0, how=1)
+    except Exception as e:
+        c.alert += 1
+        c.add_message("mysql - couldn't fetch result ({})".format(e))
+        debug("Error {}".format(e))
+        return c
+
+
     #  ( {'id': b'1', 'user': b'joe',  'age': b'33'}, 
     #    {'id': b'2', 'user': b'igor', 'age': b'23'}, 
     #    {'id': b'3', 'user': b'phil', 'age': b'42'}   )
