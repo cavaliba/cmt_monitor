@@ -405,6 +405,12 @@ folder:
     root_required: yes
     severity_max: warning
 
+  folder_list:
+    path: /opt/cmt
+    recursive: yes
+    send_list: yes
+
+
 # ---------
 certificate:
 

@@ -30,10 +30,11 @@ This check requires additional parameters to define each FOLDER to be checked :
       my_folder_name
 		  path               : /path/to/folder
 		  [recursive]        : yes/no ; default = no
-	      [no_store]         : yes/no ; default no ; don't store the filelist in memory (big dirs)
+	      [no_store]         : yes/no ; default no (store) ; if true don't store the filelist in memory (big dirs)
 	      [filter_extension] : string : e.g. ".pdf .txt .hl7 .conf"  ; boolean OR 
 	      [filter_regexp]    : string, python regexp : e.g. '.*.conf$'
 		  [send_content]     : if path is a file, send 200 first chars as cmt_file_content attribute
+		  [send_list]        : yes/no (default no, need no_store) ; send list of files, size, uid,gid, perms
 		  [target:
 		     files_max       : 400
 		     files_min       : 2
@@ -51,15 +52,47 @@ This check requires additional parameters to define each FOLDER to be checked :
 		   ]
 
 
-- `path`:  path to the folder or file
+path
 
-- `name`: the reported name to the monitoring server
+    path to the folder or file
 
-- `recursive`: if set to yes, the folder is analyzed recusirvely. Beware of large folders.
+recursive
 
-- `target`: one or more command / subchecks against that folder, to be expressed in desired target state (think idempotence like in Ansible). See below for explanation of the various targets.
+    if set to yes, the folder is analyzed recusirvely. Beware of large folders.
 
-- `no_store`: default to no ; set to yes for big folders, don't store in-memory, don't compute some targets (has_files)
+
+no_store
+
+    default to no (store)
+    set to yes for big folders, don't store in-memory, don't compute some targets (has_files)
+
+filter_extension
+
+    only processes files with one of the provided extensions (OR'ed)
+
+filter_regexp
+
+     only processes files with a name matchnig this regexp 
+
+
+send_content
+
+	if path is a file, send 200 first chars of the file
+	attribute : cmt_file_content    
+
+send_list
+
+	New in 2.0
+	Sends the  list of processed files with path, name, size, uid,gid, perms
+	Useful to display folder content (backups, queue, ...) in a dashboard
+	yes/no, default is no , needs no_store set to no (store !)
+	attribute : cmt_file_list
+	
+target
+
+    one or more command / subchecks against that folder, to be expressed in desired target state
+    Think idempotence like in Ansible
+    See below for explanation of the various targets.
 
 
 ## Targets

@@ -1,6 +1,9 @@
 import os
 import time
 import re
+import datetime
+import stat
+
 
 # import globals as cmt
 from checkitem import CheckItem
@@ -71,6 +74,7 @@ def check(c):
     recursive = c.conf.get("recursive",False) is True
     no_store = c.conf.get("no_store",False) is True
     send_content = c.conf.get("send_content",False) is True
+    send_list = c.conf.get("send_list",False) is True
 
     global conf_filter_extension
     conf_filter_extension = c.conf.get("filter_extension","").split()
@@ -105,6 +109,7 @@ def check(c):
     s_mintime = -1    # oldest file (minimal unix timestamp)
     s_maxtime = 0     # most recent file (maximal unix timestamp)
     s_files = []
+    s_files_detail = {}
 
     # single file
     if os.path.isfile(path):
@@ -132,14 +137,21 @@ def check(c):
                 if not filter_regexp(entry):
                     continue
             s_count += 1
-            if not no_store:
-                s_files.append(entry.name)
             statinfo = os.stat(entry.path)
             s_size += statinfo.st_size
             if statinfo.st_mtime > s_maxtime:
                 s_maxtime = statinfo.st_mtime
             if statinfo.st_mtime < s_mintime or s_mintime == -1 :
                 s_mintime = statinfo.st_mtime
+            if not no_store:
+                s_files.append(entry.name)
+                s_files_detail[entry.path] = { 
+                    "size" : s_size, 
+                    "mtime" : statinfo.st_mtime,
+                    "uid" : statinfo.st_uid,
+                    "gid" : statinfo.st_gid,
+                    "mode" : stat.filemode(statinfo.st_mode),
+                    }
 
 
     else:
@@ -169,6 +181,22 @@ def check(c):
     if s_mintime != -1:
         ci = CheckItem('folder_oldest',"","oldest file (seconds)", unit="sec")
         ci.value = int(now - s_mintime)
+        c.add_item(ci)
+
+    # send list
+    if send_list:
+        r = ""
+        for f in s_files_detail:
+            delta_time = str(datetime.timedelta(seconds=int(now - s_files_detail[f]["mtime"])))
+            r = r +  "{} - {} bytes - {} sec - id {}/{} - perm {}\n".format(
+                f, 
+                s_files_detail[f]["size"], 
+                delta_time,
+                s_files_detail[f]["uid"],
+                s_files_detail[f]["gid"],
+                s_files_detail[f]["mode"],
+                )
+        ci = CheckItem('file_list',r, unit="")
         c.add_item(ci)
 
 
