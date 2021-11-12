@@ -3,6 +3,7 @@
 
 import socket
 import time
+import json
 
 import globals as cmt
 from logger import logit, debug, debug2
@@ -27,7 +28,8 @@ def send_metrology(mycheck):
         Or add to batch for batch sending at the end of run.
     '''
 
-    influxdb_batched = False
+    # avoid sending to bach multiple times(if multiple metrology servers)
+    influxdb_already_batched = False
 
     for metro in cmt.CONF['metrology_servers']:
 
@@ -45,6 +47,11 @@ def send_metrology(mycheck):
             port = metroconf['port']
             graylog_send_udp_gelf(host=host, port=port, data=gelf_data)
             debug("Data sent to metrology server ", metro)
+            # send all multi-events
+            for index, val in enumerate(mycheck.multievent):
+                gelf_data_multi = build_gelf_message(mycheck, index)
+                graylog_send_udp_gelf(host=host, port=port, data=gelf_data_multi)
+                debug("Data sent to metrology server (multievent)", metro)
 
         elif metrotype == "graylog_http_gelf":
             gelf_data = build_gelf_message(mycheck)
@@ -52,6 +59,10 @@ def send_metrology(mycheck):
             ssl_verify = metroconf.get("ssl_verify", False) is True
             graylog_send_http_gelf(url=url, data=gelf_data, ssl_verify=ssl_verify)
             debug("Data sent to metrology server ", metro)
+            # send all multi-events
+            for index, val in enumerate(mycheck.multievent):
+                gelf_data_multi = build_gelf_message(mycheck, index)
+                graylog_send_http_gelf(url=url, data=gelf_data_multi, ssl_verify=ssl_verify)
 
         elif metrotype == "elastic_http_json":
             json_data = build_json_message(mycheck)
@@ -59,6 +70,10 @@ def send_metrology(mycheck):
             ssl_verify = metroconf.get("ssl_verify", False) is True
             elastic_send_http_json(url=url, data=json_data, ssl_verify=ssl_verify)
             debug("Data sent to metrology server ", metro)
+            # send all multi-events
+            for index, val in enumerate(mycheck.multievent):
+                json_data_multi = build_json_message(mycheck, index)
+                elastic_send_http_json(url=url, data=json_data_multi, ssl_verify=ssl_verify)
 
         elif metrotype == "influxdb":
             influxdb_data = build_influxdb_message(mycheck, metroconf)
@@ -69,12 +84,19 @@ def send_metrology(mycheck):
             ssl_verify = metroconf.get("ssl_verify", False) is True
             batch = metroconf.get("batch", True) is True
             if batch:
-                if not influxdb_batched:
-                    # print("****")
+                if not influxdb_already_batched:
                     influxdb_add_to_batch(influxdb_data)
-                    influxdb_batched = True
+                    influxdb_already_batched = True
                     debug("Data batched for influx servers")
+                    # send all multi-events
+                    for index, val in enumerate(mycheck.multievent):
+                        influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index)
+                        influxdb_add_to_batch(influxdb_data_multi)
+                else:
+                    # already batched by another influx server
+                    pass
             else:
+                # immediate send
                 influxdb_send_http(
                     url, 
                     username=username, 
@@ -83,6 +105,16 @@ def send_metrology(mycheck):
                     ssl_verify=ssl_verify,
                     data=influxdb_data)
                 debug("Data sent to influx server ", metro)
+                # send all multi-events
+                for index, val in enumerate(mycheck.multievent):
+                    influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index)
+                    influxdb_send_http(
+                        url, 
+                        username=username, 
+                        password=password, 
+                        token=token, 
+                        ssl_verify=ssl_verify,
+                        data=influxdb_data_multi)
 
         else:
             debug("Unknown metrology server type in conf.")
@@ -122,7 +154,7 @@ def send_metrology_batch():
 # ------------------------------------------------------------
 
 # GRAYLOG / GELF
-def build_gelf_message(check):
+def build_gelf_message(check, index=None):
     '''Prepare a GELF JSON message suitable to be sent to a Graylog GELF server.'''
 
     graylog_data = '"version":"1.1"'
@@ -142,34 +174,54 @@ def build_gelf_message(check):
     graylog_data += ',"cmt_check":"{}"'.format(check.check)    # deprecated
     graylog_data += ',"cmt_id":"{}"'.format(check.get_id())
 
-    # cmt_message  : Check name + check.message + all items.alert_message
-    m = "{} - ".format(check.module)
-    m = m + check.get_message_as_str()
-    graylog_data += ',"short_message":"{}"'.format(m)
-    graylog_data += ',"cmt_message":"{}"'.format(m)
 
-    # check items key/values
-    for item in check.checkitems:
-        # TODO : improve numerical detection : may cause weird elastic indexing issues
-        # if numerical value is the first one for a new field, e.g. after index rotation
-        # good enough here for the moment.
-        try:
-            float(item.value)
-            graylog_data += ',"cmt_{}":{}'.format(item.name, item.value)
-        except ValueError:
-            graylog_data += ',"cmt_{}":"{}"'.format(item.name, item.value)
+    # multi-event part
+    if index is not None:
+        graylog_data += ',"cmt_multievent_id":{}'.format(index)
+        event = check.multievent[index]
+        m = "{}".format(check.check)
+        for k,v in event.items():
+            m = m + " ; {}={}".format(k,v)
+        #QUOTES BUG : m = m + json.dumps(event)
+        graylog_data += ',"short_message":"{}"'.format(m)
+        graylog_data += ',"cmt_message":"{}"'.format(m)
+        for k,v in event.items():
+            try:
+                float(v)
+                graylog_data += ',"cmt_sendfile_{}":{}'.format(k, v)
+            except:
+                graylog_data += ',"cmt_sendfile_{}":"{}"'.format(k, v)
 
-        debug2("Build gelf data : ", str(item.name), str(item.value))
+            debug2("Build gelf data multievent: ", str(k), str(v))
+
+    # main / standard event
+    else:
+
+        # cmt_message  : Check name + check.message + all items.alert_message
+        m = "{} - ".format(check.module)
+        m = m + check.get_message_as_str()
+        graylog_data += ',"short_message":"{}"'.format(m)
+        graylog_data += ',"cmt_message":"{}"'.format(m)
+
+        # check items key/values
+        for item in check.checkitems:
+            try:
+                float(item.value)
+                graylog_data += ',"cmt_{}":{}'.format(item.name, item.value)
+            except ValueError:
+                graylog_data += ',"cmt_{}":"{}"'.format(item.name, item.value)
+            debug2("Build gelf data : ", str(item.name), str(item.value))
+
+        # NEW V1.6
+        notif = check.get_notification()
+        if notif > 0:
+            graylog_data += ',"cmt_notification":{}'.format(notif)
+
+        # NEW 2.0
+        graylog_data += ',"cmt_severity":"{}"'.format(check.severity)
 
 
-    # NEW V1.6
-    notif = check.get_notification()
-    if notif > 0:
-        graylog_data += ',"cmt_notification":{}'.format(notif)
-
-    # NEW 2.0
-    graylog_data += ',"cmt_severity":"{}"'.format(check.severity)
-
+    # all messages
     graylog_data = '{' + graylog_data + '}'
     return graylog_data
 
@@ -228,7 +280,7 @@ def graylog_send_udp_gelf(host, port=12201, data=""):
 # V1.7+
 
 
-def build_influxdb_message(check, metroconf):
+def build_influxdb_message(check, metroconf, index=None):
 
     ''' Prepare a string with and influxdb protocol formatted message.'''
 
@@ -252,31 +304,45 @@ def build_influxdb_message(check, metroconf):
                 influx_data += ',cmt_{}="{}"'.format(item.name, item.value)
 
 
-    first_item = True
-    for item in check.checkitems:
 
-        if item.name.startswith('tag_'):
-            continue
+    # multi-event part
+    if index is not None:
+        influx_data += ' cmt_multievent_id={}'.format(index)
+        event = check.multievent[index]
+        for k,v in event.items():
+            try:
+                float(v)
+                influx_data += ',cmt_sendfile_{}={}'.format(k, v)
+            except ValueError:
+                influx_data += ',cmt_sendfile_{}="{}"'.format(k, v)
 
-        if first_item:
-            influx_data += ' '
-        else:
-            influx_data += ','
+    # main / standard event
+    else:
+        first_item = True
+        for item in check.checkitems:
 
-        try:
-            float(item.value)
-            influx_data += 'cmt_{}={}'.format(item.name, item.value)
-        except ValueError:
-            influx_data += 'cmt_{}="{}"'.format(item.name, item.value)
+            if item.name.startswith('tag_'):
+                continue
 
-        first_item = False
+            if first_item:
+                influx_data += ' '
+            else:
+                influx_data += ','
+
+            try:
+                float(item.value)
+                influx_data += 'cmt_{}={}'.format(item.name, item.value)
+            except ValueError:
+                influx_data += 'cmt_{}="{}"'.format(item.name, item.value)
+
+            first_item = False
 
 
-    notif = check.get_notification()
-    influx_data += ',cmt_notification={}'.format(notif)
+        notif = check.get_notification()
+        influx_data += ',cmt_notification={}'.format(notif)
 
-    # NEW 2.0
-    influx_data += ',cmt_severity={}'.format(check.severity)
+        # NEW 2.0
+        influx_data += ',cmt_severity={}'.format(check.severity)
 
 
     # timestamp in milliseconds
@@ -359,7 +425,7 @@ def influxdb_send_http(url, username="", password="", token="", data="", ssl_ver
 # ------------------------------------------------------------
 
 
-def build_json_message(check):
+def build_json_message(check, index=None):
 
     '''Prepare a JSON message suitable to be sent to an Elatic server.'''
 
@@ -379,37 +445,51 @@ def build_json_message(check):
     json_data += ',"cmt_check":"{}"'.format(check.check)    # deprecated
     json_data += ',"cmt_id":"{}"'.format(check.get_id())
 
-    # cmt_message  : Check name + check.message + all items.alert_message
-    m = "{} - ".format(check.module)
-    m = m + check.get_message_as_str()
-    json_data += ',"cmt_message":"{}"'.format(m)
 
-    # check items key/values
-    for item in check.checkitems:
-        # TODO : improve numerical detection : may cause weird elastic indexing issues
-        # if numerical value is the first one for a new field, e.g. after index rotation
-        # good enough here for the moment.
-        try:
-            float(item.value)
-            json_data += ',"cmt_{}":{}'.format(item.name, item.value)
-        except ValueError:
-            json_data += ',"cmt_{}":"{}"'.format(item.name, item.value)
+    # multi-event part
+    if index is not None:
+        json_data += ',"cmt_multievent_id":{}'.format(index)
+        event = check.multievent[index]
+        m = "{} ".format(check.check)
+        for k,v in event.items():
+            m = m + "; {}={}".format(k,v)
+        #QUOTES BUG : m = m + json.dumps(event)
+        json_data += ',"short_message":"{}"'.format(m)
+        json_data += ',"cmt_message":"{}"'.format(m)
+        for k,v in event.items():
+            try:
+                float(v)
+                json_data += ',"cmt_sendfile_{}":{}'.format(k, v)
+            except:
+                json_data += ',"cmt_sendfile_{}":"{}"'.format(k, v)
 
-        debug2("Build json data : ", str(item.name), str(item.value))
+            debug2("Build json data multievent: ", str(k), str(v))
 
+    # main / standard event
+    else:
+        # cmt_message  : Check name + check.message + all items.alert_message
+        m = "{} - ".format(check.module)
+        m = m + check.get_message_as_str()
+        json_data += ',"cmt_message":"{}"'.format(m)
 
-    # NEW V1.6
-    # notifications
-    notif = check.get_notification()
-    if notif > 0:
-        json_data += ',"cmt_notification":{}'.format(notif)
+        # check items key/values
+        for item in check.checkitems:
+            try:
+                float(item.value)
+                json_data += ',"cmt_{}":{}'.format(item.name, item.value)
+            except ValueError:
+                json_data += ',"cmt_{}":"{}"'.format(item.name, item.value)
 
-    # NEW 2.0
-    json_data += ',"cmt_severity":"{}"'.format(check.severity)
+            debug2("Build json data : ", str(item.name), str(item.value))
+
+        notif = check.get_notification()
+        if notif > 0:
+            json_data += ',"cmt_notification":{}'.format(notif)
+
+        json_data += ',"cmt_severity":"{}"'.format(check.severity)
 
 
     json_data = '{' + json_data + '}'
-
     return json_data
 
 

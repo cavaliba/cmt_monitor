@@ -456,6 +456,12 @@ title: configuration example
           unit: "no_unit"
           severity_max: warning
 
+    sendfile:
+
+        mysendfile:
+          jsonfile: /opt/cmt/demo.json
+          frequency: 3
+
     mysql:
 
         mydb:
@@ -471,8 +477,6 @@ title: configuration example
           alert_max_level: notice
           alert_delay: 300
           severity_max: warning
-
-
 
 
     #  -------------------------------------

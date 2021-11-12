@@ -67,6 +67,8 @@ class Check():
             debug("Unknown sevrity_max {} in ({},{}) - default to critical.".format(a,module,check) )
             self.severity_max = cmt.SEVERITY_CRITICAL
 
+        # new 2.0 - multi-events (sendfile, mysqldata)
+        self.multievent = []
 
         # list of individual points of data
         self.checkitems = []

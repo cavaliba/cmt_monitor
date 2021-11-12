@@ -33,6 +33,7 @@ nav:
       - ping: check_pings.md
       - process: check_process.md
       - send: check_send.md
+      - sendfile: check_sendfile.md
       - socket: check_socket.md
       - swap: check_swap.md
       - url: check_urls.md

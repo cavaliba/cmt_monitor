@@ -483,6 +483,15 @@ mysql:
       severity_max: warning
 
 
+sendfile:
+
+    # [ { "user":"fred", "last-login-days":4 },
+    #   { "user":"jack", "last-login-days":7 },
+    #   { "user":"igor", "last-login-days":9 }  ]
+  
+    mysendfile:
+      jsonfile: /opt/cmt/demo.json
+      frequency: 3600
 
 
 #  -------------------------------------
