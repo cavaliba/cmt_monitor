@@ -88,6 +88,7 @@ In the following lines :
 
 	  [enable]             : timerange ; DEFAULT = yes; master switch (no inheritance below)
 	  [enable_pager]       : timerange ; DEFAULT = no ; master switch (no inheritance)
+	  [business_hours]     : 08:30:00 17:30:00 (default) ; set min/max timerange for BH/HO and NBH/HNO hours
 	  [pager_rate_limit]   : seconds ; default 7200
 	  [conf_url]           : https://.../api/  (/group_node.txt if url ends by /txt/) + ?group=group&node=node
 	  [max_execution_time] : seconds ; DEFAULT 55
@@ -359,9 +360,10 @@ when run from crontab, the CMT process kills itself after this amount of time. A
 	- after YYYY-MM-DD hh:mm:ss
 	- before YYYY-MM-DD hh:mm:ss
 	- hrange hh:mm:ss hh:mm:ss
-	- ho   (8h30/18h mon>fri)
-	- hno  (! (8h30/18h mon>fri))
+	- bh or ho  -  (8h30/17h30 mon>fri) : business hours
+	- nbh or hno - (! (8h30/17h30 mon>fri)) : non-business hours
 
+use global configuration item (business_hours) to set different default values
 
 
 ### root_required
@@ -547,7 +549,9 @@ Available moules
 	  - certificate
 	  - socket
 	  - send
+	  - sendfile
 	  - mysql
+	  - mysqldata
 
 
 

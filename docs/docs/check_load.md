@@ -7,20 +7,17 @@ title: check_load
 **LoadAverage** is a very good first indication that a Virtul Machine or Server has too much work to do. Load Average is roughly the number of CPU needed to cover the requested amount of work devoted to CPUs (not including IO wait, ...). A temporary high load (several times higher than the number of CPU) for a short duration may not be critical.
 
 
-## Enable the module
+## Configure
 
-Enable the module in the configuration :
+	load:
 
-    # conf.yml
-
-	modules:
   	  myload:
   	     enable: yes
   	     enable_pager: no
-  	     alert_max_level: warn
+  	     security_max: warn
   	     threshold1: 8.2
-     	 threshold5: 4.3
-         threshold15: 3.5
+        threshold5: 4.3
+        threshold15: 3.5
 
 ## Additional parameters
 
@@ -40,7 +37,7 @@ Note: should be adjusted to a multiple of the number of vCPU.
 Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
 
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message with the following fields:
 

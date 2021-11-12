@@ -7,17 +7,7 @@ title: check_disks
 **DISKS** checks one or more disk capacity on Linux filesystem, as returned by `df -k` command.
 
 
-## Enable the module
-
-Enable the module in the configuration :
-
-    # conf.yml
-
-	modules:
-  	  disk:
-  	     enable: yes
-
-### Add a check
+## Configure
 
     disk:
       disk_root:
@@ -40,7 +30,7 @@ The second parameter is the percent threshold before sending an alert.
 This check sends an alert and adds alert fields if a mount point is not present.
 
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message for each mount point, with the following fields:
 

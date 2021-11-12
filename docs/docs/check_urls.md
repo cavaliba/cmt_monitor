@@ -17,23 +17,7 @@ It can pass a Host header to query specfic virtual-host.
 
 This check can be used from a remote server to monitor various URL and Webservices. It can also be configured locally on a single Webserver to monitor a local single instance. If the provided URL is an application status (e.g. php-fpm /status with pattern "pong"), you can have a basic (or not so basic) application monitor.
 
-## Enable the module
-
-Enable the module in the configuration (optional) :
-
-    # conf.yml
-    
-	modules:
-  	  url:
-  	     enable: yes
-
-## configure URL checks 
-
-### common parameters
-
-See [config page](config.md) for common check parameters.
-
-### specific parameters
+## Configure
 
 	# conf.yml
 	url:
@@ -50,7 +34,6 @@ See [config page](config.md) for common check parameters.
 			[http_code]       : expected code ; default 200
 			[pattern]         : pattern expected in response (default none) 
 			[pattern_reject]  : pattern to NOT find in response (default none)
-
 
 pattern: 
 	
@@ -117,7 +100,7 @@ Alert message:
 - bad http code response
 - expected pattern not found
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message for each URL, with the following fields:
 

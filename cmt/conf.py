@@ -214,6 +214,8 @@ def conf_add_top_entries(conf):
 # ------------------------------------------------------------------------
 
 
+
+
 def is_timeswitch_on(myconfig):
     ''' check if a date/time time range is active
         myconfig can be :
@@ -222,8 +224,8 @@ def is_timeswitch_on(myconfig):
               after YYYY-MM-DD hh:mm:ss
               before YYYY-MM-DD hh:mm:ss
               hrange  hh:mm:ss hh:mm:ss
-              ho   (Mon-Fri 8h30-18h)
-              hno
+              bh/ho   (Mon-Fri 8h30-18h)
+              nbh/hno
         returns True or False if current datatime match myconfig
     '''
 
@@ -260,20 +262,28 @@ def is_timeswitch_on(myconfig):
             return True
         return False
 
-    if action == "ho":
+    if action == "ho" or action == "bho":
+
+        business_hours = cmt.CONF['global'].get('business_hours', '08:30:00 17:30:00')
+        (hmin, hmax) = business_hours.split()
+
         myday = datetime.datetime.today().strftime("%a")
         myhour = datetime.datetime.today().strftime("%H:%M:%S")
         if myday in ["Sat", "Sun"]:
             return False
-        if myhour < "08:30:00" or myhour > "18:00:00":
+        if myhour < hmin or myhour > hmax:
             return False
         return True
 
-    if action == "hno":
+    if action == "hno" or action == "nbh":
+
+        business_hours = cmt.CONF['global'].get('business_hours', '08:30:00 17:30:00')
+        (hmin, hmax) = business_hours.split()
+
         myday = datetime.datetime.today().strftime("%a")
         myhour = datetime.datetime.today().strftime("%H:%M:%S")
         if myday in ["Mon", "Tue", "Wed", "Thu", "Fri"]:
-            if myhour >= "08:30:00" or myhour <= "18:00:00":
+            if myhour >= hmin or myhour <= hmax:
                 return False
         return True
 

@@ -6,9 +6,7 @@ title: check_swap
 
 **SWAP** collects and reports global swap usage for the local Virtual Machine or server.
 
-## Enable the module
-
-Enable the module in the configuration :
+## Configure
 
     # conf.yml
 
@@ -28,7 +26,7 @@ Enable the module in the configuration :
 Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
 
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message with the following fields:
 

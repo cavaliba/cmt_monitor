@@ -109,7 +109,7 @@ def check(c):
 
     # check pattern_reject
     mysearch = re.search(pattern_reject,resp.text)
-    if mysearch:
+    if len(pattern_reject) > 0 and mysearch:
         c.alert += 1
         c.add_message("url {} : forbidden pattern found in {} (Host: {})".format(name, url, my_host))
         return c

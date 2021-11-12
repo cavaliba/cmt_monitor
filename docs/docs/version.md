@@ -4,6 +4,16 @@ title: version
 
 # Releases
 
+## 2.0 - 2021/11/12
+
+    module URL : new option username/password for basic auth
+    module URL : new option http_code (default 200) expected in reply
+    module URL : new option pattern_reject for pattern which MUST NOT be present in response
+    module FOLDER : new option send_list to send file listing with size, date, perms, uid/gid
+    (beta) new module SENDFILE - sends an external json file to metrology servers
+    (beta) new module MYSQLDATA
+    new global option: business_hours (default: 08:30:00 17:30:00) for timerange, bh/nbh
+
 
 ## 2.0 beta - 2021/10/26
 

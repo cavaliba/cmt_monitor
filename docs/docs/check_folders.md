@@ -9,17 +9,7 @@ title: check_folders
 It can check for existence, size, number of files, file size, file age, or existing filenames inside the folders. It can scan recursively subfolders.
 
 
-## Enable the module
-
-Enable the module in the configuration :
-
-    # conf.yml
-
-	modules:
-  	  folder:
-  	     enable: yes
-
-## Additional parameters
+## Configure
 
 This check requires additional parameters to define each FOLDER to be checked :
 
@@ -138,7 +128,7 @@ Alert message:
 - missing old file
 - expected file not found
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message for each mount point, with the following fields:
 

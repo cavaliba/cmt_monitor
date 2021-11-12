@@ -15,22 +15,7 @@ All host/port/credentials are to be configurer in a mysql.cnf file format.
 As for all modules, metrology is sent to all configured targets : Graylog, ElasticSearch, InfluxDB. And alerts are sent to pager if threshold and conditions are met.
 
 
-## Enable the module
-
-Enable the module in the configuration (optional) :
-
-    # conf.yml
-    
-	modules:
-  	  mysql:
-  	     enable: yes
-
-
-## common parameters
-
-See [config page](config.md) for common check parameters.
-
-## specific parameters
+## configure
 
 	# conf.yml
 	mysql:

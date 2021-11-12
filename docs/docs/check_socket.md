@@ -14,17 +14,7 @@ title: check_socket
 This check can be used to monitor remote process network availability, and count how many  sockets are currently in use for some protocols.
 
 
-## Enable the module
-
-Enable the module in the configuration :
-
-    # conf.yml
-
-	modules:
-  	  socket:
-  	     enable: yes
-
-## Additional parameters
+## Configure
 
 	socket:
 	    mysocket:
@@ -48,7 +38,7 @@ Example
 This check sends an alert if a local socket is not in LISTEN state, or if a socket refuse connection.
 
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message for each socket, with the following fields:
 

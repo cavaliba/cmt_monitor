@@ -6,17 +6,16 @@ title: check_memory
 
 **MEMORY** collects and reports global memory (RAM) usage for the local Virtual Machine or server.
 
-## Enable the module
-
-Enable the module in the configuration :
+## Configure
 
     # conf.yml
 
 	memory:
+
   	  mymemory:
   	     enable: yes
   	     enable_pager: no
-  	     alert_max_level: warn
+  	     severity_max: warn
   	     threshold: 75.8              # percentage
 
 ## Additional parameters
@@ -30,7 +29,7 @@ Enable the module in the configuration :
 Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
 
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message with the following fields:
 

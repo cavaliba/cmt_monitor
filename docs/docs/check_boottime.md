@@ -6,25 +6,17 @@ title: check_boottime
 
 **BOOTTIME** collects the number of seconds and days since last reboot of the local Virtual Machine or server. You can build dashboards to monitor host without reboot.
 
-## Enable the module
-
-Enable the module in the configuration :
-
-    # conf.yml
-
-	modules:
-  	  boottime:
-  	     enable: yes
-
-### Add a check
+### configure
 
 	# conf.yml
 	
 	boottime:
-	  my_boottime:
-	  	enable: yes
-	  	alert_max_level: alert
-        threshold: 75               # days
+
+       my_boottime:
+	     enable: yes
+         severity_max: warning
+         threshold: 75               # days
+         frequency: 3600             # seconds
 
 
 ## Additional parameters
@@ -35,10 +27,10 @@ Enable the module in the configuration :
 
 ## Alerts
 
-Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
+Alert can be adjusted with common `enable_pager` and `severity_max` options.
 
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message with the following fields:
 

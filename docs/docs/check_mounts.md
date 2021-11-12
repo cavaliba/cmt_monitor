@@ -6,17 +6,8 @@ title: check_mounts
 
 **Mounts** checks if one or more mount point in Linux filesystem are present.
 
-## Enable the module
+## Configure
 
-Enable the module in the configuration :
-
-    # conf.yml
-
-	modules:
-  	  mount:
-  	     enable: yes
-
-## Additional parameters
 
 This check requires additional parameters to define each mount point to be checked :
 
@@ -30,7 +21,7 @@ This check requires additional parameters to define each mount point to be check
 This check sends an alert and adds alert fields if a mount point is not present.
 
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message for each mount point, with the following fields:
 

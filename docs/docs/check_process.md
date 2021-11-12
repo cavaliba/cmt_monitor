@@ -7,19 +7,9 @@ title: check_process
 **PROCESS** checks if one or more process is running.
 
 
-## Enable the module
+## Configure
 
-Enable the module in the configuration :
-
-    # conf.yml
-
-	modules:
-  	  process:
-  	     enable: yes
-
-## Additional parameters
-
-This check requires additional parameters to define each disk to be checked :
+This check requires parameters to define each disk to be checked :
 
 
 Syntax: 
@@ -77,7 +67,7 @@ task is a parameter of the java (nodejs) main binary.
 This check sends an alert and adds alert fields if a process is not running.
 
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message for each mount point, with the following fields:
 

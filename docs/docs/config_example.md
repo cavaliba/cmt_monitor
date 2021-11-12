@@ -24,6 +24,7 @@ title: configuration example
       cmt_node_location: France
       enable: yes
       enable_pager: yes
+      business_hours: 08:00:00 18:00:00
       #conf_url: http://localhost/txt/
       pager_rate_limit: 3600
       max_execution_time: 55

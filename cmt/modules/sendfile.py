@@ -37,21 +37,8 @@ def check(c):
     c.multievent = myarray
     count = len(myarray)
 
-    # count = 0
-    # for event in myarray:
-    #     count = count + 1
-    #     print ("event {}".format(count))
-    #     dico = {}
-    #     for k,v in event.items():
-    #         print(k,v)
-    #         dico[k]=v
-    #         ci = CheckItem(k,v)
-    #         c.multievent[]
-
     c.add_item(CheckItem("sendfile_name",jsonfile))
     c.add_item(CheckItem("sendfile_lines",count))
     c.add_message("{} - {} lines/events".format(jsonfile, count))
-
-    #print (c.multievent)
-        
+    
     return c

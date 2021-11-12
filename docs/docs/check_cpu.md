@@ -6,23 +6,14 @@ title: check_cpu
 
 **CPU** collects and reports global CPU usage (percent) for the local Virtual Machine or server.
 
-## Enable the module
-
-Enable the module in the configuration :
-
-    # conf.yml
-
-	modules:
-  	  cpu:
-  	     enable: yes
-
-### Add a check
+## Configure
 
 	cpu:
+	
 	  mycpucheck:
 	    enable: yes
-	    alert_max_level: notice
-  	     threshold: 80.5              # percentage
+	    severity_max: notice
+  	    threshold: 80.5              # percentage
 
 ## Additional parameters
 *new v1.6*
@@ -32,10 +23,10 @@ Enable the module in the configuration :
 
 ## Alerts
 
-Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
+Alert can be adjusted with common `enable_pager` and `severity_max` options.
 
 
-## Output to ElasticSearch
+## Output to Metrology
 
 This module sends one message with the following fields:
 

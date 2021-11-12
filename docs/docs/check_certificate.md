@@ -9,21 +9,11 @@ It opens a socket to `hostname:port` and retrieve certificate information (with
 [`ssl.SSLSocket.getpeercert()`](https://docs.python.org/3/library/ssl.html#ssl.SSLSocket.getpeercert)).
 
 
-## Enable the module
-
-Enable de module in the configuration :
-
-    # conf.yml
-
-    modules:
-      certificate:
-         enable: yes
-
-## Add a check in the configuration
+## Configure
 
     certificate:
 
-      mysite
+      mysite:
         hostname: mysite.com
         port: 2718             # defaults to 443 if not specified
         alert_in:   1 week     # DEFAULT 3 days ;  X years Y months Z weeks D days H hours
@@ -52,7 +42,7 @@ matches:
 4. The connection to `hostname:port` can't be established.
 
 
-## Output to Metrology Servers
+## Output to Metrology
 
     cmt_certificate_name                     string         # entry name in conf.yml
     cmt_certificate_host                     string         # host:port

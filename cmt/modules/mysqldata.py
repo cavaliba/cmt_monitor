@@ -62,7 +62,7 @@ def check(c):
                 k2 = columns[k]
             except:
                 k2 = k
-            print(k2,v)
+            # print(k2,v)
             vars[k2]=v
         c.multievent.append(vars)
 
