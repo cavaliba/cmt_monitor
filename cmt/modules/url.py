@@ -21,7 +21,6 @@ def check(c):
 
     name         = c.check
     url          = c.conf['url']
-    pattern      = c.conf.get('pattern',"")
     my_redirects = c.conf.get("allow_redirects", False) is True
     my_sslverify = c.conf.get("ssl_verify", False) is True
     my_host      = c.conf.get("host","")
@@ -29,6 +28,12 @@ def check(c):
 
     my_username = c.conf.get('username','')
     my_password = c.conf.get('password','')
+
+    my_http_code = c.conf.get('http_code',200)
+
+    pattern      = c.conf.get('pattern',"")
+    pattern_reject  = c.conf.get('pattern_reject',"")
+
 
 
     # default : use env proxies
@@ -88,17 +93,27 @@ def check(c):
     ci = CheckItem('url_msec',elapsed_time,unit='ms')
     c.add_item(ci)
 
-    if resp.status_code != 200:
+    # check http_code
+    if resp.status_code != my_http_code:
         c.alert += 1
-        c.add_message("url {} - {} [Host: {}]- bad http code response ({})".format(name,url, my_host, resp.status_code))
+        c.add_message("url {} - {} [Host: {}]- bad http code response ({} received, expected {})".format(
+                name,url, my_host, resp.status_code, my_http_code))
         return c
 
     # check pattern
     mysearch = re.search(pattern,resp.text)
     if not mysearch:
         c.alert += 1
-        c.add_message("url expected pattern not found for {} ({} [Host: {}])".format(name, url, my_sslverify))
+        c.add_message("url {} : expected pattern not found in {} (Host: {})".format(name, url, my_host))
         return c
+
+    # check pattern_reject
+    mysearch = re.search(pattern_reject,resp.text)
+    if mysearch:
+        c.alert += 1
+        c.add_message("url {} : forbidden pattern found in {} (Host: {})".format(name, url, my_host))
+        return c
+
 
     c.add_message("url {} - {} [Host: {}] - http={} - {} ms ; pattern OK".format(name, url, my_host, resp.status_code, elapsed_time))
     return c

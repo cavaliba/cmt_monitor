@@ -180,7 +180,6 @@ url:
   www_non_existing:
     enabled: after 2020-01-01
     url: http://www.nonexisting/
-    #pattern: ""
     severity_max: warning
 
   google:
@@ -208,6 +207,19 @@ url:
     url: http://slowwly.robertomurray.co.uk/delay/4000/url/http://google.co.uk
     timeout: 2
     severity_max: warning
+
+  url_authenticated:
+    url: https://www.auth-needed.com/login
+    username: mylogin
+    password: mysecret
+
+  url_httpcode401:
+    url: https://www.auth-needed.com/login
+    http_code: 401
+
+  url_patternreject:
+    url: http://www.myservice.com/status/
+    pattern_reject: 'class="error"'
 
 # ---------
 mount:

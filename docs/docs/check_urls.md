@@ -39,22 +39,34 @@ See [config page](config.md) for common check parameters.
 	url:
 	    www.cavaliba.com:
 			url               : https://www.cavaliba.com/
-			[pattern]         : "Cavaliba" ; DEFAULT = ""
 			[allow_redirects] : yes ; default = no
 			[ssl_verify]      : yes ; default = no
 			[host]            : optionnal hostname header (Host: xxx) ; default to None
 			[timeout]         : float (sec) ; default = 4 ; e.g. : 5.2
 			[http_proxy]      : http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env			
 			[https_proxy]     : https://[login[:pass]]@proxyhost:port  ; default to http_proxy
+			[username]        : login to be provided to basic/digest auth by remote webserver
+			[password]        : password to be provided to basic/digest auth by remote webserver
+			[http_code]       : expected code ; default 200
+			[pattern]         : pattern expected in response (default none) 
+			[pattern_reject]  : pattern to NOT find in response (default none)
 
 
 pattern: 
 	
-    the string to be searched in the response body
+	default: non
+    a string / regexp (python re.) which MUST be present in the response body
+    
+pattern_reject: 
+
+	new: 2.0
+	default: none	
+    a string / regexp (python re.) which MUST NOT be present in the response body
+    useful to check for no error message in a status page
 
 allow_redirects:
 	
-    CMT will follow redirects
+    CMT will follow HTTP redirects
 
 ssl_verify:
 	
@@ -80,6 +92,20 @@ https_proxy
 	default : http_proxy 
 	if defined, use specified proxy for https (TLS/SSL) requests. 
 	https://[login[:pass]]@proxyhost:port	
+
+username, password
+
+    new in 2.0
+    default : no authentication sent to remote server
+
+http_code
+
+    new in 2.0
+    default : 200
+    expected http_code in response
+    useful to check non-200 responses like redirects 30X, forbidden 40X, webservice specials 20X, etc.
+
+
 
 ## Alerts
 
