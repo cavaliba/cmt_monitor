@@ -54,14 +54,17 @@ Your cmt configuration will be
           type: graylog_udp_gelf
           host: 10.10.10.13
           port: 12201
+          send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
+          rawdata_prefix : raw
           enable: yes
       
       graylog_test2:
           type: graylog_http_gelf
           url: http://10.10.10.13:8080/gelf
           ssl_verify: yes
+          send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
+          rawdata_prefix : raw
           enable: yes
-
 
 ##  Elastic server configuration
 
@@ -80,6 +83,8 @@ Your CMT  configuration will thus be :
           type: elastic_http_json
           url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
           ssl_verify: yes
+          send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
+          rawdata_prefix : raw
           enable: yes
 
 
@@ -150,6 +155,8 @@ Your CMT  configuration will thus be :
           username: cmt                  # if header auth is prefered rathen than in the url
           password : cmt
           ssl_verify: yes
+          send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
+          rawdata_prefix : raw
           enable: yes
 
 

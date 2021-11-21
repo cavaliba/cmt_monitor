@@ -31,26 +31,32 @@ global:
 
 metrology_servers:
 
-  graylog_test1:
+  my_graylog_udp:
       type: graylog_udp_gelf
       host: 10.10.10.13
       port: 12201
+      send_rawdata: yes
+      rawdata_prefix : raw
       enable: yes
   
-  graylog_test2:
+  my_graylog_http:
       type: graylog_http_gelf
       url: http://10.10.10.13:8080/gelf
       ssl_verify: yes
+      send_rawdata: yes
+      rawdata_prefix : raw
       enable: yes
 
-  elastic_test:
+  my_elastic:
       type: elastic_http_json
       url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
       ssl_verify: yes
+      send_rawdata: yes
+      rawdata_prefix : raw
       enable: yes
 
-  # CMT V1.7+ ; compatible with influxdb V1 & V2
-  influxdb_test:
+  # influxdb V1 & V2
+  my_influxdb:
       type: influxdb
       # V1
       url: http://10.10.10.13:8086/write?db=cmt
@@ -64,6 +70,8 @@ metrology_servers:
       #username: cmt
       #password : cmt
       ssl_verify: yes
+      send_rawdata: no
+      rawdata_prefix : raw      
       enable: yes
 
 

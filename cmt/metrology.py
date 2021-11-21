@@ -36,10 +36,14 @@ def send_metrology(mycheck):
         metroconf = cmt.CONF['metrology_servers'][metro]
         metrotype = metroconf.get('type', 'unknown')
 
+        send_rawdata = metroconf.get("send_rawdata", True) is True                    
+        rawdata_prefix = metroconf.get("rawdata_prefix", "raw_")
+        ssl_verify = metroconf.get("ssl_verify", False) is True
+
+
         timerange = metroconf.get("enable", "yes")
         if not conf.is_timeswitch_on(timerange):
             debug("Metrology server disabled in conf : ", metro)
-            continue
 
         if metrotype == "graylog_udp_gelf":
             gelf_data = build_gelf_message(mycheck)
@@ -47,33 +51,32 @@ def send_metrology(mycheck):
             port = metroconf['port']
             graylog_send_udp_gelf(host=host, port=port, data=gelf_data)
             debug("Data sent to metrology server ", metro)
-            # send all multi-events
-            for index, val in enumerate(mycheck.multievent):
-                gelf_data_multi = build_gelf_message(mycheck, index)
-                graylog_send_udp_gelf(host=host, port=port, data=gelf_data_multi)
-                debug("Data sent to metrology server (multievent)", metro)
+            if send_rawdata:
+                for index, val in enumerate(mycheck.multievent):
+                    gelf_data_multi = build_gelf_message(mycheck, index, rawdata_prefix=rawdata_prefix)
+                    graylog_send_udp_gelf(host=host, port=port, data=gelf_data_multi)
+                    debug2("Data sent to metrology server (multievent)", metro)
 
         elif metrotype == "graylog_http_gelf":
             gelf_data = build_gelf_message(mycheck)
             url = metroconf['url']
-            ssl_verify = metroconf.get("ssl_verify", False) is True
             graylog_send_http_gelf(url=url, data=gelf_data, ssl_verify=ssl_verify)
             debug("Data sent to metrology server ", metro)
-            # send all multi-events
-            for index, val in enumerate(mycheck.multievent):
-                gelf_data_multi = build_gelf_message(mycheck, index)
-                graylog_send_http_gelf(url=url, data=gelf_data_multi, ssl_verify=ssl_verify)
+            if send_rawdata:
+                for index, val in enumerate(mycheck.multievent):
+                    gelf_data_multi = build_gelf_message(mycheck, index, rawdata_prefix=rawdata_prefix)
+                    graylog_send_http_gelf(url=url, data=gelf_data_multi, ssl_verify=ssl_verify)
+                    debug2("Data sent to metrology server (multievent)", metro)
 
         elif metrotype == "elastic_http_json":
             json_data = build_json_message(mycheck)
             url = metroconf['url']
-            ssl_verify = metroconf.get("ssl_verify", False) is True
             elastic_send_http_json(url=url, data=json_data, ssl_verify=ssl_verify)
             debug("Data sent to metrology server ", metro)
-            # send all multi-events
-            for index, val in enumerate(mycheck.multievent):
-                json_data_multi = build_json_message(mycheck, index)
-                elastic_send_http_json(url=url, data=json_data_multi, ssl_verify=ssl_verify)
+            if send_rawdata:
+                for index, val in enumerate(mycheck.multievent):
+                    json_data_multi = build_json_message(mycheck, index, rawdata_prefix=rawdata_prefix)
+                    elastic_send_http_json(url=url, data=json_data_multi, ssl_verify=ssl_verify)
 
         elif metrotype == "influxdb":
             influxdb_data = build_influxdb_message(mycheck, metroconf)
@@ -81,17 +84,16 @@ def send_metrology(mycheck):
             username = metroconf.get('username','')
             password = metroconf.get('password','')
             token = metroconf.get('token','')
-            ssl_verify = metroconf.get("ssl_verify", False) is True
             batch = metroconf.get("batch", True) is True
             if batch:
                 if not influxdb_already_batched:
                     influxdb_add_to_batch(influxdb_data)
                     influxdb_already_batched = True
                     debug("Data batched for influx servers")
-                    # send all multi-events
-                    for index, val in enumerate(mycheck.multievent):
-                        influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index)
-                        influxdb_add_to_batch(influxdb_data_multi)
+                    if send_rawdata:
+                        for index, val in enumerate(mycheck.multievent):
+                            influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index, rawdata_prefix=rawdata_prefix)
+                            influxdb_add_to_batch(influxdb_data_multi)
                 else:
                     # already batched by another influx server
                     pass
@@ -105,17 +107,16 @@ def send_metrology(mycheck):
                     ssl_verify=ssl_verify,
                     data=influxdb_data)
                 debug("Data sent to influx server ", metro)
-                # send all multi-events
-                for index, val in enumerate(mycheck.multievent):
-                    influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index)
-                    influxdb_send_http(
-                        url, 
-                        username=username, 
-                        password=password, 
-                        token=token, 
-                        ssl_verify=ssl_verify,
-                        data=influxdb_data_multi)
-
+                if send_rawdata:
+                    for index, val in enumerate(mycheck.multievent):
+                        influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index, rawdata_prefix=rawdata_prefix)
+                        influxdb_send_http(
+                            url, 
+                            username=username, 
+                            password=password, 
+                            token=token, 
+                            ssl_verify=ssl_verify,
+                            data=influxdb_data_multi)
         else:
             debug("Unknown metrology server type in conf.")
 
@@ -154,7 +155,7 @@ def send_metrology_batch():
 # ------------------------------------------------------------
 
 # GRAYLOG / GELF
-def build_gelf_message(check, index=None):
+def build_gelf_message(check, index=None, rawdata_prefix='raw'):
     '''Prepare a GELF JSON message suitable to be sent to a Graylog GELF server.'''
 
     graylog_data = '"version":"1.1"'
@@ -175,7 +176,7 @@ def build_gelf_message(check, index=None):
     graylog_data += ',"cmt_id":"{}"'.format(check.get_id())
 
 
-    # multi-event part
+    # rawdata / multi-event part
     if index is not None:
         graylog_data += ',"cmt_multievent_id":{}'.format(index)
         event = check.multievent[index]
@@ -188,11 +189,11 @@ def build_gelf_message(check, index=None):
         for k,v in event.items():
             try:
                 float(v)
-                graylog_data += ',"cmt_m_{}":{}'.format(k, v)
+                graylog_data += ',"{}_{}":{}'.format(rawdata_prefix, k, v)
             except:
-                graylog_data += ',"cmt_m_{}":"{}"'.format(k, v)
+                graylog_data += ',"{}_{}":"{}"'.format(rawdata_prefix, k, v)
 
-            debug2("Build gelf data multievent: ", str(k), str(v))
+            debug2("Build gelf rawdata multievent: ", str(k), str(v))
 
     # main / standard event
     else:
@@ -275,12 +276,112 @@ def graylog_send_udp_gelf(host, port=12201, data=""):
 
 
 # ------------------------------------------------------------
+# ElasticSearch
+# ------------------------------------------------------------
+
+
+def build_json_message(check, index=None, rawdata_prefix='raw'):
+
+    '''Prepare a JSON message suitable to be sent to an Elatic server.'''
+
+    json_data = ''
+
+    # common values
+    json_data += '"cmt_group":"{}"'.format(check.group)
+    json_data += ',"cmt_node":"{}"'.format(check.node)
+
+    json_data += ',"cmt_node_env":"{}"'.format(check.node_env)
+    json_data += ',"cmt_node_role":"{}"'.format(check.node_role)
+    json_data += ',"cmt_node_location":"{}"'.format(check.node_location)
+
+    json_data += ',"cmt_version":"{}"'.format(check.version)
+
+    json_data += ',"cmt_module":"{}"'.format(check.module)
+    json_data += ',"cmt_check":"{}"'.format(check.check)    # deprecated
+    json_data += ',"cmt_id":"{}"'.format(check.get_id())
+
+
+    # rawadata / multi-event part
+    if index is not None:
+        json_data += ',"cmt_multievent_id":{}'.format(index)
+        event = check.multievent[index]
+        m = "{} ".format(check.check)
+        for k,v in event.items():
+            m = m + "; {}={}".format(k,v)
+        #QUOTES BUG : m = m + json.dumps(event)
+        json_data += ',"short_message":"{}"'.format(m)
+        json_data += ',"cmt_message":"{}"'.format(m)
+        for k,v in event.items():
+            try:
+                float(v)
+                json_data += ',"{}_{}":{}'.format(rawdata_prefix, k, v)
+            except:
+                json_data += ',"{}_{}":"{}"'.format(rawdata_prefix, k, v)
+
+            debug2("Build json data rawdata multievent: ", str(k), str(v))
+
+    # main / standard event
+    else:
+        # cmt_message  : Check name + check.message + all items.alert_message
+        m = "{} - ".format(check.module)
+        m = m + check.get_message_as_str()
+        json_data += ',"cmt_message":"{}"'.format(m)
+
+        # check items key/values
+        for item in check.checkitems:
+            try:
+                float(item.value)
+                json_data += ',"cmt_{}":{}'.format(item.name, item.value)
+            except ValueError:
+                json_data += ',"cmt_{}":"{}"'.format(item.name, item.value)
+
+            debug2("Build json data : ", str(item.name), str(item.value))
+
+        notif = check.get_notification()
+        if notif > 0:
+            json_data += ',"cmt_notification":{}'.format(notif)
+
+        json_data += ',"cmt_severity":"{}"'.format(check.severity)
+
+
+    json_data = '{' + json_data + '}'
+    return json_data
+
+
+
+def elastic_send_http_json(url, data="", ssl_verify=False):
+
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+
+    if cmt.METROLOGY_HTTP_SUSPENDED:
+        logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
+        return
+
+    if cmt.ARGS['devmode']:
+        print("DEVMODE : elastic http : ", url, data, headers)
+        return
+
+    try:
+        r = cmt.SESSION.post(
+            url, 
+            data=data, 
+            headers=headers, 
+            verify=ssl_verify,
+            timeout=cmt.METROLOGY_HTTP_TIMEOUT)
+        debug("Message sent to elastic(http/json) ; status = " + str(r.status_code))
+    except Exception as e:
+        logit("Error - couldn't send elastic message (http/json) to {} - {}".format(url, e))
+        cmt.METROLOGY_HTTP_SUSPENDED = True
+
+
+
+# ------------------------------------------------------------
 # InfluxDB V1 & V2
 # ------------------------------------------------------------
 # V1.7+
 
 
-def build_influxdb_message(check, metroconf, index=None):
+def build_influxdb_message(check, metroconf, index=None, rawdata_prefix='raw'):
 
     ''' Prepare a string with and influxdb protocol formatted message.'''
 
@@ -304,17 +405,16 @@ def build_influxdb_message(check, metroconf, index=None):
                 influx_data += ',cmt_{}="{}"'.format(item.name, item.value)
 
 
-
-    # multi-event part
+    # rawdata multi-event part
     if index is not None:
         influx_data += ' cmt_multievent_id={}'.format(index)
         event = check.multievent[index]
         for k,v in event.items():
             try:
                 float(v)
-                influx_data += ',cmt_m_{}={}'.format(k, v)
+                influx_data += ',{}_{}={}'.format(rawdata_prefix, k, v)
             except ValueError:
-                influx_data += ',cmt_m_{}="{}"'.format(k, v)
+                influx_data += ',{}_{}="{}"'.format(rawdata_prefix, k, v)
 
     # main / standard event
     else:
@@ -419,105 +519,4 @@ def influxdb_send_http(url, username="", password="", token="", data="", ssl_ver
 
 #def influxdb_send_http_batch(url, username="", password="", token="", data=""):
 #    pass
-
-# ------------------------------------------------------------
-# ElasticSearch
-# ------------------------------------------------------------
-
-
-def build_json_message(check, index=None):
-
-    '''Prepare a JSON message suitable to be sent to an Elatic server.'''
-
-    json_data = ''
-
-    # common values
-    json_data += '"cmt_group":"{}"'.format(check.group)
-    json_data += ',"cmt_node":"{}"'.format(check.node)
-
-    json_data += ',"cmt_node_env":"{}"'.format(check.node_env)
-    json_data += ',"cmt_node_role":"{}"'.format(check.node_role)
-    json_data += ',"cmt_node_location":"{}"'.format(check.node_location)
-
-    json_data += ',"cmt_version":"{}"'.format(check.version)
-
-    json_data += ',"cmt_module":"{}"'.format(check.module)
-    json_data += ',"cmt_check":"{}"'.format(check.check)    # deprecated
-    json_data += ',"cmt_id":"{}"'.format(check.get_id())
-
-
-    # multi-event part
-    if index is not None:
-        json_data += ',"cmt_multievent_id":{}'.format(index)
-        event = check.multievent[index]
-        m = "{} ".format(check.check)
-        for k,v in event.items():
-            m = m + "; {}={}".format(k,v)
-        #QUOTES BUG : m = m + json.dumps(event)
-        json_data += ',"short_message":"{}"'.format(m)
-        json_data += ',"cmt_message":"{}"'.format(m)
-        for k,v in event.items():
-            try:
-                float(v)
-                json_data += ',"cmt_m_{}":{}'.format(k, v)
-            except:
-                json_data += ',"cmt_m_{}":"{}"'.format(k, v)
-
-            debug2("Build json data multievent: ", str(k), str(v))
-
-    # main / standard event
-    else:
-        # cmt_message  : Check name + check.message + all items.alert_message
-        m = "{} - ".format(check.module)
-        m = m + check.get_message_as_str()
-        json_data += ',"cmt_message":"{}"'.format(m)
-
-        # check items key/values
-        for item in check.checkitems:
-            try:
-                float(item.value)
-                json_data += ',"cmt_{}":{}'.format(item.name, item.value)
-            except ValueError:
-                json_data += ',"cmt_{}":"{}"'.format(item.name, item.value)
-
-            debug2("Build json data : ", str(item.name), str(item.value))
-
-        notif = check.get_notification()
-        if notif > 0:
-            json_data += ',"cmt_notification":{}'.format(notif)
-
-        json_data += ',"cmt_severity":"{}"'.format(check.severity)
-
-
-    json_data = '{' + json_data + '}'
-    return json_data
-
-
-
-def elastic_send_http_json(url, data="", ssl_verify=False):
-
-    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-
-    if cmt.METROLOGY_HTTP_SUSPENDED:
-        logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
-        return
-
-    if cmt.ARGS['devmode']:
-        print("DEVMODE : elastic http : ", url, data, headers)
-        return
-
-    try:
-        r = cmt.SESSION.post(
-            url, 
-            data=data, 
-            headers=headers, 
-            verify=ssl_verify,
-            timeout=cmt.METROLOGY_HTTP_TIMEOUT)
-        debug("Message sent to elastic(http/json) ; status = " + str(r.status_code))
-    except Exception as e:
-        logit("Error - couldn't send elastic message (http/json) to {} - {}".format(url, e))
-        cmt.METROLOGY_HTTP_SUSPENDED = True
-
-
-
 
