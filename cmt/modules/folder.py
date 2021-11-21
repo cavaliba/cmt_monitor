@@ -5,7 +5,7 @@ import datetime
 import stat
 
 
-# import globals as cmt
+import globals as cmt
 from checkitem import CheckItem
 from logger import logit, debug, debug2
 
@@ -94,11 +94,12 @@ def check(c):
     if 'target' in c.conf:
         targets = c.conf['target']
     
-    c.add_item(CheckItem('folder_path',path))
-    c.add_item(CheckItem('folder_name',name))
+    c.add_item(CheckItem('folder_path',path, datapoint=False))
+    c.add_item(CheckItem('folder_name',name, datapoint=False))
 
     if not os.path.exists(path):      
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("folder {} missing".format(path))       
         return c
 
@@ -122,7 +123,7 @@ def check(c):
         # option : send_content
         if send_content:
             fico = get_file_content(path)
-            ci = CheckItem('file_content',fico,"file content")
+            ci = CheckItem('file_content',fico,"file content", multiline=True)
             c.add_item(ci)
 
 
@@ -156,6 +157,7 @@ def check(c):
 
     else:
         c.warn = 1
+        c.severity = cmt.SEVERITY_WARNING
         c.add_message("folder {} ({}) is not a dir / nor a file".format(name, path))
         return c
 
@@ -196,7 +198,7 @@ def check(c):
                 s_files_detail[f]["gid"],
                 s_files_detail[f]["mode"],
                 )
-        ci = CheckItem('file_list',r, unit="")
+        ci = CheckItem('file_list',r, multiline=True)
         c.add_item(ci)
 
 
@@ -209,6 +211,7 @@ def check(c):
     for t in targets:
         if not t in VALID_TARGET_LIST:
             c.warn = 1
+            c.severity = cmt.SEVERITY_WARNING
             c.add_message("{} {} : unknown target {}".format(name, path,t))
             return c 
 
@@ -217,6 +220,7 @@ def check(c):
         tgcount += 1
         if s_count < targets['files_min']:
             c.alert += 1
+            c.severity = cmt.SEVERITY_CRITICAL
             c.add_message ("{} {} :  too few files ({})".format(name, path,s_count))
             return c
 
@@ -225,6 +229,7 @@ def check(c):
         tgcount += 1
         if s_count > targets['files_max']:
             c.alert += 1
+            c.severity = cmt.SEVERITY_CRITICAL
             c.add_message ("{} {} : too many files ({})".format(name, path,s_count))
             return c
 
@@ -233,6 +238,7 @@ def check(c):
         tgcount += 1
         if s_size > targets['size_max']:
             c.alert += 1
+            c.severity = cmt.SEVERITY_CRITICAL
             c.add_message("{} {} : too big ({})".format(name, path,s_size))
             return c            
 
@@ -241,6 +247,7 @@ def check(c):
         tgcount += 1
         if s_size < targets['size_min']:
             c.alert += 1
+            c.severity = cmt.SEVERITY_CRITICAL
             c.add_message("{} {} : too small ({})".format(name, path,s_size))
             return c            
 
@@ -251,6 +258,7 @@ def check(c):
         if s_mintime != -1:
             if int(now - s_mintime) > targets ['age_max']:
                 c.alert += 1
+                c.severity = cmt.SEVERITY_CRITICAL
                 c.add_message("{} {} : some files are too old ({} sec)".format(name, path,int(now - s_mintime)))
                 return c                
 
@@ -261,6 +269,7 @@ def check(c):
         if s_maxtime != 0:
             if int(now - s_maxtime) < targets ['age_min']:
                 c.alert += 1
+                c.severity = cmt.SEVERITY_CRITICAL
                 c.add_message("{} {} : some files are too young ({} sec)".format(name, path,int(now - s_maxtime)))
                 return c   
 
@@ -271,6 +280,7 @@ def check(c):
         if s_maxtime != 0:
             if int(now - s_maxtime) > targets ['has_recent']:
                 c.alert += 1
+                c.severity = cmt.SEVERITY_CRITICAL
                 c.add_message("{} {} : missing young file (min {} sec)".format(name, path,int(now - s_maxtime)))
                 return c   
 
@@ -281,6 +291,7 @@ def check(c):
         if s_mintime != -1:
             if int(now - s_mintime) < targets ['has_old']:
                 c.alert += 1
+                c.severity = cmt.SEVERITY_CRITICAL
                 c.add_message("{} {} : missing old file (max {} sec)".format(name, path,int(now - s_mintime)))
                 return c   
 
@@ -298,6 +309,7 @@ def check(c):
         for f in flist:
             if f not in s_files:
                 c.alert += 1
+                c.severity = cmt.SEVERITY_CRITICAL
                 c.add_message("folder {} : expected file not found ({})".format(path,f))
                 return c
 

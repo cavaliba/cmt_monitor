@@ -6,7 +6,7 @@
 import sys
 import select
 
-# import globals as cmt
+import globals as cmt
 from checkitem import CheckItem
 
 def get_value():

@@ -12,11 +12,14 @@ class CheckItem():
 
     ''' Store one single data point '''
 
-    def __init__(self, name, value, description="", unit=''):
+    def __init__(self, name, value, description="", unit='', datapoint=True, multiline=False):
         self.name = name
         self.value = value
         self.description = description
         self.unit = unit
+        # is it a "what field" (e.g :tag in Influx ) or "howmuch field (datapoint, high cardinality, e.g.: influx field)
+        self.datapoint = datapoint
+        self.multiline = multiline
 
     def fmt_bytes(self, num, suffix='B'):
         for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:

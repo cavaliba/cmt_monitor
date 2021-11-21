@@ -4,7 +4,7 @@ import ssl
 import socket
 import datetime
 
-# import globals as cmt
+import globals as cmt
 import checkitem
 from helper import parse_duration
 
@@ -31,9 +31,9 @@ def check(c):
 
     hostdisplay = "{}:{}".format(hostname,port)
 
-    c.add_item(checkitem.CheckItem("certificate_name", c.check, unit=""))
+    c.add_item(checkitem.CheckItem("certificate_name", c.check, unit="", datapoint=False))
 
-    c.add_item(checkitem.CheckItem("certificate_host", hostdisplay, ""))
+    c.add_item(checkitem.CheckItem("certificate_host", hostdisplay, "", datapoint=False))
     #c.add_item(CheckItem("certificate_port", port, ""))
 
     try:
@@ -50,6 +50,7 @@ def check(c):
     now = datetime.datetime.now(tz=datetime.timezone.utc)
     if now > cert_infos["notAfter"]:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message(
             "hostname: {} - certificate expired by {}".format(
                 hostdisplay, now - cert_infos["notAfter"]
@@ -57,6 +58,7 @@ def check(c):
         )
     elif now < cert_infos["notBefore"]:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message(
             "hostname: {} - certificate not yet valid (will be valid in {})".format(
                 hostdisplay, cert_infos["notBefore"] - now
@@ -72,9 +74,12 @@ def check(c):
 
     if expires_in < threshold_alert:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
     elif expires_in < threshold_warning:
         c.warn += 1
+        c.severity = cmt.SEVERITY_WARNING
     elif expires_in < threshold_notice:
+        c.severity = cmt.SEVERITY_NOTICE
         c.notice += 1        
 
 
@@ -87,11 +92,7 @@ def check(c):
     #         cert_infos["issuer"]["organizationName"],
     #     )
     # )
-    c.add_item(
-        checkitem.CheckItem(
-            "certificate_subject", cert_infos["subject"]["commonName"]
-        )
-    )
+    c.add_item(checkitem.CheckItem("certificate_subject", cert_infos["subject"]["commonName"] ))
 
     # c.add_item(
     #     CheckItem(

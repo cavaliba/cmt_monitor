@@ -1,6 +1,6 @@
 import psutil
 
-#import globals as cmt
+import globals as cmt
 from checkitem import CheckItem
 
 
@@ -36,6 +36,7 @@ def check(c):
     # alerts ?
     if float(memory.percent) > float(threshold):
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("memory above threshold : {} % > {} %".format(memory.percent, threshold))
         return c
 

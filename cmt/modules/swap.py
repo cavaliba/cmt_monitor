@@ -1,6 +1,6 @@
 import psutil
 
-# import globals as cmt
+import globals as cmt
 from checkitem import CheckItem
 
 def check(c):
@@ -26,6 +26,7 @@ def check(c):
     # alerts ?
     if float(swap.percent) > float(threshold):
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL        
         c.add_message("swap above threshold : {} % > {} %".format(swap.percent, threshold))
         return c
 

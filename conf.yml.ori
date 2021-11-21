@@ -1,6 +1,6 @@
 ---
 # Cavaliba / cmt_monitor / conf.yml
-# CMT Version: 1.6
+# CMT Version: 2.1beta 
 
 
 # Example configuration / template 
@@ -59,16 +59,15 @@ metrology_servers:
   my_influxdb:
       type: influxdb
       # V1
-      url: http://10.10.10.13:8086/write?db=cmt
-      # V2
-      # url: 
+      url: http://10.10.10.13:8086/write?db=cmt&u=cmt&p=mysecret
       # msec, sec, nsec ; anything else, no timestamp
       time_format: msec
       batch: yes
+      single_measurement: yes
       send_tags: yes
       token: toto
       #username: cmt
-      #password : cmt
+      #password : mysecret
       ssl_verify: yes
       send_rawdata: no
       rawdata_prefix : raw      
@@ -504,7 +503,8 @@ mysql:
 
 mysqldata:
 
-    db_query1:
+    # creates raw_myuser_username, and raw_myuser_years
+    myuser:
       defaults_file: /opt/cmt/mysql.cnf
           #  [client]
           #  host     = 127.0.0.1

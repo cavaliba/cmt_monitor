@@ -40,7 +40,6 @@ def send_metrology(mycheck):
         rawdata_prefix = metroconf.get("rawdata_prefix", "raw_")
         ssl_verify = metroconf.get("ssl_verify", False) is True
 
-
         timerange = metroconf.get("enable", "yes")
         if not conf.is_timeswitch_on(timerange):
             debug("Metrology server disabled in conf : ", metro)
@@ -92,7 +91,7 @@ def send_metrology(mycheck):
                     debug("Data batched for influx servers")
                     if send_rawdata:
                         for index, val in enumerate(mycheck.multievent):
-                            influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index, rawdata_prefix=rawdata_prefix)
+                            influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index)
                             influxdb_add_to_batch(influxdb_data_multi)
                 else:
                     # already batched by another influx server
@@ -109,7 +108,7 @@ def send_metrology(mycheck):
                 debug("Data sent to influx server ", metro)
                 if send_rawdata:
                     for index, val in enumerate(mycheck.multievent):
-                        influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index, rawdata_prefix=rawdata_prefix)
+                        influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index)
                         influxdb_send_http(
                             url, 
                             username=username, 
@@ -178,7 +177,7 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
 
     # rawdata / multi-event part
     if index is not None:
-        graylog_data += ',"cmt_multievent_id":{}'.format(index)
+        graylog_data += ',"cmt_raw_id":{}'.format(index)
         event = check.multievent[index]
         m = "{}".format(check.check)
         for k,v in event.items():
@@ -189,9 +188,9 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
         for k,v in event.items():
             try:
                 float(v)
-                graylog_data += ',"{}_{}":{}'.format(rawdata_prefix, k, v)
+                graylog_data += ',"{}_{}_{}":{}'.format(rawdata_prefix, check.check, k, v)
             except:
-                graylog_data += ',"{}_{}":"{}"'.format(rawdata_prefix, k, v)
+                graylog_data += ',"{}_{}_{}":"{}"'.format(rawdata_prefix, check.check, k, v)
 
             debug2("Build gelf rawdata multievent: ", str(k), str(v))
 
@@ -213,12 +212,8 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
                 graylog_data += ',"cmt_{}":"{}"'.format(item.name, item.value)
             debug2("Build gelf data : ", str(item.name), str(item.value))
 
-        # NEW V1.6
-        notif = check.get_notification()
-        if notif > 0:
-            graylog_data += ',"cmt_notification":{}'.format(notif)
 
-        # NEW 2.0
+        graylog_data += ',"cmt_alert":{}'.format(check.alert)
         graylog_data += ',"cmt_severity":"{}"'.format(check.severity)
 
 
@@ -303,7 +298,7 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
 
     # rawadata / multi-event part
     if index is not None:
-        json_data += ',"cmt_multievent_id":{}'.format(index)
+        json_data += ',"cmt_raw_id":{}'.format(index)
         event = check.multievent[index]
         m = "{} ".format(check.check)
         for k,v in event.items():
@@ -314,9 +309,9 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
         for k,v in event.items():
             try:
                 float(v)
-                json_data += ',"{}_{}":{}'.format(rawdata_prefix, k, v)
+                json_data += ',"{}_{}_{}":{}'.format(rawdata_prefix, check.check, k, v)
             except:
-                json_data += ',"{}_{}":"{}"'.format(rawdata_prefix, k, v)
+                json_data += ',"{}_{}_{}":"{}"'.format(rawdata_prefix, check.check, k, v)
 
             debug2("Build json data rawdata multievent: ", str(k), str(v))
 
@@ -337,12 +332,9 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
 
             debug2("Build json data : ", str(item.name), str(item.value))
 
-        notif = check.get_notification()
-        if notif > 0:
-            json_data += ',"cmt_notification":{}'.format(notif)
 
+        json_data += ',"cmt_alert":{}'.format(check.alert)
         json_data += ',"cmt_severity":"{}"'.format(check.severity)
-
 
     json_data = '{' + json_data + '}'
     return json_data
@@ -378,17 +370,32 @@ def elastic_send_http_json(url, data="", ssl_verify=False):
 # ------------------------------------------------------------
 # InfluxDB V1 & V2
 # ------------------------------------------------------------
-# V1.7+
+# CMT V1.7+
 
 
-def build_influxdb_message(check, metroconf, index=None, rawdata_prefix='raw'):
+def build_influxdb_message(check, metroconf, index=None):
 
     ''' Prepare a string with and influxdb protocol formatted message.'''
 
+    time_format = metroconf.get('time_format','')
+    rawdata_prefix = metroconf.get("rawdata_prefix", "raw_")
+    single_measurement = metroconf.get('single_measurement',True) is True
+    send_tags = metroconf.get('send_tags',False) is True
+
     influx_data = ''
 
-    # module,cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
-    influx_data += 'cmt_' + check.module
+    # cmt,cmt_module=XX,cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
+    # cmt_{module},cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
+    if single_measurement:
+        influx_data += 'cmt,cmt_module=' + check.module
+    else:
+        influx_data += 'cmt_' + check.module
+
+    # tag section
+    # ------------
+    # global tags + none datapoints checkitems + cmt conf tags   + alert/trigger/notifications
+
+    # global tags
     influx_data += ',cmt_group={},cmt_node={},cmt_check={},cmt_node_env={}'.format(
         check.group,
         check.node,
@@ -396,37 +403,63 @@ def build_influxdb_message(check, metroconf, index=None, rawdata_prefix='raw'):
         check.node_env
     )
 
-    # add tags
-    send_tags = metroconf.get('send_tags',False) is True
+    # none datapoint checkitems tags
+    for item in check.checkitems:
+        if item.datapoint:
+            # skip items to be  inserted in the influx field section of line protocol
+            continue
+        # add as a tag in the influx tag section
+        influx_data += ','
+        try:
+            float(item.value)
+            influx_data += 'cmt_{}={}'.format(item.name, item.value)
+        except ValueError:
+            influx_data += 'cmt_{}="{}"'.format(item.name, item.value)
+
+    # cmt conf tags
     if send_tags:
         for item in check.checkitems:                
             if item.name.startswith('tag_'):
                 #float(item.value)
                 influx_data += ',cmt_{}="{}"'.format(item.name, item.value)
 
+    # severity, alert
+    influx_data += ',cmt_alert={}'.format(check.alert)
+    influx_data += ',cmt_severity={}'.format(check.severity)
+
+    # field section
+    # ------------
 
     # rawdata multi-event part
     if index is not None:
-        influx_data += ' cmt_multievent_id={}'.format(index)
+        influx_data += ' cmt_raw_id={}'.format(index)
         event = check.multievent[index]
         for k,v in event.items():
             try:
                 float(v)
-                influx_data += ',{}_{}={}'.format(rawdata_prefix, k, v)
+                influx_data += ',{}_{}_{}={}'.format(rawdata_prefix, check.check, k, v)
             except ValueError:
-                influx_data += ',{}_{}="{}"'.format(rawdata_prefix, k, v)
+                influx_data += ',{}_{}_{}="{}"'.format(rawdata_prefix, check.check, k, v)
 
     # main / standard event
     else:
+        influx_data += ' '
         first_item = True
+
         for item in check.checkitems:
 
             if item.name.startswith('tag_'):
                 continue
 
-            if first_item:
-                influx_data += ' '
-            else:
+            if not item.datapoint:
+                # skip items already inserted in the influx tag section of line protocol
+                continue
+
+            if item.multiline:
+                # not suitable for influx line protocol
+                continue
+
+            if not first_item:        
                 influx_data += ','
 
             try:
@@ -437,17 +470,18 @@ def build_influxdb_message(check, metroconf, index=None, rawdata_prefix='raw'):
 
             first_item = False
 
-
-        notif = check.get_notification()
-        influx_data += ',cmt_notification={}'.format(notif)
-
-        # NEW 2.0
+        # also add severity, alert as field/value items in the influx line protocol
+        if not first_item:        
+            influx_data += ','
+        influx_data += 'cmt_alert={}'.format(check.alert)
         influx_data += ',cmt_severity={}'.format(check.severity)
 
 
+    # timestamp section
+    # -----------------
+
     # timestamp in milliseconds
     tsms = round(time.time() * 1000)
-    time_format = metroconf.get('time_format','')
     if time_format == 'msec':
         influx_data += " {}".format(tsms)
     elif time_format == 'sec':

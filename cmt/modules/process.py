@@ -36,7 +36,7 @@ def check(c):
     #for proc in psutil.process_iter(['pid', 'name', 'username','cpu_times','memory_info']):
     #     #print(proc.info)
 
-    c.add_item(CheckItem('process_name',psname,""))
+    c.add_item(CheckItem('process_name',psname,"", datapoint=False))
 
     for proc in psutil.process_iter():
 
@@ -84,6 +84,7 @@ def check(c):
 
 
     c.alert += 1
+    c.severity = cmt.SEVERITY_CRITICAL
     c.add_message("process {} missing ({}, {})".format(name, psname, search_arg))
 
     return c

@@ -1,7 +1,7 @@
 import psutil
 import socket
 
-# import globals as cmt
+import globals as cmt
 from checkitem import CheckItem
 
 
@@ -55,6 +55,7 @@ def check(c):
 
     else:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("unknown socket type : {}".format(socparms[0]))       
         return c
 
@@ -83,16 +84,16 @@ def check(c):
 # sconn(fd=-1, family=<AddressFamily.AF_INET: 2>, type=<SocketKind.SOCK_STREAM: 1>, laddr=addr(ip='127.0.0.1', port=631), raddr=(), status='LISTEN', pid=None)
 # sconn(fd=-1, family=<AddressFamily.AF_INET: 2>, type=<SocketKind.SOCK_STREAM: 1>, laddr=addr(ip='127.0.0.53', port=53), raddr=(), status='LISTEN', pid=None)
 
-    c.add_item(CheckItem('socket_name',name,""))
-    c.add_item(CheckItem('socket_port',socport,""))
+    c.add_item(CheckItem('socket_name',name,"", datapoint=False))
+    c.add_item(CheckItem('socket_port',socport,"", datapoint=False))
 
     if soclocal:
-        c.add_item(CheckItem('socket_type',"local",""))
+        c.add_item(CheckItem('socket_type',"local","", datapoint=False))
     else:
-        c.add_item(CheckItem('socket_type',"remote",""))
-        c.add_item(CheckItem('socket_host',sochost,""))
+        c.add_item(CheckItem('socket_type',"remote","", datapoint=False))
+        c.add_item(CheckItem('socket_host',sochost,"", datapoint=False))
 
-    c.add_item(CheckItem('socket_proto',socproto,""))
+    c.add_item(CheckItem('socket_proto',socproto,"", datapoint=False))
 
     #print(connect)
     soccount = 0
@@ -102,6 +103,7 @@ def check(c):
     if socproto == "udp":
         c.add_message("UDP socket not implemented for {}".format(name))
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL        
         return c
 
     # TCP local
@@ -120,6 +122,7 @@ def check(c):
         if socalive == "no":
             c.add_message("socket {} {} {} {}/{} not alive (no LISTEN)".format(soclocal, name, sochost, socproto,socport))
             c.alert += 1
+            c.severity = cmt.SEVERITY_CRITICAL
             return c
 
         # socket_tcp_ping
@@ -128,6 +131,7 @@ def check(c):
             if not r:
                 c.add_message("socket {} {} {} {}/{} no response / bad response".format(soclocal, name, sochost, socproto,socport))
                 c.alert += 1
+                c.severity = cmt.SEVERITY_CRITICAL
                 return c
 
     # TCP remote
@@ -153,6 +157,7 @@ def check(c):
                 c.add_item(CheckItem('socket_alive',socalive,""))
                 c.add_message("socket {} {} {} {}/{} no response / bad response".format(soclocal, name, sochost, socproto,socport))
                 c.alert += 1
+                c.severity = cmt.SEVERITY_CRITICAL
                 return c
             else:
                 socalive = "yes"

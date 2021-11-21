@@ -4,7 +4,7 @@ import time
 import re
 import requests
 
-#import globals as cmt
+import globals as cmt
 from checkitem import CheckItem
 
 requests.packages.urllib3.disable_warnings()
@@ -53,10 +53,10 @@ def check(c):
     ##print("\n---\n",proxies)
 
 
-    ci = CheckItem('url_name',name,'')
+    ci = CheckItem('url_name',name, datapoint=False)
     c.add_item(ci)
 
-    ci = CheckItem('url',url,'')
+    ci = CheckItem('url',url, datapoint=False)
     c.add_item(ci)
 
 
@@ -86,6 +86,7 @@ def check(c):
 
     except Exception:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("url {} - {} [Host: {}] - timeout/no response to query".format(name,url, my_host))
         return c
 
@@ -94,8 +95,11 @@ def check(c):
     c.add_item(ci)
 
     # check http_code
+    ci = CheckItem('url_httpcode',resp.status_code)
+    c.add_item(ci)
     if resp.status_code != my_http_code:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("url {} - {} [Host: {}]- bad http code response ({} received, expected {})".format(
                 name,url, my_host, resp.status_code, my_http_code))
         return c
@@ -103,14 +107,23 @@ def check(c):
     # check pattern
     mysearch = re.search(pattern,resp.text)
     if not mysearch:
+        ci = CheckItem('url_pattern','nok')
+        c.add_item(ci)
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("url {} : expected pattern not found in {} (Host: {})".format(name, url, my_host))
         return c
+    else:
+        ci = CheckItem('url_pattern','ok')
+        c.add_item(ci)
 
     # check pattern_reject
     mysearch = re.search(pattern_reject,resp.text)
     if len(pattern_reject) > 0 and mysearch:
+        ci = CheckItem('url_reject','nok')
+        c.add_item(ci)
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("url {} : forbidden pattern found in {} (Host: {})".format(name, url, my_host))
         return c
 

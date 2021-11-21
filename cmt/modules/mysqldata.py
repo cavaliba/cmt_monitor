@@ -33,6 +33,7 @@ def check(c):
         db=_mysql.connect(read_default_file=defaults_file)
     except Exception as e:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("mysql - can't connect with conf {}".format(defaults_file))        
         debug("Error {}".format(e))
         return c
@@ -43,6 +44,7 @@ def check(c):
         db.query(query)
     except Exception as e:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("mysql - couldn't execute query ({})".format(e))
         debug("Error {}".format(e))
         return c
@@ -51,6 +53,7 @@ def check(c):
         lines=db.store_result().fetch_row(maxrows=0, how=1)
     except Exception as e:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("mysql - couldn't fetch result ({})".format(e))
         debug("Error {}".format(e))
         return c

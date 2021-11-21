@@ -27,7 +27,7 @@ def check(c):
 
     path = c.conf['path']
 
-    ci = CheckItem('mount',path)
+    ci = CheckItem('mount',path, datapoint=False)
     c.add_item(ci)
 
     for part in partitions:
@@ -36,6 +36,7 @@ def check(c):
             return c
 
     c.alert += 1
+    c.severity = cmt.SEVERITY_CRITICAL
     c.add_message("mount {} not found".format(path))
 
     return c

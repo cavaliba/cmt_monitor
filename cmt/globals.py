@@ -9,8 +9,8 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - (c) cavaliba.com - Version 2.0 - 2021/11/12"
-VERSION_NUMBER = "2.0"
+VERSION = "CMT - (c) cavaliba.com - Version 2.0 - 2021/11/21"
+VERSION_NUMBER = "2.1beta"
 
 # default ; can be overrided in configuration files
 MAX_EXECUTION_TIME = 55
@@ -90,6 +90,13 @@ SEVERITY_ERROR = 2
 SEVERITY_WARNING = 3
 SEVERITY_NOTICE = 4
 SEVERITY_NONE = 5
+
+# ------------------------
+# ALERTS (trigger)
+# ------------------------
+ALERT_NEW = 1
+ALERT_ACTIVE = 2
+ALERT_NONE = 3
 
 # ------------------------
 # ARGS - cli parameters

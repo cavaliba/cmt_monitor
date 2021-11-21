@@ -4,7 +4,7 @@
 import sys
 import json 
 
-# import globals as cmt
+import globals as cmt
 from checkitem import CheckItem
 from logger import logit, debug, debug2
 
@@ -35,7 +35,7 @@ def check(c):
     c.multievent = myarray
     count = len(myarray)
 
-    c.add_item(CheckItem("sendfile_name",jsonfile))
+    c.add_item(CheckItem("sendfile_name",jsonfile, datapoint=False))
     c.add_item(CheckItem("sendfile_lines",count))
     c.add_message("{} - {} lines/events".format(jsonfile, count))
     

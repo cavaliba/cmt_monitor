@@ -3,7 +3,7 @@
 
 import subprocess
 
-# import globals as cmt
+import globals as cmt
 from checkitem import CheckItem
 
 
@@ -15,7 +15,7 @@ def check(c):
 
     host = c.conf['host']
 
-    ci = CheckItem('ping', host)
+    ci = CheckItem('ping', host, datapoint=False)
     c.add_item(ci)
 
     # response = os.system("ping -c 1 -W 2 " + host + "> /dev/null 2>&1")
@@ -31,6 +31,7 @@ def check(c):
         c.add_message("ping {} ok".format(host))
     else:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("ping {} not responding".format(host))
 
     return c

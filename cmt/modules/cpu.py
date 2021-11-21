@@ -21,6 +21,7 @@ def check(c):
     # alerts ?
     if float(cpu) > float(threshold):
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL    
         c.add_message("cpu above threshold : {} % > {} %".format(cpu, threshold))
         return c
 

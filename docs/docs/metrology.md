@@ -156,7 +156,8 @@ Your CMT  configuration will thus be :
           password : cmt
           ssl_verify: yes
           send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
-          rawdata_prefix : raw
+          rawdata_prefix : raw           # prefix for field names and tag names (default raw)
+          single_measurement: yes        # influx line protocol: global *cmt* measurement name or per module measurement name
           enable: yes
 
 

@@ -14,7 +14,7 @@ def check(c):
     # sdiskusage(total=21378641920, used=4809781248, free=15482871808, percent=22.5)
     disk=psutil.disk_usage(path)
 
-    ci = checkitem.CheckItem('disk',path,"Path")
+    ci = checkitem.CheckItem('disk',path,"Path", datapoint=False)
     c.add_item(ci)
 
     ci = checkitem.CheckItem('disk_total',disk[0],"Total (Bytes)", unit='bytes')
@@ -32,6 +32,7 @@ def check(c):
     ci = checkitem.CheckItem('disk_percent',disk[3],"Used (percent)", unit='%')
     if disk[3] > alert_threshold:
         c.alert += 1
+        c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("disk {} - critical capacity ({} %)".format(path,disk[3]))
 
     else:

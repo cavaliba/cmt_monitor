@@ -4,6 +4,17 @@ title: version
 
 # Releases
 
+## 2.1beta - 2021/11/21
+
+   feat: rewrite cmt_severity, cmt_alert
+   feat: new option per metrology send_rawdata for graylog/elastic/influxdb (multi-events events) ; default no
+   feat: rawdata_prefix (default: raw) : prefix for fields sent to metrology, for rawdata/multievent 
+   feat: rawdata events are name {rawdata_prefix}_{checkname}_{keyname}
+   feat: new influx option : single_measurement ; send all events as cmt measurement (default) or per module measurement
+   bug: influxdb ; better rebalance tags/fields for cardinality
+   bug: multiline datapoints are not sent to influx ; breaks line protocol
+
+
 ## 2.0 - 2021/11/12
 
     module URL : new option username/password for basic auth

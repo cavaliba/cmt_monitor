@@ -51,9 +51,11 @@ class Check():
         # new 2.0 
 
         # severity : 1=critical, 2=error, 3=warning, 4=notice, 5=none
+        # set by modules ; shifted by severity_max 
         self.severity = cmt.SEVERITY_NONE # DEFAULT = nothing wrong  
 
         # severity_max  ; default = critical
+        self.severity_max = cmt.SEVERITY_CRITICAL
         a = conf.get('severity_max', 'critical')
         if a == 'critical':
             self.severity_max = cmt.SEVERITY_CRITICAL
@@ -63,11 +65,12 @@ class Check():
             self.severity_max = cmt.SEVERITY_WARNING
         elif a == 'notice':
             self.severity_max = cmt.SEVERITY_NOTICE
+        elif a == 'none':
+            self.severity_max = cmt.SEVERITY_NONE
         else:
             debug("Unknown sevrity_max {} in ({},{}) - default to critical.".format(a,module,check) )
-            self.severity_max = cmt.SEVERITY_CRITICAL
 
-        # new 2.0 - multi-events (sendfile, mysqldata)
+        # new 2.0 - rawdata / multi-events (sendfile, mysqldata)
         self.multievent = []
 
         # list of individual points of data
@@ -126,63 +129,6 @@ class Check():
             v = v + mm
         return v
 
-    def compute_severity(self):
-        # NEW 2.0
-        '''  set severity to 1-critical/2-error/3-warning/4-notice/5-none 
-             using self.alert/warn/notice set by  module
-             and severity_max from configuration
-        '''
-
-        if self.alert > 0:
-            self.severity = self.severity_max
-
-        elif self.warn > 0:
-            self.severity = cmt.SEVERITY_WARNING
-            if self.severity_max >= cmt.SEVERITY_NOTICE:
-                self.severity = self.severity_max
-
-        elif self.notice > 0:
-            self.severity = cmt.SEVERITY_NOTICE
-            if self.severity_max == cmt.SEVERITY_NONE:
-                self.severity = self.severity_max
-
-        else:
-            self.severity = cmt.SEVERITY_NONE
-
-        debug("severity = {}".format(self.severity))
-
-    def adjust_alert_max_level(self, level=""):
-        
-        ''' shift level of alert according to config alert_max_level : alert>warn>notice '''
-
-        if level == "":
-            level = self.alert_max_level
-
-        debug("adjust alert_max_level to : ", self.check, level)
-
-        if level == "alert":
-            # no change, all range available
-            return
-
-        if level == "warn":
-            # shift one step : alerts > warn , warn > notice,  alerts = 0
-            self.notice = self.warn
-            self.warn = self.alert
-            self.alert = 0
-            return
-
-        if level == "notice":
-            # keep only alerts
-            self.notice = self.alert
-            self.alert = 0
-            self.warn = 0
-
-        if level == "none":
-            # silence all alerts/warn/notice
-            self.notice = 0
-            self.alert = 0
-            self.warn = 0
-
 
     def frequency(self):
         ''' Verify and update run frequency (cron mode).
@@ -215,8 +161,33 @@ class Check():
         debug("Frequency: not allowed : f={}, delta={}".format(f, delta))
         return False
 
-    # -------------------
-    def hysteresis_filter(self):
+
+    def adjust_severity(self):
+        # NEW 2.1
+        # shift according to severity_max
+
+        if self.severity_max == cmt.SEVERITY_NONE:
+            # all OFF
+            self.severity = cmt.SEVERITY_NONE
+
+        if self.severity_max == cmt.SEVERITY_ERROR:
+            # if worse, reduce
+            if self.severity < cmt.SEVERITY_ERROR:
+                self.severity = cmt.SEVERITY_ERROR
+
+        if self.severity_max == cmt.SEVERITY_WARNING:
+            # if worse, reduce
+            if self.severity < cmt.SEVERITY_WARNING:
+                self.severity = cmt.SEVERITY_WARNING
+
+        # default, no change, all range
+        debug("severity = {}".format(self.severity))
+        return
+
+    def compute_alert(self):
+        # NEW 2.1 - hysteresis
+        pass
+
         ''' Apply Hystereris up/down to alert for this check :
             - consecutive alerts (duration) needed to define real alert
             - consecutire no_alert (idem) needed to define return to noalert
@@ -240,29 +211,142 @@ class Check():
 
         # print("Hysteresis", duration_alert, delta, alert_delay)
 
-        if self.alert > 0:
+        # there's a severity  in the check
+        if self.severity < cmt.SEVERITY_NONE:
             if oldstate == "normal":
                 duration_alert += delta
                 if duration_alert > alert_delay:
-                    # transition to up
+                    # transition to alert
                     newstate = "alert"
+                    self.alert = cmt.ALERT_NEW
+                else: 
+                    # not yet; stay normal (prealert)
+                    newstate = "normal"
+                    self.alert = cmt.ALERT_NONE
+            else:
+                self.alert = cmt.ALERT_ACTIVE
         else:
             newstate = "normal"
             duration_alert = 0
-
-        # not yet a real alert
-        if self.alert > 0 and newstate == "normal":
-            # adjust to warn ; not a transition
-            self.adjust_alert_max_level("warn")
+            self.alert = cmt.ALERT_NONE
 
         # write to Persist
         # lastrun
-        # BUG
         hystpersist_item['lastrun'] = now
         hystpersist_item['duration_alert'] = duration_alert
         hystpersist_item['state'] = newstate
         hystpersist[id] = hystpersist_item
         cmt.PERSIST.set_key("hysteresis", hystpersist)
+
+
+    # def compute_severity(self):
+    #     # NEW 2.0
+    #     '''  set severity to 1-critical/2-error/3-warning/4-notice/5-none 
+    #          using self.alert/warn/notice set by  module
+    #          and severity_max from configuration
+    #     '''
+
+    #     if self.alert > 0:
+    #         self.severity = self.severity_max
+
+    #     elif self.warn > 0:
+    #         self.severity = cmt.SEVERITY_WARNING
+    #         if self.severity_max >= cmt.SEVERITY_NOTICE:
+    #             self.severity = self.severity_max
+
+    #     elif self.notice > 0:
+    #         self.severity = cmt.SEVERITY_NOTICE
+    #         if self.severity_max == cmt.SEVERITY_NONE:
+    #             self.severity = self.severity_max
+
+    #     else:
+    #         self.severity = cmt.SEVERITY_NONE
+
+    #     debug("severity = {}".format(self.severity))
+
+    # def adjust_alert_max_level(self, level=""):
+        
+    #     ''' shift level of alert according to config alert_max_level : alert>warn>notice '''
+
+    #     if level == "":
+    #         level = self.alert_max_level
+
+    #     debug("adjust alert_max_level to : ", self.check, level)
+
+    #     if level == "alert":
+    #         # no change, all range available
+    #         return
+
+    #     if level == "warn":
+    #         # shift one step : alerts > warn , warn > notice,  alerts = 0
+    #         self.notice = self.warn
+    #         self.warn = self.alert
+    #         self.alert = 0
+    #         return
+
+    #     if level == "notice":
+    #         # keep only alerts
+    #         self.notice = self.alert
+    #         self.alert = 0
+    #         self.warn = 0
+
+    #     if level == "none":
+    #         # silence all alerts/warn/notice
+    #         self.notice = 0
+    #         self.alert = 0
+    #         self.warn = 0
+
+
+
+
+    # -------------------
+    # def hysteresis_filter(self):
+    #     ''' Apply Hystereris up/down to alert for this check :
+    #         - consecutive alerts (duration) needed to define real alert
+    #         - consecutire no_alert (idem) needed to define return to noalert
+    #     '''
+
+    #     # seconds for state transition normal to alert (if alert)
+    #     alert_delay = conf.get_hysteresis(self)
+
+    #     hystpersist = cmt.PERSIST.get_key("hysteresis", {})
+    #     id = self.get_id()
+    #     hystpersist_item = hystpersist.get(id, {})
+
+    #     hystlastrun = hystpersist_item.get('lastrun', 0)
+    #     now = int(time.time())
+    #     delta = int(now - hystlastrun)
+
+    #     duration_alert = hystpersist_item.get('duration_alert', 0)
+    #     oldstate = hystpersist_item.get('state', 'normal')
+
+    #     newstate = oldstate
+
+    #     # print("Hysteresis", duration_alert, delta, alert_delay)
+
+    #     if self.alert > 0:
+    #         if oldstate == "normal":
+    #             duration_alert += delta
+    #             if duration_alert > alert_delay:
+    #                 # transition to up
+    #                 newstate = "alert"
+    #     else:
+    #         newstate = "normal"
+    #         duration_alert = 0
+
+    #     # not yet a real alert
+    #     if self.alert > 0 and newstate == "normal":
+    #         # adjust to warn ; not a transition
+    #         self.adjust_alert_max_level("warn")
+
+    #     # write to Persist
+    #     # lastrun
+    #     # BUG
+    #     hystpersist_item['lastrun'] = now
+    #     hystpersist_item['duration_alert'] = duration_alert
+    #     hystpersist_item['state'] = newstate
+    #     hystpersist[id] = hystpersist_item
+    #     cmt.PERSIST.set_key("hysteresis", hystpersist)
 
 
     def print_to_cli_skipped(self):
@@ -437,7 +521,7 @@ def perform_check(checkname, modulename):
     # Add  tags/kv
     check_result.add_tags()
 
-    # ACTUAL CHECK IS DONE HERE
+    # **** ACTUAL CHECK IS DONE HERE ****
     check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
 
     # ---------------
@@ -454,11 +538,12 @@ def perform_check(checkname, modulename):
         debug2("  skipped in module")
         return "continue"
 
-    # new 2.0
-    check_result.compute_severity()
+    # new 2.1 - shift according to severity_max
+    check_result.adjust_severity()
 
-    # apply alert_max_level for this check
-    check_result.adjust_alert_max_level()
+    # new 2.1 - hysteresis
+    check_result.compute_alert()
+
 
     # Print to CLI
     if cmt.ARGS['cron'] or cmt.ARGS['short']:
@@ -466,8 +551,6 @@ def perform_check(checkname, modulename):
     else:
         check_result.print_to_cli_detail()
 
-    # create alert status up/active/down/none - hysteresis
-    check_result.hysteresis_filter()
 
     # TODO V2.0 : compute pager state
     # If pager enabled (at check level), and alert exists : set pager True
