@@ -46,27 +46,32 @@ You need to configure either :
 
 You can also add rsyslog and beats protocol to collect logfiles and various file oriented data (with filebeat)
 
-Your cmt configuration will be
+## Graylog UDP GELF
 
     metrology_servers:
-
       graylog_test1:
           type: graylog_udp_gelf
           host: 10.10.10.13
           port: 12201
-          send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
-          rawdata_prefix : raw
-          enable: yes
-      
-      graylog_test2:
-          type: graylog_http_gelf
-          url: http://10.10.10.13:8080/gelf
-          ssl_verify: yes
-          send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
-          rawdata_prefix : raw
+          send_rawdata: no        # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
+          rawdata_prefix: raw
           enable: yes
 
-##  Elastic server configuration
+## Graylog HTTP GELF
+      
+    metrology_servers:
+      graylog_test2:
+          enable: yes
+          type: graylog_http_gelf
+          url: http://10.10.10.13:8080/gelf
+          [http_proxy: ...]              # http://[login[:pass]@proxyhost:port     
+          [https_proxy: ...              # https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
+          [ssl_verify: yes]              # default: no
+          [http_code: 200]               # http_code for success
+          send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
+          rawdata_prefix: raw
+
+##  Elastic Stack server 
 
 You need to configure :
 
@@ -78,14 +83,16 @@ You need to configure :
 Your CMT  configuration will thus be :
 
     metrology_servers:      
-
         my_elastic_remote_server:
+          enable: yes
           type: elastic_http_json
           url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
-          ssl_verify: yes
+          [http_proxy]                   # http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
+          [https_proxy]                  # https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
+          [http_code: 200]               # http_code for success
+          [ssl_verify: yes]
           send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
           rawdata_prefix : raw
-          enable: yes
 
 
 
@@ -154,10 +161,13 @@ Your CMT  configuration will thus be :
           token: mysecrettotokenken      # if token authentication is used server-side
           username: cmt                  # if header auth is prefered rathen than in the url
           password : cmt
-          ssl_verify: yes
+          [http_proxy]                   # http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
+          [https_proxy]                  # https://[login[:pass]]@proxyhost:port  ; default to http_proxy          
+          [ssl_verify: no]               # default: no
+          [http_code: 200]               # http_code for success          
           send_rawdata: no               # yes/no (default) : do we send multi-events (e.g. from mysqldata, or sendfile )
           rawdata_prefix : raw           # prefix for field names and tag names (default raw)
-          single_measurement: yes        # influx line protocol: global *cmt* measurement name or per module measurement name
+          single_measurement: yes        # influx line protocol: global *cmt* measurement name or per module
           enable: yes
 
 

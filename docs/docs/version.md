@@ -11,6 +11,8 @@ title: version
     bug: incorrect handling of severity_max  for severity == NOTICE
     breaking: removed old alerting model (alert/warn/notice) ; severity/alert only
     feat: display alert transitions (new.active.down) in CLI output
+    feat: http_proxy and https_proxy option in global, metrology and pager entries 
+    feat: http_code option for metrology/pager entries (success response code)
 
 
 ## 2.1beta - 2021/11/21

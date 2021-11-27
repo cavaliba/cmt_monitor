@@ -147,14 +147,40 @@ def teams_sendreal(pager, pagerconf, report):
     if cmt.ARGS['devmode']:
         print("DEVMODE : ", url, headers, teams_message)
 
+
+    ssl_verify = pagerconf.get("ssl_verify", False) is True
+    http_code = pagerconf.get("http_code", 200)
+
+    # default : use env proxies
+    # if "http_proxy:noenv" remove env proxies
+    # else use specified proxies
+    proxies = {} 
+    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_http_proxy = pagerconf.get('http_proxy',my_global_http_proxy)
+    my_https_proxy = pagerconf.get('https_proxy',my_global_https_proxy) 
+    if my_http_proxy != "":
+        proxies["http"] = my_http_proxy
+    if my_https_proxy != "":
+        proxies["https"] = my_https_proxy
+    # if my_http_proxy == "noenv":
+    #     cmt.SESSION.trust_env = False
+    #     proxies = {}
+
     else:
         try:
-            r = requests.post(url, headers=headers, data=teams_message, timeout=cmt.TEAMS_TIMEOUT)
+            r = requests.post(
+                url, 
+                headers=headers, 
+                proxies=proxies,
+                verify=ssl_verify,
+                data=teams_message, 
+                timeout=cmt.TEAMS_TIMEOUT)
         except Exception as e:
             logit("Teams Send Error for {} : {}".format(pager, e))
             return False
 
-        if r.status_code != 200:
+        if r.status_code != http_code:
             logit("Alert couldn't send to Teams - response  " + str(r))
             return False
 
@@ -189,18 +215,44 @@ def teams_sendtest(pager, pagerconf):
     headers = {
         'Content-Type': 'application/json'
     }
+
+    ssl_verify = pagerconf.get("ssl_verify", False) is True
+    http_code = pagerconf.get("http_code", 200)
+
+    # default : use env proxies
+    # if "http_proxy:noenv" remove env proxies
+    # else use specified proxies
+    proxies = {} 
+    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_http_proxy = pagerconf.get('http_proxy',my_global_http_proxy)
+    my_https_proxy = pagerconf.get('https_proxy',my_global_https_proxy) 
+    if my_http_proxy != "":
+        proxies["http"] = my_http_proxy
+    if my_https_proxy != "":
+        proxies["https"] = my_https_proxy
+    # if my_http_proxy == "noenv":
+    #     cmt.SESSION.trust_env = False
+    #     proxies = {}
+
  
     if cmt.ARGS['devmode']:
         print("DEVMODE : ", url, headers, teams_message)
 
     else:
         try:
-            r = requests.post(url, headers=headers, data=teams_message, timeout=cmt.TEAMS_TIMEOUT)
+            r = requests.post(
+                url, 
+                headers=headers,
+                proxies=proxies,
+                verify=ssl_verify,                
+                data=teams_message, 
+                timeout=cmt.TEAMS_TIMEOUT)
         except Exception as e:
             logit("Teams Send Error for {} : {}".format(pager, e))
             return False
 
-        if r.status_code != 200:
+        if r.status_code != http_code:
             logit("Alert couldn't send to Teams - response  " + str(r))
             return False
 
@@ -254,18 +306,43 @@ def pagerduty_sendreal(pager, pagerconf, report):
     headers = {
         'Content-Type': 'application/json'
     }
+
+    ssl_verify = pagerconf.get("ssl_verify", False) is True
+    http_code = pagerconf.get("http_code", 202)
+
+    # default : use env proxies
+    # if "http_proxy:noenv" remove env proxies
+    # else use specified proxies
+    proxies = {} 
+    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_http_proxy = pagerconf.get('http_proxy',my_global_http_proxy)
+    my_https_proxy = pagerconf.get('https_proxy',my_global_https_proxy) 
+    if my_http_proxy != "":
+        proxies["http"] = my_http_proxy
+    if my_https_proxy != "":
+        proxies["https"] = my_https_proxy
+    # if my_http_proxy == "noenv":
+    #     cmt.SESSION.trust_env = False
+    #     proxies = {}
  
     if cmt.ARGS['devmode']:
         print("DEVMODE : ", url, headers, pager_message)
 
     else:
         try:
-            r = requests.post(url, headers=headers, data=pager_message, timeout=cmt.PAGERDUTY_TIMEOUT)
+            r = requests.post(
+                url, 
+                headers=headers, 
+                proxies=proxies,
+                verify=ssl_verify,                 
+                data=pager_message, 
+                timeout=cmt.PAGERDUTY_TIMEOUT)
         except Exception as e:
             logit("PagerDuty Send Error for {} : {}".format(pager, e))
             return False
 
-        if r.status_code != 202:
+        if r.status_code != http_code:
             logit("Alert couldn't send to PagerDuty - response  " + str(r))
             return False
 

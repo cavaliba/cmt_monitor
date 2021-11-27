@@ -46,43 +46,35 @@ def send_metrology(mycheck):
 
         if metrotype == "graylog_udp_gelf":
             gelf_data = build_gelf_message(mycheck)
-            host = metroconf['host']
-            port = metroconf['port']
-            graylog_send_udp_gelf(host=host, port=port, data=gelf_data)
+            graylog_send_udp_gelf(metroconf=metroconf, data=gelf_data)
             debug("Data sent to metrology server ", metro)
             if send_rawdata:
                 for index, val in enumerate(mycheck.multievent):
                     gelf_data_multi = build_gelf_message(mycheck, index, rawdata_prefix=rawdata_prefix)
-                    graylog_send_udp_gelf(host=host, port=port, data=gelf_data_multi)
+                    graylog_send_udp_gelf(metroconf=metroconf, data=gelf_data_multi)
                     debug2("Data sent to metrology server (multievent)", metro)
 
         elif metrotype == "graylog_http_gelf":
             gelf_data = build_gelf_message(mycheck)
-            url = metroconf['url']
-            graylog_send_http_gelf(url=url, data=gelf_data, ssl_verify=ssl_verify)
+            graylog_send_http_gelf(metroconf=metroconf, data=gelf_data)
             debug("Data sent to metrology server ", metro)
             if send_rawdata:
                 for index, val in enumerate(mycheck.multievent):
                     gelf_data_multi = build_gelf_message(mycheck, index, rawdata_prefix=rawdata_prefix)
-                    graylog_send_http_gelf(url=url, data=gelf_data_multi, ssl_verify=ssl_verify)
+                    graylog_send_http_gelf(metroconf=metroconf, data=gelf_data_multi)
                     debug2("Data sent to metrology server (multievent)", metro)
 
         elif metrotype == "elastic_http_json":
             json_data = build_json_message(mycheck)
-            url = metroconf['url']
-            elastic_send_http_json(url=url, data=json_data, ssl_verify=ssl_verify)
+            elastic_send_http_json(metroconf=metroconf, data=json_data)
             debug("Data sent to metrology server ", metro)
             if send_rawdata:
                 for index, val in enumerate(mycheck.multievent):
                     json_data_multi = build_json_message(mycheck, index, rawdata_prefix=rawdata_prefix)
-                    elastic_send_http_json(url=url, data=json_data_multi, ssl_verify=ssl_verify)
+                    elastic_send_http_json(metroconf=metroconf, data=json_data_multi)
 
         elif metrotype == "influxdb":
             influxdb_data = build_influxdb_message(mycheck, metroconf)
-            url = metroconf['url']
-            username = metroconf.get('username','')
-            password = metroconf.get('password','')
-            token = metroconf.get('token','')
             batch = metroconf.get("batch", True) is True
             if batch:
                 if not influxdb_already_batched:
@@ -98,24 +90,12 @@ def send_metrology(mycheck):
                     pass
             else:
                 # immediate send
-                influxdb_send_http(
-                    url, 
-                    username=username, 
-                    password=password, 
-                    token=token, 
-                    ssl_verify=ssl_verify,
-                    data=influxdb_data)
+                influxdb_send_http(metroconf=metroconf, data=influxdb_data)
                 debug("Data sent to influx server ", metro)
                 if send_rawdata:
                     for index, val in enumerate(mycheck.multievent):
                         influxdb_data_multi = build_influxdb_message(mycheck, metroconf, index=index)
-                        influxdb_send_http(
-                            url, 
-                            username=username, 
-                            password=password, 
-                            token=token, 
-                            ssl_verify=ssl_verify,
-                            data=influxdb_data_multi)
+                        influxdb_send_http(metrconf=metroconf, data=influxdb_data_multi)
         else:
             debug("Unknown metrology server type in conf.")
 
@@ -128,25 +108,15 @@ def send_metrology_batch():
         metrotype = metroconf.get('type', 'unknown')        
 
         if metrotype == "influxdb":
-            url = metroconf['url']
-            username = metroconf.get('username','')
-            password = metroconf.get('password','')
-            token = metroconf.get('token','')
-            ssl_verify = metroconf.get("ssl_verify", False) is True
-            #influxdb_send_http_batch(url, username=username, password=password, data=influxdb_batch)
-            # same function for batch / no btch
-            influxdb_send_http(
-                url, 
-                username=username, 
-                password=password, 
-                token=token, 
-                data=influxdb_batch, 
-                ssl_verify=ssl_verify)
+            # same function for batch / no batch
+            influxdb_send_http(metroconf=metroconf,data=influxdb_batch)
             debug("Data (batch) sent to metrology server ", metro)
 
         else:
             pass
             # no batch mode for other metrotype
+
+
 
 
 # ------------------------------------------------------------
@@ -222,36 +192,14 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
     return graylog_data
 
 
-
-def graylog_send_http_gelf(url, data="", ssl_verify=False):
-
-    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-
-    if cmt.GRAYLOG_HTTP_SUSPENDED:
-        logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
-        return
-
-    if cmt.ARGS['devmode']:
-        print("DEVMODE : graylog http : ", url, data, headers)
-        return
-
-    try:
-        r = cmt.SESSION.post(
-            url, 
-            data=data, 
-            headers=headers, 
-            verify=ssl_verify,
-            timeout=cmt.GRAYLOG_HTTP_TIMEOUT)
-        debug("Message sent to graylog(http/gelf) ; status = " + str(r.status_code))
-    except Exception as e:
-        logit("Error - couldn't send graylog message (http/gelf) to {} - {}".format(url, e))
-        cmt.GRAYLOG_HTTP_SUSPENDED = True
-
-
-def graylog_send_udp_gelf(host, port=12201, data=""):
+def graylog_send_udp_gelf(metroconf={}, data=""):
 
     # data = '"demo":"42"'
     # mess = '{ "version":"1.1", "host":"host-test", "short_message":"CMT gelf test", ' + data + ' }'
+
+    host = metroconf.get('host','localhost')
+    port = metroconf.get('port', 12201)
+
 
     if cmt.ARGS['devmode']:
         print("DEVMODE : graylog udp : ", host, port, data)
@@ -268,6 +216,59 @@ def graylog_send_udp_gelf(host, port=12201, data=""):
         debug("Message sent to graylog(udp/gelf)")
     except Exception as e:
         logit("Error - couldn't send graylod message (udp/gelf) to {} - {}".format(host, e))
+
+
+
+def graylog_send_http_gelf(metroconf={}, data=""):
+
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+
+    url = metroconf.get('url','http://localhost/')
+    ssl_verify = metroconf.get("ssl_verify", False) is True
+    http_code = metroconf.get("http_code", 0)
+
+    # default : use env proxies
+    # if "http_proxy:noenv" remove env proxies
+    # else use specified proxies
+    proxies = {} 
+    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_http_proxy = metroconf.get('http_proxy',my_global_http_proxy)
+    my_https_proxy = metroconf.get('https_proxy',my_global_https_proxy) 
+    if my_http_proxy != "":
+        proxies["http"] = my_http_proxy
+    if my_https_proxy != "":
+        proxies["https"] = my_https_proxy
+    # if my_http_proxy == "noenv":
+    #     cmt.SESSION.trust_env = False
+    #     proxies = {}
+
+    if cmt.GRAYLOG_HTTP_SUSPENDED:
+        logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
+        return
+
+    if cmt.ARGS['devmode']:
+        print("DEVMODE : graylog http : ", url, data, headers)
+        return
+
+    try:
+        r = cmt.SESSION.post(
+            url, 
+            data=data, 
+            headers=headers, 
+            verify=ssl_verify,
+            proxies=proxies,
+            timeout=cmt.GRAYLOG_HTTP_TIMEOUT)
+        debug("Message sent to graylog(http/gelf) ; status = " + str(r.status_code))
+    except Exception as e:
+        logit("Error - couldn't send graylog message (http/gelf) to {} - {}".format(url, e))
+        cmt.GRAYLOG_HTTP_SUSPENDED = True
+
+    if http_code>0:
+        if r.status_code != http_code:
+            logit("Alert couldn't send to Graylog HTTP - response  " + str(r))
+            return False
+
 
 
 # ------------------------------------------------------------
@@ -341,9 +342,29 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
 
 
 
-def elastic_send_http_json(url, data="", ssl_verify=False):
+def elastic_send_http_json(metroconf={}, data=""):
 
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+
+    url = metroconf.get('url','http://localhost/')
+    ssl_verify = metroconf.get("ssl_verify", False) is True
+    http_code = metroconf.get("http_code", 0)
+
+    # default : use env proxies
+    # if "http_proxy:noenv" remove env proxies
+    # else use specified proxies
+    proxies = {} 
+    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_http_proxy = metroconf.get('http_proxy',my_global_http_proxy)
+    my_https_proxy = metroconf.get('https_proxy',my_global_https_proxy) 
+    if my_http_proxy != "":
+        proxies["http"] = my_http_proxy
+    if my_https_proxy != "":
+        proxies["https"] = my_https_proxy
+    # if my_http_proxy == "noenv":
+    #     cmt.SESSION.trust_env = False
+    #     proxies = {}
 
     if cmt.METROLOGY_HTTP_SUSPENDED:
         logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
@@ -359,12 +380,18 @@ def elastic_send_http_json(url, data="", ssl_verify=False):
             data=data, 
             headers=headers, 
             verify=ssl_verify,
+            proxies=proxies,
             timeout=cmt.METROLOGY_HTTP_TIMEOUT)
         debug("Message sent to elastic(http/json) ; status = " + str(r.status_code))
     except Exception as e:
         logit("Error - couldn't send elastic message (http/json) to {} - {}".format(url, e))
         cmt.METROLOGY_HTTP_SUSPENDED = True
 
+
+    if http_code>0:
+        if r.status_code != http_code:
+            logit("Alert couldn't send to Elastic - response  " + str(r))
+            return False
 
 
 # ------------------------------------------------------------
@@ -502,9 +529,32 @@ def influxdb_add_to_batch(influxdb_data):
     influxdb_batch += "\n"
 
 
-def influxdb_send_http(url, username="", password="", token="", data="", ssl_verify=False):
+def influxdb_send_http(metroconf={}, data=""):
 
     headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': '*/*'}
+
+    url = metroconf.get('url', 'http://localhost/')
+    username = metroconf.get('username','')
+    password = metroconf.get('password','')
+    token = metroconf.get('token','')
+    ssl_verify = metroconf.get("ssl_verify", False) is True
+    http_code = metroconf.get("http_code", 0)
+
+    # default : use env proxies
+    # if "http_proxy:noenv" remove env proxies
+    # else use specified proxies
+    proxies = {} 
+    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_http_proxy = metroconf.get('http_proxy',my_global_http_proxy)
+    my_https_proxy = metroconf.get('https_proxy',my_global_https_proxy) 
+    if my_http_proxy != "":
+        proxies["http"] = my_http_proxy
+    if my_https_proxy != "":
+        proxies["https"] = my_https_proxy
+    # if my_http_proxy == "noenv":
+    #     cmt.SESSION.trust_env = False
+    #     proxies = {}
 
     if cmt.METROLOGY_INFLUXDB_SUSPENDED:
         logit("suspended - INFLUXDB message suspended/not sent to " + str(url))
@@ -525,6 +575,7 @@ def influxdb_send_http(url, username="", password="", token="", data="", ssl_ver
                 data=data, 
                 headers=headers, 
                 verify=ssl_verify,
+                proxies=proxies,
                 timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)        
 
         # basic authentication
@@ -533,6 +584,7 @@ def influxdb_send_http(url, username="", password="", token="", data="", ssl_ver
                 data=data, 
                 headers=headers,
                 verify=ssl_verify,
+                proxies=proxies,
                 auth=(username, password),
                 timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)
 
@@ -542,6 +594,7 @@ def influxdb_send_http(url, username="", password="", token="", data="", ssl_ver
                 data=data, 
                 headers=headers, 
                 verify=ssl_verify,
+                proxies=proxies,
                 timeout=cmt.METROLOGY_INFLUXDB_TIMEOUT)        
 
         debug("Message sent to INFLUXDB ; status = " + str(r.status_code))
@@ -551,6 +604,9 @@ def influxdb_send_http(url, username="", password="", token="", data="", ssl_ver
         cmt.METROLOGY_INFLUXDB_SUSPENDED = True
 
 
-#def influxdb_send_http_batch(url, username="", password="", token="", data=""):
-#    pass
+    if http_code>0:
+        if r.status_code != http_code:
+            logit("Alert couldn't send to PagerDuty - response  " + str(r))
+            return False
+
 

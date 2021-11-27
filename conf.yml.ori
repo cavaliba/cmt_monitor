@@ -23,6 +23,8 @@ global:
   load_confd: yes
   alert_max_level: warn
   alert_delay: 90
+  #http_proxy: http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
+  #https_proxy: https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
   tags: demo os=linux os_ver=debian10
 
 
@@ -43,6 +45,9 @@ metrology_servers:
       type: graylog_http_gelf
       url: http://10.10.10.13:8080/gelf
       ssl_verify: yes
+      #http_proxy: http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
+      #https_proxy: https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
+      http_code:         # succes response ; default None
       send_rawdata: yes
       rawdata_prefix : raw
       enable: yes
@@ -51,6 +56,9 @@ metrology_servers:
       type: elastic_http_json
       url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
       ssl_verify: yes
+      #http_proxy: http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
+      #https_proxy: https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
+      http_code:         # succes response ; default None
       send_rawdata: yes
       rawdata_prefix : raw
       enable: yes
@@ -58,19 +66,21 @@ metrology_servers:
   # influxdb V1 & V2
   my_influxdb:
       type: influxdb
-      # V1
       url: http://10.10.10.13:8086/write?db=cmt&u=cmt&p=mysecret
-      # msec, sec, nsec ; anything else, no timestamp
+      token: toto
+      #username: cmt
+      #password : mysecret
+      # timestamp : msec, sec, nsec ; anything else, no timestamp
       time_format: msec
       batch: yes
       single_measurement: yes
       send_tags: yes
-      token: toto
-      #username: cmt
-      #password : mysecret
-      ssl_verify: yes
       send_rawdata: no
       rawdata_prefix : raw      
+      #http_proxy: http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
+      #https_proxy: https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
+      ssl_verify: yes
+      http_code:         # succes response ; default None
       enable: yes
 
 

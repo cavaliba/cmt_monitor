@@ -93,14 +93,17 @@ In the following lines :
 	  [conf_url]           : https://.../api/  (/group_node.txt if url ends by /txt/) + ?group=group&node=node
 	  [max_execution_time] : seconds ; DEFAULT 55
 	  [load_confd]         : yes/no ; DEFAULT no
+    [http_proxy]         : http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
+    [https_proxy]        : https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
 	  [alert_max_level]    : alert, warn, notice, none  ; levels are shifted to respect this limit.
 	  [alert_delay]        : min. seconds before alert  ; DEFAULT 120  ; lower precedence
-      [tags]               : tag1 tag2[=value] ; list of tags ; no blank around optional "=value"
+    [tags]               : tag1 tag2[=value] ; list of tags ; no blank around optional "=value"
 
 ### conf.yml : metroloy servers
 
 Metrology servers represent remote graylog/elasticsearch systems where collected data must be sent.
 
+See metrology pages for complete option description.
 
 	# ----------------------
 	# Metrology Servers
@@ -119,19 +122,16 @@ Metrology servers represent remote graylog/elasticsearch systems where collected
 	      url: http://10.10.10.13:8080/gelf
 	      [enable]                : timerange ; default = yes ; master switch      
 
-	  # CMT version 1.6+
-	  my_elastic_remote_server:
+	  # Elastic Stack
+	  my_elastic_remote_http_server:
 	          type: elastic_http_json
 	          url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
 	          enable: yes
 
-	  # CMT V1.7+ ; compatible with influxdb V1 & V2
-	  influxdb_test:
+	  # influxdb V1 & V2
+	  my_influxdb:
 	      type: influxdb
-	      # V1
 	      url: http://10.10.10.13:8086/write?db=cmt
-	      # V2
-	      # url: 
 	      # msec, sec, nsec ; anything else, no timestamp
 	      time_format: msec
 	      batch: yes
@@ -159,11 +159,15 @@ Use wisely, syadmin sleep is precious !
 
 	pagers:
 
-	  pagername:         
-	     type            : team_channel, teams, pagerduty, smtp (to be done)
-	     mode            : managed(default), allnotifications
-	     url             : Teams channel URL
-	     [enable]        : timerange ; DEFAULT = yes ; master switch / no inheritance
+	  general_pagername:         
+	    type                : team_channel, teams, pagerduty, smtp (to be done)
+	    mode                : managed(default), allnotifications
+	    url                 : Teams channel URL
+	    [enable]            : timerange ; DEFAULT = yes ; master switch / no inheritance
+	    [http_proxy]        : http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
+	    [https_proxy]       : https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
+	    [http_code: 200]    : http_code for success
+	    [ssl_verify: yes]   : default: no
 
 	  myteams_ops:     
 	     type            : teams
@@ -194,17 +198,17 @@ Checks have options available to all checks, and options specific to the type of
 	
 	modulename:                  
 	
-	  checkname1:            : free string - unique id in the module scope - avoid dot/special chars in name
+	  checkname1:            : free string - unique id in the module scope - aoid dot/special chars in name
 
-          [enable]           : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
+        [enable]           : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
 	      [enable_pager]     : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
 	      [alert_delay]      : min. seconds before alert  ; DEFAULT 120  ; higher precedence
 	      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
-          [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
-          [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank around optional "=value"
+        [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
+        [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank around optional "=value"
 
 	      [alert_max_level]  : alert, warn, notice, none (scale down)  ; overwrites global & module entry
-          [severity_max]     : critical, error, warning, notice, none  (default : critical)
+        [severity_max]     : critical, error, warning, notice, none  (default : critical)
 
 	      arg1               : specific to module (see doc for each module)
 	      arg2               : specific to module  

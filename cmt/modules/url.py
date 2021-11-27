@@ -44,7 +44,7 @@ def check(c):
     my_https_proxy = c.conf.get('https_proxy',my_http_proxy) 
     if my_http_proxy != "":
         proxies["http"] = my_http_proxy
-    if my_http_proxy != "":
+    if my_https_proxy != "":
         proxies["https"] = my_https_proxy
     session = requests.Session()
     if my_http_proxy =="noenv":
