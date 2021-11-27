@@ -1,6 +1,6 @@
 import psutil
 
-# import globals as cmt
+import globals as cmt
 import checkitem
 
 
@@ -31,7 +31,6 @@ def check(c):
 
     ci = checkitem.CheckItem('disk_percent',disk[3],"Used (percent)", unit='%')
     if disk[3] > alert_threshold:
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("disk {} - critical capacity ({} %)".format(path,disk[3]))
 

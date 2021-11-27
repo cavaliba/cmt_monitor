@@ -36,17 +36,14 @@ def check(c):
 
     # alerts ?
     if is_above_threshold(load[0], threshold1):
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("load1 above threshold : {} > {} ".format(load[0], threshold1))
         return c
     if is_above_threshold(load[1], threshold5):
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("load5 above threshold : {} > {} ".format(load[1], threshold5))
         return c
     if is_above_threshold(load[2], threshold15):
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("load15 above threshold : {} > {} ".format(load[2], threshold15))
         return c

@@ -4,16 +4,25 @@ title: version
 
 # Releases
 
+## 2.1 - 2021/11/27 / TO BE RELEASED
+
+    bug: module disks : missing include for severity handling
+    bug: incorrect version display (2.0 , expected 2.1beta>2.1)
+    bug: incorrect handling of severity_max  for severity == NOTICE
+    breaking: removed old alerting model (alert/warn/notice) ; severity/alert only
+    feat: display alert transitions (new.active.down) in CLI output
+
+
 ## 2.1beta - 2021/11/21
 
-   feat: rewrite cmt_severity, cmt_alert
-   feat: new option per metrology send_rawdata for graylog/elastic/influxdb (multi-events events) ; default no
-   feat: rawdata_prefix (default: raw) : prefix for fields sent to metrology, for rawdata/multievent 
-   feat: rawdata events are name {rawdata_prefix}_{checkname}_{keyname}
-   feat: new influx option : single_measurement ; send all events as cmt measurement (default) or per module measurement
-   bug: influxdb ; better rebalance tags/fields for cardinality
-   bug: multiline datapoints are not sent to influx ; breaks line protocol
-
+    feat: alert modele rewrite : cmt_severity, cmt_alert
+    feat: send_rawdata new option per metrology (send multi-events events) ; default no
+    feat: rawdata_prefix new option (default: raw) : prefix for fields sent to metrology, for rawdata/multievent 
+    feat: rawdata events are named {rawdata_prefix}_{checkname}_{keyname}
+    feat: single_measurement new influx option ;  send all events as cmt measurement (default) or per module measurement
+    bug: influxdb ; better rebalance tags/fields for cardinality
+    bug: multiline datapoints are not sent to influx ; breaks line protocol
+    deprecated: old alerting model (alert/warn/notice) ; severity/alert only
 
 ## 2.0 - 2021/11/12
 

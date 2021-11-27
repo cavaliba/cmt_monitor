@@ -85,7 +85,6 @@ def check(c):
                 allow_redirects = my_redirects)
 
     except Exception:
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("url {} - {} [Host: {}] - timeout/no response to query".format(name,url, my_host))
         return c
@@ -98,7 +97,6 @@ def check(c):
     ci = CheckItem('url_httpcode',resp.status_code)
     c.add_item(ci)
     if resp.status_code != my_http_code:
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("url {} - {} [Host: {}]- bad http code response ({} received, expected {})".format(
                 name,url, my_host, resp.status_code, my_http_code))
@@ -109,7 +107,6 @@ def check(c):
     if not mysearch:
         ci = CheckItem('url_pattern','nok')
         c.add_item(ci)
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("url {} : expected pattern not found in {} (Host: {})".format(name, url, my_host))
         return c
@@ -122,7 +119,6 @@ def check(c):
     if len(pattern_reject) > 0 and mysearch:
         ci = CheckItem('url_reject','nok')
         c.add_item(ci)
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("url {} : forbidden pattern found in {} (Host: {})".format(name, url, my_host))
         return c

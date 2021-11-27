@@ -25,7 +25,6 @@ def check(c):
 
     # alerts ?
     if float(days) > float(threshold):
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("boottime above threshold : {} days > {} days".format(days, threshold))
         return c

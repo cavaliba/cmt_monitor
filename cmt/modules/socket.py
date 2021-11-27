@@ -54,7 +54,6 @@ def check(c):
         connect = c.conf.get('connect',True) is True
 
     else:
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("unknown socket type : {}".format(socparms[0]))       
         return c
@@ -102,7 +101,6 @@ def check(c):
     # UDP
     if socproto == "udp":
         c.add_message("UDP socket not implemented for {}".format(name))
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL        
         return c
 
@@ -121,7 +119,6 @@ def check(c):
 
         if socalive == "no":
             c.add_message("socket {} {} {} {}/{} not alive (no LISTEN)".format(soclocal, name, sochost, socproto,socport))
-            c.alert += 1
             c.severity = cmt.SEVERITY_CRITICAL
             return c
 
@@ -130,7 +127,6 @@ def check(c):
             r = socket_tcp_ping(sochost,socport)
             if not r:
                 c.add_message("socket {} {} {} {}/{} no response / bad response".format(soclocal, name, sochost, socproto,socport))
-                c.alert += 1
                 c.severity = cmt.SEVERITY_CRITICAL
                 return c
 
@@ -156,7 +152,6 @@ def check(c):
                 socalive = "no"
                 c.add_item(CheckItem('socket_alive',socalive,""))
                 c.add_message("socket {} {} {} {}/{} no response / bad response".format(soclocal, name, sochost, socproto,socport))
-                c.alert += 1
                 c.severity = cmt.SEVERITY_CRITICAL
                 return c
             else:

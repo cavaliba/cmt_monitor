@@ -191,9 +191,6 @@ def conf_merge(conf1, conf2):
             conf1[topitem][k] = conf2[topitem][k]
 
 
-
-
-
 def conf_add_top_entries(conf):
     ''' complete conf with optionnal/default top level entries.'''
 
@@ -212,8 +209,6 @@ def conf_add_top_entries(conf):
 # ------------------------------------------------------------------------
 # conf utilities
 # ------------------------------------------------------------------------
-
-
 
 
 def is_timeswitch_on(myconfig):

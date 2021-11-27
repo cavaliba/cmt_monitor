@@ -30,7 +30,6 @@ def check(c):
     if response == 0:
         c.add_message("ping {} ok".format(host))
     else:
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("ping {} not responding".format(host))
 

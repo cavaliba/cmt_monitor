@@ -131,11 +131,14 @@ class Check():
 
 
     def frequency(self):
-        ''' Verify and update run frequency (cron mode).
-        Return True/False if allowed/not alloowed to run.
-        Update PERSIST() object
+        ''' 
+        Return True/False if allowed/not allowed to run
+          - based on frequency configured or not (allow if no frequency)
+          - based on previous run (persisted) if frequency configured
+        Update PERSIST() object for next run, if  run allowed this time
         '''
-        # last run for this check ?
+        
+        # get lastrun timestamp for this check or 0
         freqpersist = cmt.PERSIST.get_key("frequency", {})
         id = self.get_id()
         freqlastrun = freqpersist.get(id, 0)
@@ -145,10 +148,10 @@ class Check():
 
         if f == -1:
             debug2("Frequency: no Frequency at check level")
+            # allowed to run again
             return True
 
-
-        # yes, compare value / delta ; update persist if Run
+        # if frequency configured, compare value / delta ; update persist if Run decided
         now = int(time.time())
         delta = int(now - freqlastrun)
         if delta > f:
@@ -163,32 +166,20 @@ class Check():
 
 
     def adjust_severity(self):
-        # NEW 2.1
-        # shift according to severity_max
+        ''' 
+        Cap (reduce) severity for this check  to severity_max
+        '''
 
-        if self.severity_max == cmt.SEVERITY_NONE:
-            # all OFF
-            self.severity = cmt.SEVERITY_NONE
+        if self.severity < self.severity_max:
+            self.severity = self.severity_max
 
-        if self.severity_max == cmt.SEVERITY_ERROR:
-            # if worse, reduce
-            if self.severity < cmt.SEVERITY_ERROR:
-                self.severity = cmt.SEVERITY_ERROR
-
-        if self.severity_max == cmt.SEVERITY_WARNING:
-            # if worse, reduce
-            if self.severity < cmt.SEVERITY_WARNING:
-                self.severity = cmt.SEVERITY_WARNING
-
-        # default, no change, all range
         debug("severity = {}".format(self.severity))
         return
 
-    def compute_alert(self):
-        # NEW 2.1 - hysteresis
-        pass
 
-        ''' Apply Hystereris up/down to alert for this check :
+    def compute_alert(self):
+        '''
+        Apply Hystereris up/down to alert for this check :
             - consecutive alerts (duration) needed to define real alert
             - consecutire no_alert (idem) needed to define return to noalert
         '''
@@ -209,12 +200,13 @@ class Check():
 
         newstate = oldstate
 
-        # print("Hysteresis", duration_alert, delta, alert_delay)
+        #print("Hysteresis", duration_alert, delta, alert_delay)
 
-        # there's a severity  in the check
+        # check NOK - there's a severity  in the check
         if self.severity < cmt.SEVERITY_NONE:
+            duration_alert += delta
+
             if oldstate == "normal":
-                duration_alert += delta
                 if duration_alert > alert_delay:
                     # transition to alert
                     newstate = "alert"
@@ -225,10 +217,19 @@ class Check():
                     self.alert = cmt.ALERT_NONE
             else:
                 self.alert = cmt.ALERT_ACTIVE
-        else:
-            newstate = "normal"
-            duration_alert = 0
-            self.alert = cmt.ALERT_NONE
+
+        # check OK - transition or already normal ? (no hystereis in the active to down transition)
+        else:         
+            # already normal
+            if oldstate  =="normal":
+                newstate = "normal"
+                duration_alert = 0
+                self.alert = cmt.ALERT_NONE    
+            # transition
+            else:
+                newstate = "normal"
+                duration_alert = 0
+                self.alert = cmt.ALERT_DOWN
 
         # write to Persist
         # lastrun
@@ -239,139 +240,60 @@ class Check():
         cmt.PERSIST.set_key("hysteresis", hystpersist)
 
 
-    # def compute_severity(self):
-    #     # NEW 2.0
-    #     '''  set severity to 1-critical/2-error/3-warning/4-notice/5-none 
-    #          using self.alert/warn/notice set by  module
-    #          and severity_max from configuration
-    #     '''
+    def compute_pager(self):
+        '''
+        if there is an ALERT event (transition) and pager is active for this check
+        flag pager=TRUE to propagate to Report.
+        '''
 
-    #     if self.alert > 0:
-    #         self.severity = self.severity_max
-
-    #     elif self.warn > 0:
-    #         self.severity = cmt.SEVERITY_WARNING
-    #         if self.severity_max >= cmt.SEVERITY_NOTICE:
-    #             self.severity = self.severity_max
-
-    #     elif self.notice > 0:
-    #         self.severity = cmt.SEVERITY_NOTICE
-    #         if self.severity_max == cmt.SEVERITY_NONE:
-    #             self.severity = self.severity_max
-
-    #     else:
-    #         self.severity = cmt.SEVERITY_NONE
-
-    #     debug("severity = {}".format(self.severity))
-
-    # def adjust_alert_max_level(self, level=""):
+        # TODO : could be moved to report aggregation level
         
-    #     ''' shift level of alert according to config alert_max_level : alert>warn>notice '''
+        if self.alert != cmt.ALERT_NONE:
+            tr = self.conf.get('enable_pager', "no")
+            if conf.is_timeswitch_on(tr):
+                debug("pager for check ", self.get_id())
+                self.pager = True
 
-    #     if level == "":
-    #         level = self.alert_max_level
+    # --------------
+    def get_alert_symbol(self):
 
-    #     debug("adjust alert_max_level to : ", self.check, level)
-
-    #     if level == "alert":
-    #         # no change, all range available
-    #         return
-
-    #     if level == "warn":
-    #         # shift one step : alerts > warn , warn > notice,  alerts = 0
-    #         self.notice = self.warn
-    #         self.warn = self.alert
-    #         self.alert = 0
-    #         return
-
-    #     if level == "notice":
-    #         # keep only alerts
-    #         self.notice = self.alert
-    #         self.alert = 0
-    #         self.warn = 0
-
-    #     if level == "none":
-    #         # silence all alerts/warn/notice
-    #         self.notice = 0
-    #         self.alert = 0
-    #         self.warn = 0
-
-
-
-
-    # -------------------
-    # def hysteresis_filter(self):
-    #     ''' Apply Hystereris up/down to alert for this check :
-    #         - consecutive alerts (duration) needed to define real alert
-    #         - consecutire no_alert (idem) needed to define return to noalert
-    #     '''
-
-    #     # seconds for state transition normal to alert (if alert)
-    #     alert_delay = conf.get_hysteresis(self)
-
-    #     hystpersist = cmt.PERSIST.get_key("hysteresis", {})
-    #     id = self.get_id()
-    #     hystpersist_item = hystpersist.get(id, {})
-
-    #     hystlastrun = hystpersist_item.get('lastrun', 0)
-    #     now = int(time.time())
-    #     delta = int(now - hystlastrun)
-
-    #     duration_alert = hystpersist_item.get('duration_alert', 0)
-    #     oldstate = hystpersist_item.get('state', 'normal')
-
-    #     newstate = oldstate
-
-    #     # print("Hysteresis", duration_alert, delta, alert_delay)
-
-    #     if self.alert > 0:
-    #         if oldstate == "normal":
-    #             duration_alert += delta
-    #             if duration_alert > alert_delay:
-    #                 # transition to up
-    #                 newstate = "alert"
-    #     else:
-    #         newstate = "normal"
-    #         duration_alert = 0
-
-    #     # not yet a real alert
-    #     if self.alert > 0 and newstate == "normal":
-    #         # adjust to warn ; not a transition
-    #         self.adjust_alert_max_level("warn")
-
-    #     # write to Persist
-    #     # lastrun
-    #     # BUG
-    #     hystpersist_item['lastrun'] = now
-    #     hystpersist_item['duration_alert'] = duration_alert
-    #     hystpersist_item['state'] = newstate
-    #     hystpersist[id] = hystpersist_item
-    #     cmt.PERSIST.set_key("hysteresis", hystpersist)
-
+        if self.alert == cmt.ALERT_NONE:
+            return '( ) '
+        if self.alert == cmt.ALERT_NEW:
+            return '(+) '
+        if self.alert == cmt.ALERT_ACTIVE:
+            return '(=) '
+        if self.alert == cmt.ALERT_DOWN:
+            return '(-) '
+        return '(?) '
 
     def print_to_cli_skipped(self):
 
-        head = bcolors.WHITE      + "SKIPPED" + bcolors.ENDC
-        print()
+        alert = '(?) '
+
+        head = bcolors.WHITE      + alert + "SKIPPED" + bcolors.ENDC
+        #print()
         print("{:12}  module={} check={} : {}".format(head, self.module, self.check, self.result_info))
-        print()
+        #print()
         #check_result.result = "skip"         
         #check_result.result_info = "must run as root"
         #check_result.print_to_cli_skipped()
 
-    # --------------
+
     def print_to_cli_short(self):
 
-        head = bcolors.OKGREEN     + "OK      " + bcolors.ENDC
+        alert = self.get_alert_symbol()
+
+        head = bcolors.OKGREEN     + alert + "OK      " + bcolors.ENDC
 
         if self.severity == cmt.SEVERITY_CRITICAL:
-            head = bcolors.FAIL  + bcolors.BOLD  + "CRITICAL" + bcolors.ENDC
+            head = bcolors.FAIL  + bcolors.BOLD + alert + "CRITICAL" + bcolors.ENDC
         elif self.severity == cmt.SEVERITY_ERROR:
-            head = bcolors.FAIL    + "ERROR   " + bcolors.ENDC
+            head = bcolors.FAIL    + alert + "ERROR   " + bcolors.ENDC
         elif self.severity == cmt.SEVERITY_WARNING:
-            head = bcolors.WARNING + "WARNING " + bcolors.ENDC
+            head = bcolors.WARNING + alert + "WARNING " + bcolors.ENDC
         elif self.severity == cmt.SEVERITY_NOTICE:
-            head = bcolors.CYAN    + "NOTICE  " + bcolors.ENDC
+            head = bcolors.CYAN    + alert + "NOTICE  " + bcolors.ENDC
 
 
         # print(head, self.get_message_as_str())
@@ -452,7 +374,6 @@ def perform_check(checkname, modulename):
     # get configuration for this check
     checkconf = cmt.CONF[modulename][checkname]
 
-
     # check enabled ?
     ts_check = checkconf.get('enable', 'yes')
     if not conf.is_timeswitch_on(ts_check):
@@ -490,7 +411,7 @@ def perform_check(checkname, modulename):
     # ----------------------
     # create check object
     # ----------------------
-    # TODO, create earlier, with status run/skipped/error + message
+    # TODO?, create earlier, with status run/skipped/error + message
 
     check_result = Check(module=modulename, check=checkname, conf=checkconf, opt=my_opt)
 
@@ -518,14 +439,17 @@ def perform_check(checkname, modulename):
 
     # TODO : if --available, call different function
 
-    # Add  tags/kv
+    # Add tags/kv
     check_result.add_tags()
 
+    # *********************************************************
     # **** ACTUAL CHECK IS DONE HERE ****
+    # *********************************************************
     check_result = cmt.GLOBAL_MODULE_MAP[modulename]['check'](check_result)
+    
 
     # ---------------
-    # results
+    # process results
     # ---------------
 
     # option = available => not a real run ; just display discovered target and quit
@@ -538,28 +462,21 @@ def perform_check(checkname, modulename):
         debug2("  skipped in module")
         return "continue"
 
-    # new 2.1 - shift according to severity_max
+    # adjust severity to severity_max for this check
     check_result.adjust_severity()
 
-    # new 2.1 - hysteresis
+    # compute alert transition : NONE, NEW, ACTIVE, DOWN ; hysteresis
     check_result.compute_alert()
 
+    # If pager enabled (at check level), and alert exists : set pager True
+    check_result.compute_pager()
 
     # Print to CLI
     if cmt.ARGS['cron'] or cmt.ARGS['short']:
         check_result.print_to_cli_short()
     else:
         check_result.print_to_cli_detail()
-
-
-    # TODO V2.0 : compute pager state
-    # If pager enabled (at check level), and alert exists : set pager True
-    if check_result.alert > 0:
-        tr = checkconf.get('enable_pager', "no")
-        if conf.is_timeswitch_on(tr):
-            debug("pager for check ", check_result.get_id())
-            check_result.pager = True
-
+    
     # keep returned Persist structure in check_result
     cmt.PERSIST.set_key(check_result.get_id(), check_result.persist)
 

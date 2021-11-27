@@ -25,7 +25,6 @@ def check(c):
 
     # alerts ?
     if float(swap.percent) > float(threshold):
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL        
         c.add_message("swap above threshold : {} % > {} %".format(swap.percent, threshold))
         return c

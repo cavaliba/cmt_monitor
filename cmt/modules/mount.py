@@ -35,7 +35,6 @@ def check(c):
             c.add_message("mount {} found".format(path))
             return c
 
-    c.alert += 1
     c.severity = cmt.SEVERITY_CRITICAL
     c.add_message("mount {} not found".format(path))
 

@@ -35,7 +35,6 @@ def check(c):
 
     # alerts ?
     if float(memory.percent) > float(threshold):
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("memory above threshold : {} % > {} %".format(memory.percent, threshold))
         return c

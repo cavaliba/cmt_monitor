@@ -81,9 +81,6 @@ def check(c):
                         name, psname, search_arg, h_mem, cpu ))
                 return c
 
-
-
-    c.alert += 1
     c.severity = cmt.SEVERITY_CRITICAL
     c.add_message("process {} missing ({}, {})".format(name, psname, search_arg))
 

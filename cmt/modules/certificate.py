@@ -39,7 +39,6 @@ def check(c):
     try:
         cert_infos = get_certificate_infos(hostname, port)
     except ValueError:
-        c.alert += 1
         c.add_message("no certificate found for {}".format(hostdisplay))
         #c.add_message("no certificate found for {}:{} - err = {}".format(hostname, port, e))
         return c
@@ -49,7 +48,6 @@ def check(c):
     # timezones correctly. So, keep everything in terms of UTC.
     now = datetime.datetime.now(tz=datetime.timezone.utc)
     if now > cert_infos["notAfter"]:
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message(
             "hostname: {} - certificate expired by {}".format(
@@ -57,7 +55,6 @@ def check(c):
             )
         )
     elif now < cert_infos["notBefore"]:
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message(
             "hostname: {} - certificate not yet valid (will be valid in {})".format(
@@ -73,14 +70,13 @@ def check(c):
     c.add_item(checkitem.CheckItem("certificate_days", expires_day, unit="days"))
 
     if expires_in < threshold_alert:
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
+
     elif expires_in < threshold_warning:
-        c.warn += 1
         c.severity = cmt.SEVERITY_WARNING
+
     elif expires_in < threshold_notice:
         c.severity = cmt.SEVERITY_NOTICE
-        c.notice += 1        
 
 
     # c.add_item(

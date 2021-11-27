@@ -58,7 +58,6 @@ def check(c):
         #db=_mysql.connect(host=host,user=user,passwd=password)
         db=_mysql.connect(read_default_file=defaults_file)
     except Exception as e:
-        c.alert += 1
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("mysql - can't connect with conf {}".format(defaults_file))        
         logit("Error {}".format(e))
@@ -189,19 +188,16 @@ def check(c):
 
 
         if io_running != "Yes":
-            c.alert += 1
             c.severity = cmt.SEVERITY_CRITICAL
             c.add_message("{} - slave IO not running".format(c.check))
             return c
 
         if sql_running != "Yes":
-            c.alert += 1
             c.severity = cmt.SEVERITY_CRITICAL
             c.add_message("{} - slave SQL not running".format(c.check))
             return c
 
         if behind > max_behind:
-            c.alert += 1
             c.severity = cmt.SEVERITY_CRITICAL
             c.add_message("{} - slave too late behind master {} > {} secs".format(c.check, behind,max_behind))
             return c

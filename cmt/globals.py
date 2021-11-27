@@ -9,8 +9,8 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - (c) cavaliba.com - Version 2.0 - 2021/11/21"
-VERSION_NUMBER = "2.1beta"
+VERSION = "CMT - (c) cavaliba.com - Version 2.1 - 2021/11/27"
+VERSION_NUMBER = "2.1"
 
 # default ; can be overrided in configuration files
 MAX_EXECUTION_TIME = 55
@@ -82,9 +82,9 @@ METROLOGY_INFLUXDB_SUSPENDED = False
 GLOBAL_MODULE_MAP = {}
 
 
-# ------------------------
-# SEVERITY
-# ------------------------
+# --------------------------
+# SEVERITY levels (ordered)
+# --------------------------
 SEVERITY_CRITICAL = 1
 SEVERITY_ERROR = 2
 SEVERITY_WARNING = 3
@@ -92,11 +92,13 @@ SEVERITY_NOTICE = 4
 SEVERITY_NONE = 5
 
 # ------------------------
-# ALERTS (trigger)
+# ALERTS events (trigger)
 # ------------------------
+ALERT_NONE = 0
 ALERT_NEW = 1
 ALERT_ACTIVE = 2
-ALERT_NONE = 3
+ALERT_DOWN = 3
+
 
 # ------------------------
 # ARGS - cli parameters
