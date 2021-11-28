@@ -64,14 +64,7 @@ The complete configuration for a CMT run has 5 sections :
 4. checks sections with all individual checks parameters (module dependent)
 
 
-In the following lines : 
-
-	[ ] is optional, available
-	( ) is on the roadmap
-
-
-
-### conf.yml : global section
+## conf.yml : global section
 
 	# ----------------------
 	# Global
@@ -81,77 +74,80 @@ In the following lines :
 
 	  cmt_group: cavaliba  : group name, customer name, system name
 	  cmt_node: dev_vm1    : node name (physical / virtual name / cmt instance)
-
 	  [cmt_node_env]       : string: prod, dev, qa, test, form, preprod, qualif ...
 	  [cmt_node_role]      : string ; appli_front_1, db_3
 	  [cmt_node_location]  : string, geographical position
-
 	  [enable]             : timerange ; DEFAULT = yes; master switch (no inheritance below)
 	  [enable_pager]       : timerange ; DEFAULT = no ; master switch (no inheritance)
 	  [business_hours]     : 08:30:00 17:30:00 (default) ; set min/max timerange for BH/HO and NBH/HNO hours
-	  [pager_rate_limit]   : seconds ; default 7200
 	  [conf_url]           : https://.../api/  (/group_node.txt if url ends by /txt/) + ?group=group&node=node
 	  [max_execution_time] : seconds ; DEFAULT 55
 	  [load_confd]         : yes/no ; DEFAULT no
     [http_proxy]         : http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
     [https_proxy]        : https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
-	  [alert_max_level]    : alert, warn, notice, none  ; levels are shifted to respect this limit.
-	  [alert_delay]        : min. seconds before alert  ; DEFAULT 120  ; lower precedence
+	  [alert_delay]        : seconds of repeated NOK check before trigering an alert  ; DEFAULT 120 ; each check can override the global value
     [tags]               : tag1 tag2[=value] ; list of tags ; no blank around optional "=value"
 
-### conf.yml : metroloy servers
 
-Metrology servers represent remote graylog/elasticsearch systems where collected data must be sent.
+## conf.yml : metroloy servers
+
+Metrology servers represent remote graylog/elasticsearch/influxdb systems where collected data must be sent.
 
 See metrology pages for complete option description.
 
-	# ----------------------
-	# Metrology Servers
-	# ----------------------
+Supported type:
 
-	metrology_servers:
-
-	  graylog_test1:
-	      type: graylog_udp_gelf
-	      host: 10.10.10.13
-	      port: 12201
-	      [enable]                : timerange ; default = yes ; master switch      
-
-	  graylog_test2:
-	      type: graylog_tcp_gelf
-	      url: http://10.10.10.13:8080/gelf
-	      [enable]                : timerange ; default = yes ; master switch      
-
-	  # Elastic Stack
-	  my_elastic_remote_http_server:
-	          type: elastic_http_json
-	          url: http://my_remote_host:9200/cmt/data/?pipeline=timestamp
-	          enable: yes
-
-	  # influxdb V1 & V2
-	  my_influxdb:
-	      type: influxdb
-	      url: http://10.10.10.13:8086/write?db=cmt
-	      # msec, sec, nsec ; anything else, no timestamp
-	      time_format: msec
-	      batch: yes
-	      send_tags: yes
-	      token: toto
-	      #username: cmt
-	      #password : cmt
-	      enable: yes
+* graylog_udp_gelf
+* graylog_tcp_gelf
+* elastic_http_json
+* influxdb
 
 
-### conf.yml : pager services
+		# ----------------------
+		# Metrology Servers
+		# ----------------------
 
-Pager services represent remote systmes to which alerts or notifications are sent, when human immediate action is needed.
+		metrology_servers:
 
-In `managed mode`, CMT handles delay and rate-limit before firing an alert.
+	    mytarget:
+	        type:          string
+	        [enable:]      timerange, yes,no, 24/7, bh, nbh, range...
+	        (...)          (specific options)
 
-In `allnotifications`, CMT sends all alerts/warn/notice to remote Pagers which will be in charge of deduplication, rate-limit and proper human notification. 
+		  my_graylog_test1:
+		      type: graylog_udp_gelf
+		      (...)
 
-Use wisely, syadmin sleep is precious !
+		  my_graylog_test2:
+		      type: graylog_tcp_gelf
+		      (...)
 
+		  # Elastic Stack
+		  my_elastic_remote_http_server:
+		      type: elastic_http_json
+		      (...)
+
+		  # influxdb V1 & V2
+		  my_influxdb:
+		      type: influxdb
+		      (...)
+
+See the metrology pages for additional informations.
+
+
+### conf.yml : alerts and pagers
+
+Pager services represent remote systems to which alerts are sent, when human immediate action ot attention is needed.
+
+Supported type:
+
+		* team_channel
+		* teams (same as team)
+		* pagerduty (experimental)
+
+All events sent to metrology also have severity/alert fields which carry information about alerting.
+
+In conf.yml: 
 
 	# ----------------------
 	# Pager services
@@ -159,33 +155,25 @@ Use wisely, syadmin sleep is precious !
 
 	pagers:
 
-	  general_pagername:         
-	    type                : team_channel, teams, pagerduty, smtp (to be done)
-	    mode                : managed(default), allnotifications
-	    url                 : Teams channel URL
-	    [enable]            : timerange ; DEFAULT = yes ; master switch / no inheritance
-	    [http_proxy]        : http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
-	    [https_proxy]       : https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
-	    [http_code: 200]    : http_code for success
-	    [ssl_verify: yes]   : default: no
+	    my_pager1:
+	       type                : team_channel, teams, pagerduty (experimental), smtp(to be done)
+	       enable              : timerange
 
-	  myteams_ops:     
-	     type            : teams
-	     url             : https://client.webhook.office.com/webhookb2/XXXXXXX
-	     [enable]        : timerange ; DEFAULT = no 
+	    my_pager2:
+	       type                : team_channel, teams, pagerduty (experimental), smtp(to be done)
+	       enable              : timerange
 
-	  # new V2.0
-	  pagerduty_dev:
-	    enable: yes
-	    type: pagerduty
-	    mode: managed
-	    url: https://events.pagerduty.com/v2/enqueue
-	    key: xxxxxxxxxxx
+      (...)
+
+
+See the pager & alerts page for additional informations on alerts.
 
 
 ### conf.yml : checks to be performed
 
-Checks are the individual monitoring operations. Thinks as instance of modules. This is were all checks are defined.
+Checks are the individual monitoring operations. This is were all checks are defined.
+
+Checks are grouped under `module` entries which defines the class of test to be performed.
 
 Checks have options available to all checks, and options specific to the type of check (the module) being performed.
 
@@ -196,37 +184,30 @@ Checks have options available to all checks, and options specific to the type of
 	# Checks
 	# --------------------------
 	
-	modulename:                  
+	modulename1:             : one from the various supported modules    
 	
 	  checkname1:            : free string - unique id in the module scope - aoid dot/special chars in name
 
-        [enable]           : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
-	      [enable_pager]     : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
+        [enable]           : timerange ; default yes  ; yes, no, before, after, hrange, ho, hno, 24/7, ...
+	      [enable_pager]     : timerange ; default no ; need global/pager to be enabled ; sent if alert found
 	      [alert_delay]      : min. seconds before alert  ; DEFAULT 120  ; higher precedence
 	      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
         [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
         [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank around optional "=value"
-
-	      [alert_max_level]  : alert, warn, notice, none (scale down)  ; overwrites global & module entry
         [severity_max]     : critical, error, warning, notice, none  (default : critical)
-
 	      arg1               : specific to module (see doc for each module)
 	      arg2               : specific to module  
 	      (...)
 
       checkname2:
-
           ...
-
 
 
 ## Option details
 
-
-
 ### enable: [timerange option]
 
-Scope: global, metrology, pager, module, check
+Scope: global, metrology, pager, check
 
 It defines if :
 
@@ -248,25 +229,11 @@ Values : timerange field
 
 Default : no
 
-For an alert to be sent to a pager, this option must be set at *ALL* levels:
+For an alert to be sent to a pager, this option must be explicity active at *ALL* levels:
 
 * global section
 * pager section (name: enable)
 * at individual checks requiring a pager notification.
-
-
-
-
-### pager_rate_limit : seconds
-
-Scope: global
-
-Default : 7200 seconds
-
-Pager notifications won't be sent more frequently than `pager_rate_limit` seconds by this CMT instance.
-
-
-
 
 
 ### alert_delay : seconds
@@ -281,35 +248,13 @@ It defines a mimimal duration during which an alert confidtion must be present, 
 Before that delay, an alert is sent as a warning.
 
 
-
-
-### alert_max_level
-
-Scope:  global, module, check ; lower wins.
-
-Values: alert(default), warn, notice, none
-
-
-It defines the maximum alert informations detected by a module run, that will be reported to the metrology servers. 
-
-When set to alert (default), alert conditions are sent as alert, when collected from the modules.
-
-When set to warn, one shift is performed : alerts become warn, warn becom notice, notice are discarded (data is sent, but fields describing alerts, warnings, notice, notifications are set to 0).
-
-When set to warn, two shifts are performed : alerts become notice, the rest is discarded.
-
-When set to none, all level are discarded, no values are reported to metrolgoy servers.
-
-**soon to be deprecated**
-
-
 ### severity_max
 
 Scope: check
 
 Values: critical (default), error, warning, none
 
-Will replace alert_max_level. Defines the maximum  level of severity of a raw check to be further processed (deduplication, hysteresis, rate_limit of alerts).
+Defines the maximum  level of severity of a raw check to be further processed (deduplication, hysteresis, rate_limit of alerts).
 
 * critical : for production and immediate failure of a critical component.
 * error : for production and immediate failure of a non-critical compoent, or failure of non-production items
@@ -356,16 +301,17 @@ when run from crontab, the CMT process kills itself after this amount of time. A
 
 `timerage` fields can take more values than the basic yes/no:
 
-	--------------------------------
-	timerange field
-	--------------------------------
-	- yes
-	- no
-	- after YYYY-MM-DD hh:mm:ss
-	- before YYYY-MM-DD hh:mm:ss
-	- hrange hh:mm:ss hh:mm:ss
-	- bh or ho  -  (8h30/17h30 mon>fri) : business hours
-	- nbh or hno - (! (8h30/17h30 mon>fri)) : non-business hours
+		# -------------------------------------
+		# timerange fields (from documentation)
+		# -------------------------------------
+		# yes, 24/7                    : always
+		# no                           : never
+		# after YYYY-MM-DD hh:mm:ss    : after time of the day
+		# before YYYY-MM-DD hh:mm:ss   : before ... 
+		# hrange hh:mm:ss hh:mm:ss     : time intervall
+		# ho, bh, business_hours       : 8h30/18h mon>fri - see global configuration for custom time
+		# nbh,hno, non_business_hours  : !(8h30/18h mon>fri)
+
 
 use global configuration item (business_hours) to set different default values
 
@@ -447,91 +393,7 @@ will add the following info to outuput:
     cmt_tag_foldertype: 'test'
 
 
-##	metrology_servers
 
-A list of one or more remote (or local) server which accept standardized GELF/Elastic/Graylog message over UDP or HTTP.
-
-Every GELF server will receive all message sent by CMT.
-
-GELF is basically JSON with a few mandatory fields.
-
-GELF over UDP is the simpler and more efficient protocol. UDP has no coupling between the client (CMT) and the server (GRAYLOG/Logstash/Elastic). It's fire'n forget. GELF over UDP (here) has low/no security. Data in the clear ...
-
-GELF over HTTP(s)/TCP introduces coupling between CMT and the remote server. A timeout/maxduration mechanism is used by CMT to limit its global execution time. HTTP can be  a TLS/SSL URL providing additional security (encryption, endpoint authentication)
-
-See Graylog/GELF documentation for more information.
-
-  graylog_test1:
-      type: graylog_udp_gelf
-      host: 10.10.10.13
-      port: 12201
-  
-  graylog_test2:
-      type: graylog_tcp_gelf
-      url: http://10.10.10.13:8080/gelf
-
-      [enable]                : timerange ; default = yes ; master switch
-      ()secret_key
-
-
-ElasticSearch
-
-  elastic_test:
-      type: elastic_http_json
-      url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
-      ssl_verify: yes
-      enable: yes
-
-InfluxDB 
-
-  # CMT V1.7+ ; compatible with influxdb V1 & V2
-
-  influxdb_test:
-      type: influxdb
-      # V1
-      url: http://10.10.10.13:8086/write?db=cmt
-      # V2
-      # url: 
-      # msec, sec, nsec ; anything else, no timestamp
-      time_format: msec
-      batch: yes
-      send_tags: yes
-      token: toto
-      #username: cmt
-      #password : cmt
-      ssl_verify: yes
-      enable: yes
-
-
-## Pager / Teams 
-
-The Microsoft Teams tool uses channels, subscription and notification and  is well suited in the business field, to send and receive alerts and notification.
-
-Each CMT agent can send alerts directly when certain conditions are met.
-
-Two Teams channel must  be defined in the configuration : 
-* one for the real Alerts  (Channel named *alert*)
-* onf for test / heartbeat message (Channel named *test*)
-
-The Teams URL must be provided for each Channel
-
-  myteams:
-    type: teams 
-    mode: managed
-    url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
-    enable: yes
-
-## Pager Pagerduty (experimental)
-
-  mypagerduty:
-    type: pagerduty
-    mode: allnotifications
-    url: https://events.pagerduty.com/v2/enqueue
-    key: XXXXXXXXXXXXXXXXXXXXXXXx
-    enable: yes
-
-
-A global pager rate limit is available in the ... global section. A master switch to disable immediately all Pager notification is also available in the global section.
 
 ## Modules
 

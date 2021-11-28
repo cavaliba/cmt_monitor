@@ -212,15 +212,15 @@ def teams_build_message(report, selected_alerts=[]):
 def teams_send_message(pagerconf={}, message=""):
 
     headers = {'Content-Type': 'application/json'}
-    
+
     url = pagerconf.get('url','http://localhost/')
     ssl_verify = pagerconf.get("ssl_verify", True) is True
     http_code = pagerconf.get("http_code", 200)
     proxies, proxy_noenv = conf.get_proxies(pagerconf)
 
     if proxy_noenv:
-         cmt.SESSION.trust_env = False
-         proxies={}
+        cmt.SESSION.trust_env = False
+        proxies={}
 
     if cmt.ARGS['devmode']:
         print("DEVMODE : ", url, headers, message)
@@ -246,8 +246,6 @@ def teams_send_message(pagerconf={}, message=""):
     return True
 
 
-
-
 # =========================================================================
 # PagerDuty
 # =========================================================================
@@ -256,7 +254,7 @@ def pagerduty_build_test_message(pagerconf={}):
     group = cmt.CONF['global']['cmt_group']
     node = cmt.CONF['global']['cmt_node']
     key = pagerconf.get('key')
-    dedup = group + "." + node + "." + "test" + "." + str(int(time.time()/10))
+    dedup = group + "." + node + "." + "test" + "." + str(int(time.time() / 10))
 
     title = "TEST TEST from  {} - {} - please ignore".format(group,node)
     cmt_message = "This is a test from CMT. Please ignore. dedup=" + dedup
@@ -330,7 +328,7 @@ def pagerduty_send_message(pagerconf={}, message=""):
     ssl_verify = pagerconf.get("ssl_verify", False) is True
     http_code = pagerconf.get("http_code", 202)
     proxies, proxy_noenv = conf.get_proxies(pagerconf)
- 
+
     if cmt.ARGS['devmode']:
         print("DEVMODE : ", url, headers, message)
         return True

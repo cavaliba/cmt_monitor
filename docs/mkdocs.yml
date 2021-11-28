@@ -12,11 +12,12 @@ extra_css:
 nav:
   - 'Home': 'index.md'
 #  - 'Quickstart': 'quickstart.md'
+  - 'Quickstart and Setup': 'setup.md'
   - 'Download': 'download.md'
-  - 'Setup': 'setup.md'
   - 'Directory structure': 'directory_structure.md'
-  - 'Configuration': 'config.md'
-  - 'Configuration Example': 'config_example.md'
+  - 'Configuration':
+      - configuration: configuration.md
+      - example: configuration_example.md
 #  - 'FAQ': 'faq.md'
   - 'CLI': 'cli.md'
   - 'Cron / Automatic run' : 'cron.md'
@@ -38,9 +39,18 @@ nav:
       - socket: check_socket.md
       - swap: check_swap.md
       - url: check_urls.md
-  - 'Metrology servers': metrology.md
+  - 'Metrology': 
+      - metrology concepts: metrology.md
+      - graylog: metrology_graylog.md
+      - elastic: metrology_elastic.md
+      - influxdb: metrology_influxdb.md
+  - 'Alerts, Severity and Pagers':
+      - alert concepts : alert_intro.md
+      # - Teams
+      # - PagerDuty
+
   - 'Advanced':
-      - 'Data model' : 'data_model.md'
+      - 'Data model': data_model.md
       - 'Duration item': duration.md
       # 'timerange item' : timerange.md
    #  - 'Dev / How to extend': 'extend.md'

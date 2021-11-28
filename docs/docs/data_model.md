@@ -230,4 +230,4 @@ This is a quick copy of the data structure available in elasticsearch / kibana.
     cmt_alert
     cmt_warning
     cmt_notice
-    => replaced by cmt_notification (int=1/2/3)
+    => replaced by cmt_alert + cmt_severity

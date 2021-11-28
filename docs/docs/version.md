@@ -6,16 +6,17 @@ title: version
 
 ## 2.1 - 2021/11/28
 
+    feat: display alert transitions (new.active.down) in CLI output
+    feat: http_proxy and https_proxy option in global, metrology and pager entries 
+    feat: http_code option for metrology/pager entries (success response code)
+    refactor: rewrite Pager module ; per pager rate_limit ; managed/allnotifications mode
+    feat: pager rate_limit option by pager/in pager configuration only
+    feat: nopersist ARG for CLI : ignore previous run, hysteresis/delay for alerts
     bug: module disks : missing include for severity handling
     bug: incorrect version display (2.0 , expected 2.1beta>2.1)
     bug: incorrect handling of severity_max  for severity == NOTICE
     breaking: removed old alerting model (alert/warn/notice) ; severity/alert only
-    feat: display alert transitions (new.active.down) in CLI output
-    feat: http_proxy and https_proxy option in global, metrology and pager entries 
-    feat: http_code option for metrology/pager entries (success response code)
-    rewrite Pager module ; per pager rate_limit ; managed/allnotifications mode
-    pager rate_limit option by pager/in pager configuration only
-    nopersist ARG for CLI : ignore previous run, hysteresis/delay for alerts
+
 
 ## 2.1beta - 2021/11/21
 

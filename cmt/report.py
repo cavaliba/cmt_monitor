@@ -1,11 +1,9 @@
 # cavaliba.com - 2021
 # report.py
 
-import time
 
 import globals as cmt
-import conf
-import pager
+#import conf
 
 from globals import bcolors
 from logger import logit, debug
@@ -89,8 +87,7 @@ class Report():
                 ok += 1
 
         nok = ck - ok
-        
-        percent = int(100*ok/ck)
+        percent = int(100 * ok / ck)
 
         print()
         logit("SEVERITY={} - {}/{} OK ({} %) - {} NOK : {} criticial - {} error - {} warning - {} notice.".format(

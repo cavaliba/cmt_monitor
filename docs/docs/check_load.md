@@ -32,9 +32,9 @@ default values : 999999 (no alert !)
 Note: should be adjusted to a multiple of the number of vCPU.
 
 
-## Alerts
+## Alerts and severity
 
-Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
+Alert can be adjusted with common `enable_pager` and `severity_max` options.
 
 
 ## Output to Metrology

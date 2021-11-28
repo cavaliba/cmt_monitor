@@ -30,7 +30,7 @@ As for all modules, metrology is sent to all configured targets : Graylog, Elast
 	          #  socket   = /var/run/mysqld/mysqld.sock
 	      is_slave: yes
 	      max_behind: 300
-	      alert_max_level: notice
+	      severity_max: notice
 	      alert_delay: 300
 
 ## Standard metrics collected

@@ -214,20 +214,20 @@ def conf_add_top_entries(conf):
 def is_timeswitch_on(myconfig):
     ''' check if a date/time time range is active
         myconfig can be :
-              yes
+              yes, 24/7
               no
               after YYYY-MM-DD hh:mm:ss
               before YYYY-MM-DD hh:mm:ss
               hrange  hh:mm:ss hh:mm:ss
-              bh/ho   (Mon-Fri 8h30-18h)
-              nbh/hno
+              8/5, bh, ho, business_hours   (Mon-Fri 8h30-18h)
+              nbh, hno, non_business_hours
         returns True or False if current datatime match myconfig
     '''
 
     # yaml gotcha
     myconfig = str(myconfig)
 
-    if myconfig == "True" or myconfig == "yes" or myconfig == "true":
+    if myconfig == "True" or myconfig == "yes" or myconfig == "true" or myconfig == "24/7":
         return True
 
     if myconfig == "False" or myconfig == "no" or myconfig == "false":
@@ -257,7 +257,7 @@ def is_timeswitch_on(myconfig):
             return True
         return False
 
-    if action == "ho" or action == "bho":
+    if action == "ho" or action == "bho" or action == "8/5" or action =="business_hours":
 
         business_hours = cmt.CONF['global'].get('business_hours', '08:30:00 17:30:00')
         (hmin, hmax) = business_hours.split()
@@ -270,7 +270,7 @@ def is_timeswitch_on(myconfig):
             return False
         return True
 
-    if action == "hno" or action == "nbh":
+    if action == "hno" or action == "nbh"  or action == "non_business_hours":
 
         business_hours = cmt.CONF['global'].get('business_hours', '08:30:00 17:30:00')
         (hmin, hmax) = business_hours.split()

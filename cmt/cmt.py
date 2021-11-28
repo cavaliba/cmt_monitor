@@ -113,7 +113,7 @@ if __name__ == "__main__":
                 continue
             # break from outer for loop
             break
-     # -- end of check loop --
+    # -- end of check loop --
 
     # display report recap to CLI
     myreport.print_line_summary()

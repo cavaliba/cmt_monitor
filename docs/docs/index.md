@@ -4,7 +4,7 @@ title: Home
 
 # Welcome to CMT Documentation
 
-*Current release : 2.1 - 2021/11/27*
+*Current release : 2.1 - 2021/11/28*
 
 ## Overwiew - CMT is a simple monitoring agent
 
@@ -25,7 +25,7 @@ For sysadmin, CMT can be used as command line tool on each server during various
     $ cmt -s
 
     ------------------------------------------------------------
-    CMT - (c) cavaliba.com - Version 2.1 - 2021/11/27
+    CMT - (c) cavaliba.com - Version 2.1 - 2021/11/28
     ------------------------------------------------------------
     cmt_group      :  cavaliba
     cmt_node       :  vmxupro
@@ -84,7 +84,6 @@ For sysadmin, CMT can be used as command line tool on each server during various
     ( ) OK       url          url yahoo - https://www.yahoo.com/ [Host: ] - http=200 - 537 ms ; pattern OK
     ( ) OK       url          url via_proxy_cavaliba - https://www.cavaliba.com/ [Host: ] - http=200 - 79 ms ; pattern OK
     ( ) OK       url          url url_noenv_proxy - http://www.monip.org/ [Host: ] - http=200 - 34 ms ; pattern OK
-    (=) CRITICAL url          url url_test_timeout - http://slowwly.robertomurray.co.uk/delay/4000/url/http://google.co.uk [Host: ]- bad http code response (404 received, expected 200)
     ( ) OK       url          url url_auth - https://monitor.kheops.ch/kibana [Host: ] - http=200 - 246 ms ; pattern OK
     ( ) OK       url          url url_httpcode - https://monitor.kheops.ch/kibana [Host: ] - http=401 - 148 ms ; pattern OK
     (=) CRITICAL url          url url_patternreject : forbidden pattern found in https://monitor.kheops.ch (Host: )

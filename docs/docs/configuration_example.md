@@ -5,10 +5,9 @@ title: configuration example
 
 ## Full configuration example
 
-
     ---
     # Cavaliba / cmt_monitor / conf.yml
-    # CMT Version: 2.0beta
+    # CMT Version: 2.1
 
 
     # Example configuration / template 
@@ -21,16 +20,16 @@ title: configuration example
       cmt_node: vmxupm
       cmt_node_env: dev
       cmt_node_role: dev_cmt
-      cmt_node_location: France
+      cmt_node_location: Ladig
       enable: yes
       enable_pager: yes
       business_hours: 08:00:00 18:00:00
       #conf_url: http://localhost/txt/
-      pager_rate_limit: 3600
       max_execution_time: 55
       load_confd: yes
-      alert_max_level: warn
       alert_delay: 90
+      #http_proxy: http://[login[:pass]@]proxyhost:port
+      #https_proxy: https://[login[:pass]@]proxyhost:port
       tags: demo os=linux os_ver=debian10
 
 
@@ -39,40 +38,58 @@ title: configuration example
 
     metrology_servers:
 
-      graylog_test1:
-          type: graylog_udp_gelf
-          host: 10.10.10.13
-          port: 12201
-          enable: yes
+      my_graylog_udp:
+        type: graylog_udp_gelf
+        host: 10.10.10.13
+        port: 12201
+        send_rawdata: yes
+        rawdata_prefix : raw
+        enable: yes
       
-      graylog_test2:
-          type: graylog_http_gelf
-          url: http://10.10.10.13:8080/gelf
-          ssl_verify: yes
-          enable: yes
+      my_graylog_http:
+        type: graylog_http_gelf
+        url: http://10.10.10.13:8080/gelf
+        send_rawdata: yes
+        rawdata_prefix : raw
+        #http_proxy: noenv
+        #http_proxy: http://[login[:pass]@]proxyhost:port
+        #https_proxy: https://[login[:pass]@]proxyhost:port
+        #http_code: 202 
+        #ssl_verify: yes
+        enable: yes
 
-      elastic_test:
-          type: elastic_http_json
-          url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
-          ssl_verify: yes
-          enable: yes
+      my_elastic:
+        type: elastic_http_json
+        send_rawdata: yes
+        rawdata_prefix : raw
+        url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
+        #http_proxy: noenv
+        #http_proxy: http://[login[:pass]@]proxyhost:port
+        #https_proxy: https://[login[:pass]@]proxyhost:port
+        #http_code: 201
+        #ssl_verify: yes
+        enable: yes
 
-      # CMT V1.7+ ; compatible with influxdb V1 & V2
-      influxdb_test:
-          type: influxdb
-          # V1
-          url: http://10.10.10.13:8086/write?db=cmt
-          # V2
-          # url: 
-          # msec, sec, nsec ; anything else, no timestamp
-          time_format: msec
-          batch: yes
-          send_tags: yes
-          token: toto
-          #username: cmt
-          #password : cmt
-          ssl_verify: yes
-          enable: yes
+      # influxdb V1 & V2
+      my_influxdb:
+        type: influxdb
+        url: http://10.10.10.13:8086/write?db=cmt&u=cmt&p=mysecret
+        token: toto
+        #username: cmt
+        #password : mysecret
+        # timestamp : msec, sec, nsec ; anything else, no timestamp
+        time_format: msec
+        batch: yes
+        single_measurement: yes
+        send_tags: no
+        send_rawdata: no
+        rawdata_prefix : raw      
+        #http_proxy: noenv
+        #http_proxy: http://[login[:pass]@]proxyhost:port
+        #https_proxy: https://[login[:pass]@]proxyhost:port 
+        #ssl_verify: yes
+        #http_code: 204
+        enable: yes
 
 
     # Pager section
@@ -86,6 +103,12 @@ title: configuration example
         type: teams 
         mode: managed
         url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
+        #http_proxy: noenv
+        #http_proxy: http://[login[:pass]@proxyhost:port
+        #https_proxy: https://[login[:pass]]@proxyhost:port 
+        #http_code: 200
+        #ssl_verify: yes
+        #rate_limit: 7200
         enable: yes
 
       mypagerduty:
@@ -93,6 +116,12 @@ title: configuration example
         mode: allnotifications
         url: https://events.pagerduty.com/v2/enqueue
         key: XXXXXXXXXXXXXXXXXXXXXXXx
+        #http_proxy: noenv
+        #http_proxy: http://[login[:pass]@proxyhost:port
+        #https_proxy: https://[login[:pass]]@proxyhost:port 
+        #ssl_verify: yes
+        #http_code: 202
+        #rate_limit: 7200
         enable: yes
 
 
@@ -103,9 +132,9 @@ title: configuration example
     # module_name:
     #
     #   checkname:
-    #      [enable]           : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
+    #      [enable]           : timerange ; default yes
+    #      [severity_max]     : critical, error, warning, notice, none
     #      [enable_pager]     : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
-    #      [alert_max_level]  : alert, warn, notice, none (scale down)  ; overwrites global & module entry
     #      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
     #      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
     #      [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
@@ -119,7 +148,6 @@ title: configuration example
 
       myload:
         enable: yes
-        alert_max_level: alert
         severity_max: warning
         threshold1: 10.3
         threshold5: 8.4
@@ -130,7 +158,6 @@ title: configuration example
 
       mycpu:
         enable: yes
-        alert_max_level: alert
         severity_max: warning
 
 
@@ -138,7 +165,6 @@ title: configuration example
 
       mymemory:
         enable: yes
-        alert_max_level: alert
         frequency: 10
         # percent
         threshold: 80.5
@@ -149,7 +175,6 @@ title: configuration example
 
       myboottime:
         enable: yes
-        alert_max_level: alert
         # days
         threshold: 180
         severity_max: warning
@@ -157,7 +182,6 @@ title: configuration example
     swap:
       myswap:
         enable: yes
-        alert_max_level: warn
         # percent
         threshold: 11.3
         severity_max: warning
@@ -184,12 +208,13 @@ title: configuration example
         allow_redirects: yes
         ssl_verify: yes
         #host: toto
+        #http_proxy: XXX
+        #https_proxy: XXX
         severity_max: warning
 
       www_non_existing:
         enabled: after 2020-01-01
         url: http://www.nonexisting/
-        #pattern: ""
         severity_max: warning
 
       google:
@@ -205,7 +230,7 @@ title: configuration example
       via_proxy_cavaliba:
         enabled: yes
         url: https://www.cavaliba.com/
-        http_proxy: http://72.25.7.140:8080
+        http_proxy: http://62.210.205.232:8080
         severity_max: warning
 
       url_noenv_proxy:
@@ -218,6 +243,19 @@ title: configuration example
         timeout: 2
         severity_max: warning
 
+      url_authenticated:
+        url: https://www.auth-needed.com/login
+        username: mylogin
+        password: mysecret
+
+      url_httpcode401:
+        url: https://www.auth-needed.com/login
+        http_code: 401
+
+      url_patternreject:
+        url: http://www.myservice.com/status/
+        pattern_reject: 'class="error"'
+
     # ---------
     mount:
 
@@ -229,6 +267,11 @@ title: configuration example
         path: /mnt
         severity_max: warning
 
+
+      mount_critical:
+        path: /critical
+        severity_max: critical
+        enable_pager: yes
 
     # ---------
     process:
@@ -293,7 +336,6 @@ title: configuration example
       test_recursive100:
         path: /opt/cmt/testdata/arbo100
         severity_max: critical
-        alert_max_level: alert
         recursive: yes
 
       test_extension:
@@ -402,6 +444,12 @@ title: configuration example
         root_required: yes
         severity_max: warning
 
+      folder_list:
+        path: /opt/cmt
+        recursive: yes
+        send_list: yes
+
+
     # ---------
     certificate:
 
@@ -451,46 +499,68 @@ title: configuration example
 
     send:
 
-        test_token1:
-          attribute: test
-          comment: "a test comment for token1 - cmt_test will be created in elastic"
-          unit: "no_unit"
-          severity_max: warning
+      test_token1:
+        attribute: test
+        comment: "a test comment for token1 - cmt_test will be created in elastic"
+        unit: "no_unit"
+        severity_max: warning
 
     sendfile:
 
-        mysendfile:
-          jsonfile: /opt/cmt/demo.json
-          frequency: 3
+      # [ { "user":"fred", "last-login-days":4 },
+      #   { "user":"jack", "last-login-days":7 },
+      #   { "user":"igor", "last-login-days":9 }  ]
+
+      mysendfile:
+        jsonfile: /opt/cmt/demo.json
+        frequency: 3600
+
 
     mysql:
 
-        mydb:
-          defaults_file: /opt/cmt/mysql.cnf
-              #  [client]
-              #  host     = 127.0.0.1
-              #  user     = root
-              #  password = xxxxxxx
-              #  port     = 3306
-              #  socket   = /var/run/mysqld/mysqld.sock
-          is_slave: yes
-          max_behind: 300
-          alert_max_level: notice
-          alert_delay: 300
-          severity_max: warning
+      mydb:
+        defaults_file: /opt/cmt/mysql.cnf
+            #  [client]
+            #  host     = 127.0.0.1
+            #  user     = root
+            #  password = xxxxxxx
+            #  port     = 3306
+            #  socket   = /var/run/mysqld/mysqld.sock
+        is_slave: yes
+        max_behind: 300
+        alert_delay: 300
+        severity_max: warning
+
+    mysqldata:
+
+      # creates raw_myuser_username, and raw_myuser_years
+      myuser:
+        defaults_file: /opt/cmt/mysql.cnf
+            #  [client]
+            #  host     = 127.0.0.1
+            #  user     = root
+            #  password = xxxxxxx
+            #  port     = 3306
+            #  socket   = /var/run/mysqld/mysqld.sock
+        query: select user,age from cmt_test.table1 limit 10
+        columns:
+          user: username
+          age: years
+        maxlines: 10
+        frequency: 300
 
 
-    #  -------------------------------------
-    #  timerange field (from documentation)
-    #  -------------------------------------
-    #  - yes
-    #  - no
-    #  - after YYYY-MM-DD hh:mm:ss
-    #  - before YYYY-MM-DD hh:mm:ss
-    #  - hrange hh:mm:ss hh:mm:ss
-    #  - ho   (8h30/18h mon>fri) - business hours
-    #  - hno  (! (8h30/18h mon>fri)) - non business hours
-
+    # -------------------------------------
+    # timerange fields (from documentation)
+    # -------------------------------------
+    # yes, 24/7                    : always
+    # no                           : never
+    # after YYYY-MM-DD hh:mm:ss    : after time of the day
+    # before YYYY-MM-DD hh:mm:ss   : before ... 
+    # hrange hh:mm:ss hh:mm:ss     : time intervall
+    # ho, bh, business_hours       : 8h30/18h mon>fri - see global configuration for custom time
+    # nbh,hno, non_business_hours  : !(8h30/18h mon>fri)
+    #
     # ------------------------------------
     # conf.d/*.yml also included with :
     # - main conf has higher priority

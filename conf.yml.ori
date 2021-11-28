@@ -1,6 +1,6 @@
 ---
 # Cavaliba / cmt_monitor / conf.yml
-# CMT Version: 2.1beta 
+# CMT Version: 2.1
 
 
 # Example configuration / template 
@@ -16,11 +16,11 @@ global:
   cmt_node_location: Ladig
   enable: yes
   enable_pager: yes
+  alert_delay: 90
   business_hours: 08:00:00 18:00:00
   #conf_url: http://localhost/txt/
   max_execution_time: 55
   load_confd: yes
-  alert_delay: 90
   #http_proxy: http://[login[:pass]@]proxyhost:port
   #https_proxy: https://[login[:pass]@]proxyhost:port
   tags: demo os=linux os_ver=debian10
@@ -492,68 +492,68 @@ socket:
 
 send:
 
-    test_token1:
-      attribute: test
-      comment: "a test comment for token1 - cmt_test will be created in elastic"
-      unit: "no_unit"
-      severity_max: warning
+  test_token1:
+    attribute: test
+    comment: "a test comment for token1 - cmt_test will be created in elastic"
+    unit: "no_unit"
+    severity_max: warning
 
 sendfile:
 
-    # [ { "user":"fred", "last-login-days":4 },
-    #   { "user":"jack", "last-login-days":7 },
-    #   { "user":"igor", "last-login-days":9 }  ]
-  
-    mysendfile:
-      jsonfile: /opt/cmt/demo.json
-      frequency: 3600
+  # [ { "user":"fred", "last-login-days":4 },
+  #   { "user":"jack", "last-login-days":7 },
+  #   { "user":"igor", "last-login-days":9 }  ]
+
+  mysendfile:
+    jsonfile: /opt/cmt/demo.json
+    frequency: 3600
 
 
 mysql:
 
-    mydb:
-      defaults_file: /opt/cmt/mysql.cnf
-          #  [client]
-          #  host     = 127.0.0.1
-          #  user     = root
-          #  password = xxxxxxx
-          #  port     = 3306
-          #  socket   = /var/run/mysqld/mysqld.sock
-      is_slave: yes
-      max_behind: 300
-      alert_delay: 300
-      severity_max: warning
+  mydb:
+    defaults_file: /opt/cmt/mysql.cnf
+        #  [client]
+        #  host     = 127.0.0.1
+        #  user     = root
+        #  password = xxxxxxx
+        #  port     = 3306
+        #  socket   = /var/run/mysqld/mysqld.sock
+    is_slave: yes
+    max_behind: 300
+    alert_delay: 300
+    severity_max: warning
 
 mysqldata:
 
-    # creates raw_myuser_username, and raw_myuser_years
-    myuser:
-      defaults_file: /opt/cmt/mysql.cnf
-          #  [client]
-          #  host     = 127.0.0.1
-          #  user     = root
-          #  password = xxxxxxx
-          #  port     = 3306
-          #  socket   = /var/run/mysqld/mysqld.sock
-      query: select user,age from cmt_test.table1 limit 10
-      columns:
-        user: username
-        age: years
-      maxlines: 10
-      frequency: 300
+  # creates raw_myuser_username, and raw_myuser_years
+  myuser:
+    defaults_file: /opt/cmt/mysql.cnf
+        #  [client]
+        #  host     = 127.0.0.1
+        #  user     = root
+        #  password = xxxxxxx
+        #  port     = 3306
+        #  socket   = /var/run/mysqld/mysqld.sock
+    query: select user,age from cmt_test.table1 limit 10
+    columns:
+      user: username
+      age: years
+    maxlines: 10
+    frequency: 300
 
 
-#  -------------------------------------
-#  timerange field (from documentation)
-#  -------------------------------------
-#  - yes
-#  - no
-#  - after YYYY-MM-DD hh:mm:ss
-#  - before YYYY-MM-DD hh:mm:ss
-#  - hrange hh:mm:ss hh:mm:ss
-#  - ho   (8h30/18h mon>fri) - business hours
-#  - hno  (! (8h30/18h mon>fri)) - non business hours
-
+# -------------------------------------
+# timerange fields (from documentation)
+# -------------------------------------
+# yes, 24/7                    : always
+# no                           : never
+# after YYYY-MM-DD hh:mm:ss    : after time of the day
+# before YYYY-MM-DD hh:mm:ss   : before ... 
+# hrange hh:mm:ss hh:mm:ss     : time intervall
+# ho, bh, business_hours       : 8h30/18h mon>fri - see global configuration for custom time
+# nbh,hno, non_business_hours  : !(8h30/18h mon>fri)
+#
 # ------------------------------------
 # conf.d/*.yml also included with :
 # - main conf has higher priority

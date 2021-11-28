@@ -55,7 +55,7 @@ class Check():
 
         # severity : 1=critical, 2=error, 3=warning, 4=notice, 5=none
         # set by modules ; shifted by severity_max configuration
-        self.severity = cmt.SEVERITY_NONE # DEFAULT = nothing wrong  
+        self.severity = cmt.SEVERITY_NONE    # DEFAULT = nothing wrong  
 
         # severity_max  ; default = critical
         self.severity_max = cmt.SEVERITY_CRITICAL

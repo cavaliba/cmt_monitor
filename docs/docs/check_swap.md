@@ -23,7 +23,7 @@ title: check_swap
 
 ## Alerts
 
-Alert can be adjusted with common `enable_pager` and `alert_max_level` options.
+Alert can be adjusted with common `enable_pager` and `severity_max` options.
 
 
 ## Output to Metrology

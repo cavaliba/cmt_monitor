@@ -9,7 +9,7 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - (c) cavaliba.com - Version 2.1 - 2021/11/27"
+VERSION = "CMT - (c) cavaliba.com - Version 2.1 - 2021/11/28"
 VERSION_NUMBER = "2.1"
 
 # default ; can be overrided in configuration files

@@ -3,7 +3,7 @@
 
 import socket
 import time
-import json
+#import json
 
 import globals as cmt
 from logger import logit, debug, debug2
@@ -15,7 +15,6 @@ import conf
 # send messages to metrology servers
 
 influxdb_batch = ""
-
 
 # ------------------------------------------------------------
 # Main entry point : send_metrology(check)
@@ -38,7 +37,6 @@ def send_metrology(mycheck):
 
         send_rawdata = metroconf.get("send_rawdata", True) is True                    
         rawdata_prefix = metroconf.get("rawdata_prefix", "raw_")
-        ssl_verify = metroconf.get("ssl_verify", False) is True
 
         timerange = metroconf.get("enable", "yes")
         if not conf.is_timeswitch_on(timerange):
@@ -177,7 +175,7 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
             try:
                 float(v)
                 graylog_data += ',"{}_{}_{}":{}'.format(rawdata_prefix, check.check, k, v)
-            except:
+            except Exception as e:
                 graylog_data += ',"{}_{}_{}":"{}"'.format(rawdata_prefix, check.check, k, v)
 
             debug2("Build gelf rawdata multievent: ", str(k), str(v))
@@ -247,8 +245,8 @@ def graylog_send_http_gelf(metroconf={}, data=""):
     proxies, proxy_noenv = get_proxies(metroconf)
 
     if proxy_noenv:
-         cmt.SESSION.trust_env = False
-         proxies={}
+        cmt.SESSION.trust_env = False
+        proxies={}
 
     if cmt.GRAYLOG_HTTP_SUSPENDED:
         logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
@@ -319,7 +317,7 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
             try:
                 float(v)
                 json_data += ',"{}_{}_{}":{}'.format(rawdata_prefix, check.check, k, v)
-            except:
+            except Exception as e:
                 json_data += ',"{}_{}_{}":"{}"'.format(rawdata_prefix, check.check, k, v)
 
             debug2("Build json data rawdata multievent: ", str(k), str(v))
@@ -360,8 +358,8 @@ def elastic_send_http_json(metroconf={}, data=""):
     proxies, proxy_noenv = get_proxies(metroconf)
 
     if proxy_noenv:
-         cmt.SESSION.trust_env = False
-         proxies={}
+        cmt.SESSION.trust_env = False
+        proxies={}
 
     if cmt.METROLOGY_HTTP_SUSPENDED:
         logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
@@ -539,8 +537,8 @@ def influxdb_send_http(metroconf={}, data=""):
     proxies, proxy_noenv = get_proxies(metroconf)
 
     if proxy_noenv:
-         cmt.SESSION.trust_env = False
-         proxies={}
+        cmt.SESSION.trust_env = False
+        proxies={}
 
     if cmt.METROLOGY_INFLUXDB_SUSPENDED:
         logit("suspended - INFLUXDB message suspended/not sent to " + str(url))
