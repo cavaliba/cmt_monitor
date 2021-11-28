@@ -18,13 +18,11 @@ global:
   enable_pager: yes
   business_hours: 08:00:00 18:00:00
   #conf_url: http://localhost/txt/
-  pager_rate_limit: 3600
   max_execution_time: 55
   load_confd: yes
-  alert_max_level: warn
   alert_delay: 90
-  #http_proxy: http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
-  #https_proxy: https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
+  #http_proxy: http://[login[:pass]@]proxyhost:port
+  #https_proxy: https://[login[:pass]@]proxyhost:port
   tags: demo os=linux os_ver=debian10
 
 
@@ -34,54 +32,57 @@ global:
 metrology_servers:
 
   my_graylog_udp:
-      type: graylog_udp_gelf
-      host: 10.10.10.13
-      port: 12201
-      send_rawdata: yes
-      rawdata_prefix : raw
-      enable: yes
+    type: graylog_udp_gelf
+    host: 10.10.10.13
+    port: 12201
+    send_rawdata: yes
+    rawdata_prefix : raw
+    enable: yes
   
   my_graylog_http:
-      type: graylog_http_gelf
-      url: http://10.10.10.13:8080/gelf
-      ssl_verify: yes
-      #http_proxy: http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
-      #https_proxy: https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
-      http_code:         # succes response ; default None
-      send_rawdata: yes
-      rawdata_prefix : raw
-      enable: yes
+    type: graylog_http_gelf
+    url: http://10.10.10.13:8080/gelf
+    send_rawdata: yes
+    rawdata_prefix : raw
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@]proxyhost:port
+    #https_proxy: https://[login[:pass]@]proxyhost:port
+    #http_code: 202 
+    #ssl_verify: yes
+    enable: yes
 
   my_elastic:
-      type: elastic_http_json
-      url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
-      ssl_verify: yes
-      #http_proxy: http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
-      #https_proxy: https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
-      http_code:         # succes response ; default None
-      send_rawdata: yes
-      rawdata_prefix : raw
-      enable: yes
+    type: elastic_http_json
+    send_rawdata: yes
+    rawdata_prefix : raw
+    url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@]proxyhost:port
+    #https_proxy: https://[login[:pass]@]proxyhost:port
+    #http_code: 201
+    #ssl_verify: yes
+    enable: yes
 
   # influxdb V1 & V2
   my_influxdb:
-      type: influxdb
-      url: http://10.10.10.13:8086/write?db=cmt&u=cmt&p=mysecret
-      token: toto
-      #username: cmt
-      #password : mysecret
-      # timestamp : msec, sec, nsec ; anything else, no timestamp
-      time_format: msec
-      batch: yes
-      single_measurement: yes
-      send_tags: yes
-      send_rawdata: no
-      rawdata_prefix : raw      
-      #http_proxy: http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
-      #https_proxy: https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
-      ssl_verify: yes
-      http_code:         # succes response ; default None
-      enable: yes
+    type: influxdb
+    url: http://10.10.10.13:8086/write?db=cmt&u=cmt&p=mysecret
+    token: toto
+    #username: cmt
+    #password : mysecret
+    # timestamp : msec, sec, nsec ; anything else, no timestamp
+    time_format: msec
+    batch: yes
+    single_measurement: yes
+    send_tags: no
+    send_rawdata: no
+    rawdata_prefix : raw      
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@]proxyhost:port
+    #https_proxy: https://[login[:pass]@]proxyhost:port 
+    #ssl_verify: yes
+    #http_code: 204
+    enable: yes
 
 
 # Pager section
@@ -95,6 +96,12 @@ pagers:
     type: teams 
     mode: managed
     url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@proxyhost:port
+    #https_proxy: https://[login[:pass]]@proxyhost:port 
+    #http_code: 200
+    #ssl_verify: yes
+    #rate_limit: 7200
     enable: yes
 
   mypagerduty:
@@ -102,6 +109,12 @@ pagers:
     mode: allnotifications
     url: https://events.pagerduty.com/v2/enqueue
     key: XXXXXXXXXXXXXXXXXXXXXXXx
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@proxyhost:port
+    #https_proxy: https://[login[:pass]]@proxyhost:port 
+    #ssl_verify: yes
+    #http_code: 202
+    #rate_limit: 7200
     enable: yes
 
 
@@ -112,9 +125,9 @@ pagers:
 # module_name:
 #
 #   checkname:
-#      [enable]           : timerange ; default yes ; yes, no, before, after, hrange, ho, hno
+#      [enable]           : timerange ; default yes
+#      [severity_max]     : critical, error, warning, notice, none
 #      [enable_pager]     : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
-#      [alert_max_level]  : alert, warn, notice, none (scale down)  ; overwrites global & module entry
 #      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
 #      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
 #      [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
@@ -128,7 +141,6 @@ load:
 
   myload:
     enable: yes
-    alert_max_level: alert
     severity_max: warning
     threshold1: 10.3
     threshold5: 8.4
@@ -139,7 +151,6 @@ cpu:
 
   mycpu:
     enable: yes
-    alert_max_level: alert
     severity_max: warning
 
 
@@ -147,7 +158,6 @@ memory:
 
   mymemory:
     enable: yes
-    alert_max_level: alert
     frequency: 10
     # percent
     threshold: 80.5
@@ -158,7 +168,6 @@ boottime:
 
   myboottime:
     enable: yes
-    alert_max_level: alert
     # days
     threshold: 180
     severity_max: warning
@@ -166,7 +175,6 @@ boottime:
 swap:
   myswap:
     enable: yes
-    alert_max_level: warn
     # percent
     threshold: 11.3
     severity_max: warning
@@ -193,6 +201,8 @@ url:
     allow_redirects: yes
     ssl_verify: yes
     #host: toto
+    #http_proxy: XXX
+    #https_proxy: XXX
     severity_max: warning
 
   www_non_existing:
@@ -250,6 +260,11 @@ mount:
     path: /mnt
     severity_max: warning
 
+
+  mount_critical:
+    path: /critical
+    severity_max: critical
+    enable_pager: yes
 
 # ---------
 process:
@@ -314,7 +329,6 @@ folder:
   test_recursive100:
     path: /opt/cmt/testdata/arbo100
     severity_max: critical
-    alert_max_level: alert
     recursive: yes
 
   test_extension:
@@ -507,7 +521,6 @@ mysql:
           #  socket   = /var/run/mysqld/mysqld.sock
       is_slave: yes
       max_behind: 300
-      alert_max_level: notice
       alert_delay: 300
       severity_max: warning
 

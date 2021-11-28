@@ -43,15 +43,18 @@ class Check():
 
         self.message = []
 
-        self.alert = 0
-        self.warn = 0
-        self.notice = 0
-        # self.notification = alert + warn + notice
+        # new 2.0 - rawdata / multi-events (sendfile, mysqldata)
+        self.multievent = []
 
-        # new 2.0 
+        # list of individual points of data
+        self.checkitems = []
+        
+        # fields from conf
+        self.conf = conf
+
 
         # severity : 1=critical, 2=error, 3=warning, 4=notice, 5=none
-        # set by modules ; shifted by severity_max 
+        # set by modules ; shifted by severity_max configuration
         self.severity = cmt.SEVERITY_NONE # DEFAULT = nothing wrong  
 
         # severity_max  ; default = critical
@@ -70,31 +73,15 @@ class Check():
         else:
             debug("Unknown sevrity_max {} in ({},{}) - default to critical.".format(a,module,check) )
 
-        # new 2.0 - rawdata / multi-events (sendfile, mysqldata)
-        self.multievent = []
-
-        # list of individual points of data
-        self.checkitems = []
-
-        # set by framework after Check is performed, if pager_enable and alert>0
+        # events/transition : NEW, ACTIVE, DOWN, NONE - computed (hysteresis, delay)
+        self.alert = 0
+        # set by framework after Check is performed, if pager_enable and alert ! NONE
         self.pager = False
-
-        # fields from conf
-        self.conf = conf
 
         # persist values from previous run for same get_id()
         id = self.get_id()
         self.persist = cmt.PERSIST.get_key(id, {})
 
-        # alert_max_level
-        self.alert_max_level = "alert"   # DEFAULT
-        # at the individual check level ?
-        a = conf.get('alert_max_level', '')
-        if a in ['alert', 'notice', 'warn', 'none']:
-            self.alert_max_level = a
-        else:
-            # global level ?
-            self.alert_max_level = cmt.CONF['global'].get('alert_max_level', 'none')
 
     def add_message(self, m):
 
@@ -108,17 +95,6 @@ class Check():
         ''' Returns unique check id '''
         return "{}.{}.{}.{}".format(self.group, self.node, self.module, self.check)
 
-    def get_notification(self):
-        #return int(self.alert + self.warn + self.notice)
-        # NEW V 1.6
-        # notification is 1/2/3 if alert/warn/notice
-        if self.alert > 0:
-            return 1
-        if self.warn > 0:
-            return 2
-        if self.notice > 0:
-            return 3
-        return 0
 
     def get_message_as_str(self):
 
@@ -184,8 +160,9 @@ class Check():
             - consecutire no_alert (idem) needed to define return to noalert
         '''
 
-        # seconds for state transition normal to alert (if alert)
-        alert_delay = conf.get_hysteresis(self)
+        # config : alert_delay : seconds for state transition normal to alert (if alert)
+        global_alert_delay = int(cmt.CONF['global'].get("alert_delay", cmt.DEFAULT_HYSTERESIS_ALERT_DELAY ))
+        alert_delay = int(self.conf.get("alert_delay", global_alert_delay))
 
         hystpersist = cmt.PERSIST.get_key("hysteresis", {})
         id = self.get_id()
@@ -251,7 +228,7 @@ class Check():
         if self.alert != cmt.ALERT_NONE:
             tr = self.conf.get('enable_pager', "no")
             if conf.is_timeswitch_on(tr):
-                debug("pager for check ", self.get_id())
+                debug("pager active for check ", self.get_id())
                 self.pager = True
 
     # --------------
@@ -266,6 +243,32 @@ class Check():
         if self.alert == cmt.ALERT_DOWN:
             return '(-) '
         return '(?) '
+
+    def get_alert_label(self):
+
+        if self.alert == cmt.ALERT_NONE:
+            return 'NONE'
+        if self.alert == cmt.ALERT_NEW:
+            return 'NEW'
+        if self.alert == cmt.ALERT_ACTIVE:
+            return 'ACTIVE'
+        if self.alert == cmt.ALERT_DOWN:
+            return 'DOWN'
+        return '?'
+
+    def get_severity_label(self):
+
+        if self.severity == cmt.SEVERITY_CRITICAL:
+            return "CRITICAL"
+        elif self.severity == cmt.SEVERITY_ERROR:
+            return "ERROR"
+        elif self.severity == cmt.SEVERITY_WARNING:
+            return "WARNING"
+        elif self.severity == cmt.SEVERITY_NOTICE:
+            return "NOTICE"
+        else:
+            return "NONE"
+
 
     def print_to_cli_skipped(self):
 

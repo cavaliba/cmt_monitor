@@ -4,7 +4,7 @@ title: version
 
 # Releases
 
-## 2.1 - 2021/11/27 / TO BE RELEASED
+## 2.1 - 2021/11/28
 
     bug: module disks : missing include for severity handling
     bug: incorrect version display (2.0 , expected 2.1beta>2.1)
@@ -13,7 +13,9 @@ title: version
     feat: display alert transitions (new.active.down) in CLI output
     feat: http_proxy and https_proxy option in global, metrology and pager entries 
     feat: http_code option for metrology/pager entries (success response code)
-
+    rewrite Pager module ; per pager rate_limit ; managed/allnotifications mode
+    pager rate_limit option by pager/in pager configuration only
+    nopersist ARG for CLI : ignore previous run, hysteresis/delay for alerts
 
 ## 2.1beta - 2021/11/21
 

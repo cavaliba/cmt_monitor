@@ -286,18 +286,21 @@ def is_timeswitch_on(myconfig):
     return False
 
 
-
-def get_hysteresis(check):
-    ''' return configuration for alert_delay, resume_delay
-        with inheritance: check, module, global, DEFAULT.
+def get_proxies(conf):
+    ''' 
+    Get global and local (check) proxies configuration. Local overrides Global.
+    Use noenv http_proxy option to ignore OS/ENV proxies  and use direct access.
     '''
-
-    alert_delay = 0
-
-    if "alert_delay" in check.conf:
-        alert_delay = int(check.conf["alert_delay"])
-
-    else:
-        alert_delay = cmt.CONF['global'].get("alert_delay", cmt.DEFAULT_HYSTERESIS_ALERT_DELAY )
-
-    return alert_delay
+    proxies = {} 
+    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_http_proxy = conf.get('http_proxy',my_global_http_proxy)
+    my_https_proxy = conf.get('https_proxy',my_global_https_proxy) 
+    if my_http_proxy != "":
+        proxies["http"] = my_http_proxy
+    if my_https_proxy != "":
+        proxies["https"] = my_https_proxy
+    noenv = False
+    if my_http_proxy == "noenv":
+        noenv = True
+    return proxies, noenv   

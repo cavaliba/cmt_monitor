@@ -117,7 +117,25 @@ def send_metrology_batch():
             # no batch mode for other metrotype
 
 
-
+def get_proxies(metroconf):
+    ''' 
+    Get global and local (check) proxies configuration. Local overrides Global.
+    Use noenv http_proxy option to ignore OS/ENV proxies  and use direct access.
+    '''
+    proxies = {} 
+    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_http_proxy = metroconf.get('http_proxy',my_global_http_proxy)
+    my_https_proxy = metroconf.get('https_proxy',my_global_https_proxy) 
+    if my_http_proxy != "":
+        proxies["http"] = my_http_proxy
+    if my_https_proxy != "":
+        proxies["https"] = my_https_proxy
+    noenv = False
+    if my_http_proxy == "noenv":
+        noenv = True
+    #     cmt.SESSION.trust_env = False
+    return proxies, noenv    
 
 # ------------------------------------------------------------
 # GRAYLOG GELF 
@@ -224,24 +242,13 @@ def graylog_send_http_gelf(metroconf={}, data=""):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
     url = metroconf.get('url','http://localhost/')
-    ssl_verify = metroconf.get("ssl_verify", False) is True
-    http_code = metroconf.get("http_code", 0)
+    ssl_verify = metroconf.get("ssl_verify", True) is True
+    http_code = metroconf.get("http_code", 202)
+    proxies, proxy_noenv = get_proxies(metroconf)
 
-    # default : use env proxies
-    # if "http_proxy:noenv" remove env proxies
-    # else use specified proxies
-    proxies = {} 
-    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
-    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
-    my_http_proxy = metroconf.get('http_proxy',my_global_http_proxy)
-    my_https_proxy = metroconf.get('https_proxy',my_global_https_proxy) 
-    if my_http_proxy != "":
-        proxies["http"] = my_http_proxy
-    if my_https_proxy != "":
-        proxies["https"] = my_https_proxy
-    # if my_http_proxy == "noenv":
-    #     cmt.SESSION.trust_env = False
-    #     proxies = {}
+    if proxy_noenv:
+         cmt.SESSION.trust_env = False
+         proxies={}
 
     if cmt.GRAYLOG_HTTP_SUSPENDED:
         logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
@@ -263,13 +270,14 @@ def graylog_send_http_gelf(metroconf={}, data=""):
     except Exception as e:
         logit("Error - couldn't send graylog message (http/gelf) to {} - {}".format(url, e))
         cmt.GRAYLOG_HTTP_SUSPENDED = True
+        return
 
     if http_code>0:
         if r.status_code != http_code:
-            logit("Alert couldn't send to Graylog HTTP - response  " + str(r))
-            return False
+            logit("Alert couldn't send to Graylog HTTP - bad response: " + str(r))
+            return
 
-
+    return
 
 # ------------------------------------------------------------
 # ElasticSearch
@@ -347,24 +355,13 @@ def elastic_send_http_json(metroconf={}, data=""):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
     url = metroconf.get('url','http://localhost/')
-    ssl_verify = metroconf.get("ssl_verify", False) is True
-    http_code = metroconf.get("http_code", 0)
+    ssl_verify = metroconf.get("ssl_verify", True) is True
+    http_code = metroconf.get("http_code", 201)
+    proxies, proxy_noenv = get_proxies(metroconf)
 
-    # default : use env proxies
-    # if "http_proxy:noenv" remove env proxies
-    # else use specified proxies
-    proxies = {} 
-    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
-    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
-    my_http_proxy = metroconf.get('http_proxy',my_global_http_proxy)
-    my_https_proxy = metroconf.get('https_proxy',my_global_https_proxy) 
-    if my_http_proxy != "":
-        proxies["http"] = my_http_proxy
-    if my_https_proxy != "":
-        proxies["https"] = my_https_proxy
-    # if my_http_proxy == "noenv":
-    #     cmt.SESSION.trust_env = False
-    #     proxies = {}
+    if proxy_noenv:
+         cmt.SESSION.trust_env = False
+         proxies={}
 
     if cmt.METROLOGY_HTTP_SUSPENDED:
         logit("suspended - HTTP graylog message (http/gelf) not sent to " + str(url))
@@ -386,13 +383,14 @@ def elastic_send_http_json(metroconf={}, data=""):
     except Exception as e:
         logit("Error - couldn't send elastic message (http/json) to {} - {}".format(url, e))
         cmt.METROLOGY_HTTP_SUSPENDED = True
-
+        return
 
     if http_code>0:
         if r.status_code != http_code:
-            logit("Alert couldn't send to Elastic - response  " + str(r))
-            return False
+            logit("Alert couldn't send to Elastic - bad response: " + str(r))
+            return
 
+    return
 
 # ------------------------------------------------------------
 # InfluxDB V1 & V2
@@ -411,6 +409,8 @@ def build_influxdb_message(check, metroconf, index=None):
 
     influx_data = ''
 
+    # measurement section
+    # -------------------
     # cmt,cmt_module=XX,cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
     # cmt_{module},cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
     if single_measurement:
@@ -420,15 +420,13 @@ def build_influxdb_message(check, metroconf, index=None):
 
     # tag section
     # ------------
-    # global tags + none datapoints checkitems + cmt conf tags   + alert/trigger/notifications
 
     # global tags
     influx_data += ',cmt_group={},cmt_node={},cmt_check={},cmt_node_env={}'.format(
         check.group,
         check.node,
         check.check,
-        check.node_env
-    )
+        check.node_env)
 
     # none datapoint checkitems tags
     for item in check.checkitems:
@@ -516,9 +514,8 @@ def build_influxdb_message(check, metroconf, index=None):
     elif time_format == 'nsec':
         influx_data += " {}".format(round(tsms) * 1000000)
     else:
-        pass    # no timestamp ; provided by influxdb server
+        pass    # no timestamp ; will be provided by influxdb server
 
-    #return "cmt_test,cmt_node=test,cmt_group=test,cmt_check=mytest,cmt_node_env=test cmt_value1=1,cmt_value2=2 time"
     return influx_data
 
 
@@ -537,30 +534,18 @@ def influxdb_send_http(metroconf={}, data=""):
     username = metroconf.get('username','')
     password = metroconf.get('password','')
     token = metroconf.get('token','')
-    ssl_verify = metroconf.get("ssl_verify", False) is True
-    http_code = metroconf.get("http_code", 0)
+    ssl_verify = metroconf.get("ssl_verify", True) is True
+    http_code = metroconf.get("http_code", 204)
+    proxies, proxy_noenv = get_proxies(metroconf)
 
-    # default : use env proxies
-    # if "http_proxy:noenv" remove env proxies
-    # else use specified proxies
-    proxies = {} 
-    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
-    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
-    my_http_proxy = metroconf.get('http_proxy',my_global_http_proxy)
-    my_https_proxy = metroconf.get('https_proxy',my_global_https_proxy) 
-    if my_http_proxy != "":
-        proxies["http"] = my_http_proxy
-    if my_https_proxy != "":
-        proxies["https"] = my_https_proxy
-    # if my_http_proxy == "noenv":
-    #     cmt.SESSION.trust_env = False
-    #     proxies = {}
+    if proxy_noenv:
+         cmt.SESSION.trust_env = False
+         proxies={}
 
     if cmt.METROLOGY_INFLUXDB_SUSPENDED:
         logit("suspended - INFLUXDB message suspended/not sent to " + str(url))
         return
 
-    #print("********************************",cmt.ARGS['devmode'])
     if cmt.ARGS['devmode']:
         print("DEVMODE : INFLUXDB : ", url)
         print(data)
@@ -602,11 +587,12 @@ def influxdb_send_http(metroconf={}, data=""):
     except Exception as e:
         logit("Error - couldn't send INFLUXDB message to {} - {}".format(url, e))
         cmt.METROLOGY_INFLUXDB_SUSPENDED = True
-
+        return
 
     if http_code>0:
         if r.status_code != http_code:
-            logit("Alert couldn't send to PagerDuty - response  " + str(r))
-            return False
+            logit("Alert couldn't send to PagerDuty - bad response: " + str(r))
+            return
 
+    return
 

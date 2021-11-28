@@ -55,6 +55,8 @@ if __name__ == "__main__":
 
     # Persist
     cmt.PERSIST = persist.Persist(file=cmt.DEFAULT_PERSIST_FILE)
+    if cmt.ARGS["nopersist"]:
+        cmt.PERSIST.dict={}
     lastrun = cmt.PERSIST.get_key("cmt_last_run", 0)
 
     # remote conf (url) or cached conf
@@ -74,7 +76,7 @@ if __name__ == "__main__":
 
     # CLI : Send test message to Pagers ?
     if cmt.ARGS["pagertest"]:
-        pager.sendtest()
+        pager.send_test()
         sys.exit()
 
     # CLI : List available modules option ?
@@ -114,11 +116,7 @@ if __name__ == "__main__":
      # -- end of check loop --
 
     # display report recap to CLI
-    if cmt.ARGS['short']:
-        myreport.print_line_summary()
-    else:
-        myreport.print_recap()
-        myreport.print_line_summary()
+    myreport.print_line_summary()
 
     # send batch metrology if needed
     if cmt.ARGS['cron'] or cmt.ARGS["report"]:
@@ -126,7 +124,7 @@ if __name__ == "__main__":
 
     # send alerts to pagers
     if cmt.ARGS['cron'] or cmt.ARGS["pager"]:
-        pager.sendreal(myreport)
+        pager.send_real(myreport)
 
     # persist data across runs
     cmt.PERSIST.set_key("cmt_last_run", int(time.time()))

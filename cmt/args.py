@@ -39,6 +39,8 @@ def parse_arguments(myargs):
                         action='store_true', required=False)
     parser.add_argument('--no-pager-rate-limit', help='disable pager rate limit',
                         action='store_true', required=False)
+    parser.add_argument('--nopersist', help='dont load previous run infos',
+                        action='store_true', required=False)
 
     parser.add_argument('--checkconfig', help='checkconfig and exit',
                         action='store_true', required=False)
