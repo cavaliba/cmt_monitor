@@ -17,9 +17,9 @@ def check(c):
 
     global cpu_count
 
-    threshold1 = c.conf.get('threshold1',5)
-    threshold5 = c.conf.get('threshold5',2)
-    threshold15 = c.conf.get('threshold15',1)
+    threshold1 = c.conf.get('threshold1',6)
+    threshold5 = c.conf.get('threshold5',4)
+    threshold15 = c.conf.get('threshold15',2)
 
 
     cpu_count = os.cpu_count()
@@ -46,17 +46,17 @@ def check(c):
     # alerts ?
     if is_above_threshold(load[2], threshold15):
         c.severity = cmt.SEVERITY_CRITICAL
-        c.add_message("load-15/cpu is above threshold : {} > {} ({} cpus)".format(load[2], threshold15 * cpu_count, cpu_count))
+        c.add_message("load-15/cpu is above threshold : {} > {} x {} CPUs".format(load[2], threshold15, cpu_count))
         return c
 
     if is_above_threshold(load[1], threshold5):
         c.severity = cmt.SEVERITY_CRITICAL
-        c.add_message("load-5/cpu is above threshold : {} > {} ({} cpus)".format(load[1], threshold5 * cpu_count, cpu_count))
+        c.add_message("load-5/cpu is above threshold : {} > {} x {} CPUs".format(load[1], threshold5, cpu_count))
         return c
 
     if is_above_threshold(load[0], threshold1):
         c.severity = cmt.SEVERITY_CRITICAL
-        c.add_message("load-1/cpu is above threshold : {} > {} ({} cpus)".format(load[0], threshold1 * cpu_count, cpu_count))
+        c.add_message("load-1/cpu is above threshold : {} > {} x {} CPUs".format(load[0], threshold1, cpu_count))
         return c
 
     # all OK

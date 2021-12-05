@@ -14,71 +14,53 @@ title: check_load
   	  myload:
   	     enable: yes
   	     enable_pager: no
-  	     security_max: warn
-  	     threshold1: 8.2
-        threshold5: 4.3
-        threshold15: 3.5
+  	     security_max: warning
+  	     threshold1: 6.0
+        threshold5: 4.0
+        threshold15: 2.0
 
-## Additional parameters
 
-*New V1.6*
+    threshold1: raise an alert if load 1 minute is above this value (multiplied by the number of available CPUs)
+    threshold5: raise an alert if load 5 minutes is above this value (id.)
+    threshold15: raise an alert if load 15 minutes is above this value (id.)
 
-   threshold1: raise an alert if load 1 minute is above this value
-   threshold5: raise an alert if load 5 minutes is above this value
-   threshold15: raise an alert if load 15 minutes is above this value
-
-default values : 999999 (no alert !)
-
-Note: should be adjusted to a multiple of the number of vCPU.
-
+default values : 6, 4 and 2.
 
 ## Alerts and severity
 
-Alert can be adjusted with common `enable_pager` and `severity_max` options.
+By default, severity is either CRITICAL or NONE.
+
+Severity can be adjusted with common `severity_max` option.
 
 
 ## Output to Metrology
 
 This module sends one message with the following fields:
 
-	cmt_check: load
-	+
-	cmt_load1:  #float - value of 1 minute Load Average
-	cmt_load5:  #float - value of 5 minute Load Average
-	cmt_load15: #float - value of 15 minute Load Average
+	cmt_module:    load
 
-## Errors
-
-	------------------------------------------------------------
-	CMT - (c) cavaliba.com - Version 1.6-alpha - 2021/03/28
-	------------------------------------------------------------
-	cmt_group      :  cavaliba
-	cmt_node       :  vmxupm
-	config file    :  ./conf.yml
-
-	oooo 0.43 10.3
-	oooo 0.29 8.4
-	oooo 0.33 0.01
-
-	Check load 
-	cmt_tag_global_tag1      1
-	cmt_tag_global_tag2      value2
-	cmt_load1                0.43 - CPU Load Average, one minute
-	cmt_load5                0.29 - CPU Load Average, 5 minutes
-	cmt_load15               0.33 - CPU Load Average, 15 minutes
-	NOK                      load15 above threshold : 0.33 > 0.01 
-
-   NOK  load15 above threshold : 0.33 > 0.01 
-
-## CLI usage and output
+	cmt_check:     name of the check
+	cmt_load_cpu:  int - number of available CPUs detected
+	cmt_load1:     float - value of 1 minute Load Average
+	cmt_load5:     float - value of 5 minute Load Average
+	cmt_load15:    float - value of 15 minute Load Average
 
 
-	/dev/cmt_monitor$ ./cmt.py load
 
-	Check load 
-	cmt_load1              0.55  ()  - CPU Load Average, one minute
-	cmt_load5              0.57  ()  - CPU Load Average, 5 minutes
-	cmt_load15             0.6  ()  - CPU Load Average, 15 minutes
-	OK                     1/5/15 min : 0.55  0.57  0.6
+# CLI OUTPUT
+
+   $ cmt load
+
+
+	------------------------------------------------------------------
+	load myload
+	------------------------------------------------------------------
+	cmt_load_cpu             2 - Available CPUs
+	cmt_load1                0.3 - CPU Load Average, one minute
+	cmt_load5                6.11 - CPU Load Average, 5 minutes
+	cmt_load15               7.78 - CPU Load Average, 15 minutes
+	CRITICAL ( )  : load-15/cpu is above threshold : 7.78 > 2 (x 2 cpus)
+
+	2021/12/05 - 19:55:58 : SEVERITY=CRITICAL - 0/1 OK (0 %) - 1 NOK : 1 criticial - 0 error - 0 warning - 0 notice.
 
 
