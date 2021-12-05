@@ -19,11 +19,11 @@ def check(c):
 
     threshold1 = c.conf.get('threshold1',5)
     threshold5 = c.conf.get('threshold5',2)
-    threshold15 = c.conf.get('threshold15',1.5)
+    threshold15 = c.conf.get('threshold15',1)
 
 
     cpu_count = os.cpu_count()
-    l = checkitem.CheckItem('cpu_count',cpu_count)
+    l = checkitem.CheckItem('load_cpu',cpu_count)
     l.description='Available CPUs'
     c.add_item(l)
 
