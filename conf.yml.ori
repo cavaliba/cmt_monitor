@@ -1,6 +1,7 @@
 ---
 # Cavaliba / cmt_monitor / conf.yml
-# CMT Version: 2.1
+
+# CMT Version: 2.2
 
 
 # Example configuration / template 
@@ -142,10 +143,10 @@ load:
   myload:
     enable: yes
     severity_max: warning
-    threshold1: 10.3
-    threshold5: 8.4
-    threshold15: 4.4
-    tags: local1 local2=43
+    threshold1: 6.0
+    threshold5: 4.0
+    threshold15: 2.0
+    #tags: local1 local2=43
 
 cpu:
 

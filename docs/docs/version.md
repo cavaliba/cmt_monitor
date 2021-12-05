@@ -4,6 +4,17 @@ title: version
 
 # Releases
 
+## 2.2 - on-going
+
+    bug: cmt_severity is int ; no quote in metrology
+    feature: CLI output cosmetic
+    feature: new metrology fields (severity, alert) for human display 
+    feature: add --pager option to CLI to limit pagers (for tests , or cron ...)
+    change: previous CLI option  --pager is now --pager_enable
+    change: previous CLI option  --pagertest is now --pager_test
+    feature: module Load uses os.cpu_count to estimate alert
+
+
 ## 2.1 - 2021/11/28
 
     feat: display alert transitions (new.active.down) in CLI output
