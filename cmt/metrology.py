@@ -200,7 +200,7 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
 
 
         graylog_data += ',"cmt_alert":{}'.format(check.alert)
-        graylog_data += ',"cmt_severity":"{}"'.format(check.severity)
+        graylog_data += ',"cmt_severity":{}'.format(check.severity)
 
 
     # all messages
@@ -341,7 +341,7 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
 
 
         json_data += ',"cmt_alert":{}'.format(check.alert)
-        json_data += ',"cmt_severity":"{}"'.format(check.severity)
+        json_data += ',"cmt_severity":{}'.format(check.severity)
 
     json_data = '{' + json_data + '}'
     return json_data
