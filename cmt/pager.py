@@ -15,8 +15,13 @@ import conf
 def send_test():
     ''' send TEST alert to all pagers. '''
 
-    for pager in cmt.CONF['pagers']:
 
+    for pager in cmt.CONF['pagers']:
+        
+        if cmt.ARGS["pager"]:
+            if pager not in cmt.ARGS["pager"][0]:
+                continue
+        
         pagerconf = cmt.CONF['pagers'][pager]
         pagertype = pagerconf.get('type', 'unknown')
 
@@ -24,9 +29,9 @@ def send_test():
             message, content = teams_build_test_message()
             r = teams_send_message(message=message, pagerconf=pagerconf)
             if r:
-                logit("Pager Teams {} : test OK".format(pager))
+                logit("Pager Teams <{}> : test OK".format(pager))
             else:
-                logit("Pager Teams {} : test FAILED".format(pager))
+                logit("Pager Teams <{}> : test FAILED".format(pager))
 
         elif pagertype == "pagerduty":
             message, content = pagerduty_build_test_message(pagerconf=pagerconf)
@@ -61,6 +66,10 @@ def send_real(report):
     persist_last_timestamps = cmt.PERSIST.get_key("pager_last_timestamps", {})
 
     for pager in cmt.CONF['pagers']:
+
+        if cmt.ARGS["pager"]:
+            if pager not in cmt.ARGS["pager"][0]:
+                continue
 
         debug("Processing pager {}".format(pager))
         pagerconf = cmt.CONF['pagers'][pager]        

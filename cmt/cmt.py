@@ -75,7 +75,7 @@ if __name__ == "__main__":
         sys.exit()
 
     # CLI : Send test message to Pagers ?
-    if cmt.ARGS["pagertest"]:
+    if cmt.ARGS["pager_test"]:
         pager.send_test()
         sys.exit()
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         metrology.send_metrology_batch()
 
     # send alerts to pagers
-    if cmt.ARGS['cron'] or cmt.ARGS["pager"]:
+    if cmt.ARGS['cron'] or cmt.ARGS["pager_enable"]:
         pager.send_real(myreport)
 
     # persist data across runs

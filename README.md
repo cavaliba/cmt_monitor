@@ -1,7 +1,7 @@
 CAVALIBA - CMT Monitor 
 ======================
 
-(c) Cavaliba.com 2020-2021  - Version 2.1 - 2021/11/28
+(c) Cavaliba.com 2020-2021  - Version 2.2 - 2021/12
 
 
 CMT Monitor is a simple software agent to :

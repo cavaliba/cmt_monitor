@@ -201,6 +201,8 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
 
         graylog_data += ',"cmt_alert":{}'.format(check.alert)
         graylog_data += ',"cmt_severity":{}'.format(check.severity)
+        graylog_data += ',"alert":"{}"'.format(cmt.get_alert_label(check.alert))
+        graylog_data += ',"severity":"{}"'.format(cmt.get_severity_label(check.severity))
 
 
     # all messages
@@ -342,6 +344,8 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
 
         json_data += ',"cmt_alert":{}'.format(check.alert)
         json_data += ',"cmt_severity":{}'.format(check.severity)
+        json_data += ',"alert":"{}"'.format(cmt.get_alert_label(check.alert))
+        json_data += ',"severity":"{}"'.format(cmt.get_severity_label(check.severity))
 
     json_data = '{' + json_data + '}'
     return json_data
@@ -449,6 +453,9 @@ def build_influxdb_message(check, metroconf, index=None):
     # severity, alert
     influx_data += ',cmt_alert={}'.format(check.alert)
     influx_data += ',cmt_severity={}'.format(check.severity)
+    influx_data += ',alert="{}"'.format(cmt.get_alert_label(check.alert))
+    influx_data += ',severity="{}"'.format(cmt.get_severity_label(check.severity))
+
 
     # field section
     # ------------
@@ -498,6 +505,8 @@ def build_influxdb_message(check, metroconf, index=None):
             influx_data += ','
         influx_data += 'cmt_alert={}'.format(check.alert)
         influx_data += ',cmt_severity={}'.format(check.severity)
+        influx_data += ',alert="{}"'.format(cmt.get_alert_label(check.alert))
+        influx_data += ',severity="{}"'.format(cmt.get_severity_label(check.severity))
 
 
     # timestamp section
@@ -589,7 +598,7 @@ def influxdb_send_http(metroconf={}, data=""):
 
     if http_code>0:
         if r.status_code != http_code:
-            logit("Alert couldn't send to PagerDuty - bad response: " + str(r))
+            logit("Alert couldn't send to InfluxDB - bad response: " + str(r))
             return
 
     return
