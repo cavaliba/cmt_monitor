@@ -71,7 +71,7 @@ class Check():
         elif a == 'none':
             self.severity_max = cmt.SEVERITY_NONE
         else:
-            debug("Unknown sevrity_max {} in ({},{}) - default to critical.".format(a,module,check) )
+            logit("Unknown severity_max {} in ({},{}) - default to critical.".format(a,module,check) )
 
         # events/transition : NEW, ACTIVE, DOWN, NONE - computed (hysteresis, delay)
         self.alert = 0
@@ -231,82 +231,56 @@ class Check():
                 debug("pager active for check ", self.get_id())
                 self.pager = True
 
-    # --------------
-    def get_alert_symbol(self):
-
-        if self.alert == cmt.ALERT_NONE:
-            return '( ) '
-        if self.alert == cmt.ALERT_NEW:
-            return '(+) '
-        if self.alert == cmt.ALERT_ACTIVE:
-            return '(=) '
-        if self.alert == cmt.ALERT_DOWN:
-            return '(-) '
-        return '(?) '
-
-    def get_alert_label(self):
-
-        if self.alert == cmt.ALERT_NONE:
-            return 'NONE'
-        if self.alert == cmt.ALERT_NEW:
-            return 'NEW'
-        if self.alert == cmt.ALERT_ACTIVE:
-            return 'ACTIVE'
-        if self.alert == cmt.ALERT_DOWN:
-            return 'DOWN'
-        return '?'
-
-    def get_severity_label(self):
-
-        if self.severity == cmt.SEVERITY_CRITICAL:
-            return "CRITICAL"
-        elif self.severity == cmt.SEVERITY_ERROR:
-            return "ERROR"
-        elif self.severity == cmt.SEVERITY_WARNING:
-            return "WARNING"
-        elif self.severity == cmt.SEVERITY_NOTICE:
-            return "NOTICE"
-        else:
-            return "NONE"
 
 
     def print_to_cli_skipped(self):
 
         alert = '(?) '
+        head = bcolors.WHITE  + alert + "SKIPPED" + bcolors.ENDC
+        print('------------------------------------------------------------------')
+        print("{:12}  {:12} {} {}".format(head, self.module, self.check, self.result_info))
+        print('------------------------------------------------------------------')
 
-        head = bcolors.WHITE      + alert + "SKIPPED" + bcolors.ENDC
-        #print()
-        print("{:12}  module={} check={} : {}".format(head, self.module, self.check, self.result_info))
-        #print()
-        #check_result.result = "skip"         
-        #check_result.result_info = "must run as root"
-        #check_result.print_to_cli_skipped()
-
+        
 
     def print_to_cli_short(self):
 
-        alert = self.get_alert_symbol()
-
-        head = bcolors.OKGREEN     + alert + "OK      " + bcolors.ENDC
+        alert_symbol = cmt.get_alert_symbol(self.alert)
+        severity_label = cmt.get_severity_label(self.severity)
+        severity_label += ' ' * (8 - len(severity_label))
 
         if self.severity == cmt.SEVERITY_CRITICAL:
-            head = bcolors.FAIL  + bcolors.BOLD + alert + "CRITICAL" + bcolors.ENDC
+            head = bcolors.FAIL  + bcolors.BOLD
         elif self.severity == cmt.SEVERITY_ERROR:
-            head = bcolors.FAIL    + alert + "ERROR   " + bcolors.ENDC
+            head = bcolors.FAIL
         elif self.severity == cmt.SEVERITY_WARNING:
-            head = bcolors.WARNING + alert + "WARNING " + bcolors.ENDC
+            head = bcolors.WARNING
         elif self.severity == cmt.SEVERITY_NOTICE:
-            head = bcolors.CYAN    + alert + "NOTICE  " + bcolors.ENDC
+            head = bcolors.CYAN
+        else:
+            head = bcolors.OKGREEN
 
+        head = head + alert_symbol + severity_label + bcolors.ENDC
 
-        # print(head, self.get_message_as_str())
         print("{:12} {:12} {}".format(head, self.module, self.get_message_as_str()))
+
+
+    def print_to_cli_detail_head(self):
+
+        print('------------------------------------------------------------------')
+        print(bcolors.WHITE  + self.module, self.check +  bcolors.ENDC)
+        print('------------------------------------------------------------------')
 
 
     def print_to_cli_detail(self):
 
-        print()
-        print(bcolors.WHITE  + self.module, bcolors.ENDC)
+        alert_symbol = cmt.get_alert_symbol(self.alert)
+        severity_label = cmt.get_severity_label(self.severity)
+        severity_label += ' ' * (8 - len(severity_label))
+
+        # print('------------------------------------------------------------------')
+        # print(bcolors.WHITE  + self.module, self.check +  bcolors.ENDC)
+        # print('------------------------------------------------------------------')
 
         for i in self.checkitems:
 
@@ -322,19 +296,21 @@ class Check():
             print("cmt_{:20} {}".format(i.name, v))
 
 
-        head = bcolors.OKGREEN + bcolors.BOLD    + "OK      " + bcolors.ENDC
-
         if self.severity == cmt.SEVERITY_CRITICAL:
-            head = bcolors.FAIL  + bcolors.BOLD  + "CRITICAL" + bcolors.ENDC
+            head = bcolors.FAIL  + bcolors.BOLD
         elif self.severity == cmt.SEVERITY_ERROR:
-            head = bcolors.FAIL  + bcolors.BOLD  + "ERR     " + bcolors.ENDC
+            head = bcolors.FAIL
         elif self.severity == cmt.SEVERITY_WARNING:
-            head = bcolors.WARNING + bcolors.BOLD+ "WARN    " + bcolors.ENDC
+            head = bcolors.WARNING
         elif self.severity == cmt.SEVERITY_NOTICE:
-            head = bcolors.CYAN   + bcolors.BOLD + "NOTICE  " + bcolors.ENDC
+            head = bcolors.CYAN
+        else:
+            head = bcolors.OKGREEN
 
+        head = head  + severity_label + ' ' + alert_symbol + bcolors.ENDC
 
-        print("{:37} {}".format(head, self.get_message_as_str()))
+        print("{} : {}".format(head, self.get_message_as_str()))
+
 
 
     def add_tags(self):
@@ -444,6 +420,15 @@ def perform_check(checkname, modulename):
 
     # Add tags/kv
     check_result.add_tags()
+
+
+
+    # Print to CLI
+    if cmt.ARGS['cron'] or cmt.ARGS['short']:
+        #check_result.print_to_cli_short()
+        pass
+    else:
+        check_result.print_to_cli_detail_head()
 
     # *********************************************************
     # **** ACTUAL CHECK IS DONE HERE ****

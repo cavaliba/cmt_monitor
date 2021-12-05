@@ -91,6 +91,19 @@ SEVERITY_WARNING = 3
 SEVERITY_NOTICE = 4
 SEVERITY_NONE = 5
 
+def get_severity_label(severity):
+
+    if severity == SEVERITY_CRITICAL:
+        return "CRITICAL"
+    elif severity == SEVERITY_ERROR:
+        return "ERROR"
+    elif severity == SEVERITY_WARNING:
+        return "WARNING"
+    elif severity == SEVERITY_NOTICE:
+        return "NOTICE"
+    else:
+        return "OK"
+
 # ------------------------
 # ALERTS events (trigger)
 # ------------------------
@@ -98,6 +111,32 @@ ALERT_NONE = 0
 ALERT_NEW = 1
 ALERT_ACTIVE = 2
 ALERT_DOWN = 3
+
+
+def get_alert_symbol(alert):
+
+    if alert == ALERT_NONE:
+        return '( ) '
+    if alert == ALERT_NEW:
+        return '(+) '
+    if alert == ALERT_ACTIVE:
+        return '(=) '
+    if alert == ALERT_DOWN:
+        return '(-) '
+    return '(?) '
+
+def get_alert_label(alert):
+
+    if alert == ALERT_NONE:
+        return 'OK'
+    if alert == ALERT_NEW:
+        return 'NEW'
+    if alert == ALERT_ACTIVE:
+        return 'ACTIVE'
+    if alert == ALERT_DOWN:
+        return 'DOWN'
+    return 'NA'
+
 
 
 # ------------------------
