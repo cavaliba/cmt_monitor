@@ -195,7 +195,7 @@ def teams_build_message(report, selected_alerts=[]):
             continue
         # kind of event transition  for this pager ?
         if c.alert in selected_alerts:
-            content += c.get_alert_symbol() + ' ' + c.get_alert_label() + ' - '
+            #content += c.get_alert_symbol() + ' ' + c.get_alert_label() + ' - '
             content += c.get_message_as_str()
             content += '<br>\n'
 
@@ -304,7 +304,7 @@ def pagerduty_build_message(report, pagerconf={}, selected_alerts=[]):
             continue
         # kind of event transition  for this pager ?
         if c.alert in selected_alerts:
-            content += c.get_alert_symbol() + ' ' + c.get_alert_label() + ' - '
+            #content += c.get_alert_symbol() + ' ' + c.get_alert_label() + ' - '
             content += c.get_message_as_str()
             content += ' ; '
 

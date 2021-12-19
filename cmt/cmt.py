@@ -7,6 +7,8 @@ import time
 import signal
 import json
 
+
+
 # global variables
 import globals as cmt
 import args
@@ -52,6 +54,12 @@ if __name__ == "__main__":
 
     # conf.yml,  conf.d/*.yml
     cmt.CONF = conf.load_conf()
+
+    # if cron mode, introduce a small uase (offset) tô spread the load on metrology servers
+    if cmt.ARGS['cron']:
+        mypause = conf.get_startoffset()
+        time.sleep(mypause)  
+
 
     # Persist
     cmt.PERSIST = persist.Persist(file=cmt.DEFAULT_PERSIST_FILE)

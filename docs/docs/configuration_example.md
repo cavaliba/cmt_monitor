@@ -22,6 +22,7 @@ title: configuration example
       cmt_node_role: dev_cmt
       cmt_node_location: Ladig
       enable: yes
+      start_offset: 2
       enable_pager: yes
       business_hours: 08:00:00 18:00:00
       #conf_url: http://localhost/txt/

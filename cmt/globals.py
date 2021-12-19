@@ -9,7 +9,7 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - (c) cavaliba.com - Version 2.2 - 2021/12"
+VERSION = "CMT - (c) cavaliba.com - Version 2.2 - 2021/12/19"
 VERSION_NUMBER = "2.2"
 
 # default ; can be overrided in configuration files
@@ -102,7 +102,7 @@ def get_severity_label(severity):
     elif severity == SEVERITY_NOTICE:
         return "NOTICE"
     else:
-        return "OK"
+        return "NONE"
 
 # ------------------------
 # ALERTS events (trigger)
@@ -128,7 +128,7 @@ def get_alert_symbol(alert):
 def get_alert_label(alert):
 
     if alert == ALERT_NONE:
-        return 'OK'
+        return 'NONE'
     if alert == ALERT_NEW:
         return 'NEW'
     if alert == ALERT_ACTIVE:

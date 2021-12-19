@@ -4,15 +4,17 @@ title: version
 
 # Releases
 
-## 2.2 - on-going
+## 2.2 - 2021/12/19 on-going
 
-    bug: cmt_severity is int ; no quote in metrology
     feature: CLI output cosmetic
     feature: new metrology fields (severity, alert) for human display 
     feature: add --pager option to CLI to limit pagers (for tests , or cron ...)
     change: previous CLI option  --pager is now --pager_enable
     change: previous CLI option  --pagertest is now --pager_test
     feature: module Load uses os.cpu_count to estimate alert
+    feature :  start_offset - new global option to delay start / spread the load on metrology servers (cron mode)
+    bug: cmt_severity is int ; no quote in metrology
+    bug: mutliline field values in elastic are now sent as single line (separator = ;)
 
 
 ## 2.1 - 2021/11/28

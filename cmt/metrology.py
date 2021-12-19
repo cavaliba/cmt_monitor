@@ -333,13 +333,26 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
 
         # check items key/values
         for item in check.checkitems:
-            try:
-                float(item.value)
-                json_data += ',"cmt_{}":{}'.format(item.name, item.value)
-            except ValueError:
-                json_data += ',"cmt_{}":"{}"'.format(item.name, item.value)
 
-            debug2("Build json data : ", str(item.name), str(item.value))
+
+            value2 = item.value
+            
+            if item.multiline:
+                #print("********************************** multi")
+                # not suitable for elastic line protocol    
+                value2 = value2.replace('\n', ' ; ')
+                value2 = value2.replace('\r', ' ')
+                # value2 = '["a","b","c"]'
+                # json_data += ',"cmt_{}":{}'.format(item.name, value2)
+                # continue 
+
+            try:
+                float(value2)
+                json_data += ',"cmt_{}":{}'.format(item.name, value2)
+            except ValueError:
+                json_data += ',"cmt_{}":"{}"'.format(item.name, value2)
+
+            debug2("Build json data : ", str(item.name), str(value2))
 
 
         json_data += ',"cmt_alert":{}'.format(check.alert)

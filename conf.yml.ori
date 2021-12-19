@@ -16,6 +16,7 @@ global:
   cmt_node_role: dev_cmt
   cmt_node_location: Ladig
   enable: yes
+  start_offset: 2
   enable_pager: yes
   alert_delay: 90
   business_hours: 08:00:00 18:00:00

@@ -78,6 +78,7 @@ The complete configuration for a CMT run has 5 sections :
 	  [cmt_node_role]      : string ; appli_front_1, db_3
 	  [cmt_node_location]  : string, geographical position
 	  [enable]             : timerange ; DEFAULT = yes; master switch (no inheritance below)
+	  [start_offset]       : int, seconds ; in cron mode, start is delayed by this or a calculated offset in seconds
 	  [enable_pager]       : timerange ; DEFAULT = no ; master switch (no inheritance)
 	  [business_hours]     : 08:30:00 17:30:00 (default) ; set min/max timerange for BH/HO and NBH/HNO hours
 	  [conf_url]           : https://.../api/  (/group_node.txt if url ends by /txt/) + ?group=group&node=node

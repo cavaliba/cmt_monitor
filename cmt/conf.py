@@ -8,6 +8,8 @@ import datetime
 import json
 import yaml
 import requests
+import hashlib
+
 
 import globals as cmt
 from logger import logit, debug, debug2
@@ -210,6 +212,31 @@ def conf_add_top_entries(conf):
 # conf utilities
 # ------------------------------------------------------------------------
 
+def md5String(data):
+    m=hashlib.md5()
+    data = data.encode('utf-8')
+    m.update(data)
+    return m.hexdigest() 
+
+
+def get_startoffset():
+
+    # try to get offset from conf
+    try:
+        offset = int(cmt.CONF['global']['start_offset'])
+        return offset % 60
+    except:
+        pass
+
+    # default to compute offset from group/node names
+    group = cmt.CONF['global'].get('cmt_group', 'nogroup')
+    node = cmt.CONF['global'].get('cmt_node', 'nonode')
+    data = group + node
+    hexdata = md5String(data)
+    firsthex = "0x"+hexdata[0:2]
+    pause = int(firsthex,0)
+    #print("HEXDATA = ",hexdata, firsthex, pause)
+    return pause % 60
 
 def is_timeswitch_on(myconfig):
     ''' check if a date/time time range is active
