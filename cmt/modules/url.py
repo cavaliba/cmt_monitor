@@ -1,4 +1,3 @@
-#import psutil
 
 import time
 import re
@@ -102,8 +101,17 @@ def check(c):
                 name,url, my_host, resp.status_code, my_http_code))
         return c
 
-    # check pattern
-    mysearch = re.search(pattern,resp.text)
+
+    # check for pattern, in page content AND in header
+    fulltext = ""
+    for k,v in resp.headers.items():
+        line = "{}: {}\n".format(k,v)
+        fulltext += line
+
+    fulltext += resp.text
+    #print(fulltext)
+
+    mysearch = re.search(pattern,fulltext)
     if not mysearch:
         ci = CheckItem('url_pattern','nok')
         c.add_item(ci)
@@ -115,7 +123,7 @@ def check(c):
         c.add_item(ci)
 
     # check pattern_reject
-    mysearch = re.search(pattern_reject,resp.text)
+    mysearch = re.search(pattern_reject,fulltext)
     if len(pattern_reject) > 0 and mysearch:
         ci = CheckItem('url_reject','nok')
         c.add_item(ci)
