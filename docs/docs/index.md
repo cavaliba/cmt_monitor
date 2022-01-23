@@ -4,7 +4,7 @@ title: Home
 
 # Welcome to CMT Documentation
 
-*Current release : 2.2 - 2021/12/19*
+*Current release : 2.3 - 2022/01/23*
 
 ## Overwiew - CMT is a simple monitoring agent
 
@@ -25,74 +25,72 @@ For sysadmin, CMT can be used as command line tool on each server during various
     $ cmt -s
 
     ------------------------------------------------------------
-    CMT - (c) cavaliba.com - Version 2.1 - 2021/11/28
+    CMT - (c) cavaliba.com - Version 2.3 - 2022/01/23
     ------------------------------------------------------------
     cmt_group      :  cavaliba
-    cmt_node       :  vmxupro
+    cmt_node       :  vmxu3
     config file    :  /opt/cmt/conf.yml
 
-    ( ) OK       boottime     boot : 0 days since last reboot - 1:43:57 sec.
-    ( ) OK       load         load 1/5/15 min : 0.42  0.19  0.12
-    (=) NOTICE   certificate  18 day(s) left for SSL certificate www.cavaliba.com:443
-    (=) WARNING  certificate  57 day(s) left for SSL certificate google.com:443
-    ( ) OK       certificate  340 day(s) left for SSL certificate duckduckgo.com:443
-    ( ) OK       certificate  no certificate found for duckduckgo.com:80
-    (=) NOTICE   certificate  53 day(s) left for SSL certificate yahoo.com:443
-    ( ) OK       cpu          cpu usage : 0.5 %
-    ( ) OK       disk         disk / - used: 24.4 % - used: 15.6 GB - free: 48.5 GB - total: 67.6 GB 
-    ( ) OK       disk         disk /boot - used: 24.4 % - used: 15.6 GB - free: 48.5 GB - total: 67.6 GB 
-    ( ) OK       folder       test_recursive100 /opt/cmt/testdata/arbo100 OK - 100 files, 10 dirs, 0 bytes - targets 0/0
-    ( ) OK       folder       test_extension /opt/cmt/testdata OK - 2 files, 16 dirs, 0 bytes - targets 0/0
-    ( ) OK       folder       test_regexp /opt/cmt/testdata OK - 2 files, 16 dirs, 0 bytes - targets 0/0
-    ( ) OK       folder       test_regexp_no_recurse /opt/cmt/testdata OK - 1 files, 6 dirs, 0 bytes - targets 0/0
-    ( ) OK       folder       test_regexp_ext /opt/cmt/testdata OK - 1 files, 16 dirs, 0 bytes - targets 0/0
-    (=) WARNING  folder       test_wrong_target /opt/cmt/testdata : unknown target is_blabla
-    ( ) OK       folder       test_hasfile /opt/cmt/testdata OK - 6 files, 6 dirs, 11004 bytes - targets 1/1
-    (+) CRITICAL folder       test_age_min /opt/cmt/testdata : some files are too young (5 sec)
-    (=) CRITICAL folder       test_age_max /opt/cmt/testdata : some files are too old (16946579 sec)
-    ( ) OK       folder       test_files_min /opt/cmt/testdata OK - 6 files, 6 dirs, 11004 bytes - targets 1/1
-    ( ) OK       folder       test_files_max /opt/cmt/testdata OK - 6 files, 6 dirs, 11004 bytes - targets 1/1
-    (=) CRITICAL folder       test_size_min /opt/cmt/testdata : too small (11004)
-    (=) CRITICAL folder       test_size_max /opt/cmt/testdata : too big (11004)
-    (-) OK       folder       test_has_recent /opt/cmt/testdata OK - 6 files, 6 dirs, 11004 bytes - targets 1/1
-    ( ) OK       folder       test_has_old /opt/cmt/testdata OK - 6 files, 6 dirs, 11004 bytes - targets 1/1
-    ( ) OK       folder       test_missing /opt/cmt/testdata/file.txt OK - 1 files, 0 dirs, 0 bytes - targets 0/0
-    ( ) OK       folder       test_nostore /opt/cmt/testdata/file.txt OK - 1 files, 0 dirs, 0 bytes [0.0 B] - targets 0/0
-    (?) SKIPPED  module=folder check=folder_root : must run as root
-    ( ) OK       folder       folder_list /opt/cmt OK - 10 files, 7 dirs, 30557 bytes - targets 0/0
-    (=) CRITICAL memory       memory above threshold : 43.6 % > 0.5 %
-    ( ) OK       mount        mount / found
-    (=) CRITICAL mount        mount /mnt not found
-    ( ) OK       ping         ping 192.168.0.1 ok
-    ( ) OK       ping         ping localhost ok
-    ( ) OK       ping         ping www.google.com ok
-    (=) CRITICAL ping         ping www.test.com not responding
-    (=) CRITICAL ping         ping www.averybadnammme_indeed.com not responding
-    (=) CRITICAL process      process redis missing (redis, None)
-    (=) CRITICAL process      process apache missing (httpd, None)
-    ( ) OK       process      process cron found (cron, -f) - memory rss 3.2 MB - cpu 0.01 sec.
-    ( ) OK       process      process ssh found (sshd, None) - memory rss 5.8 MB - cpu 0.03 sec.
-    (=) CRITICAL process      process ntp missing (ntpd, None)
-    ( ) OK       process      process mysql found (mysqld, None) - memory rss 82.9 MB - cpu 0.79 sec.
-    (=) CRITICAL process      process php-fpm missing (php-fpm, None)
-    ( ) OK       socket       socket local redis localhost tcp/6379 - alive: yes - count: 0
-    ( ) OK       socket       socket remote www_google www.google.com tcp/443 - alive: yes - count: 0
-    ( ) OK       swap         swap used: 0.0 % /  274.4 KB - total 2.1 GB
-    ( ) OK       url          url www.cavaliba.com - https://www.cavaliba.com/ [Host: ] - http=200 - 78 ms ; pattern OK
-    (=) CRITICAL url          url www_non_existing - http://www.nonexisting/ [Host: ] - timeout/no response to query
-    ( ) OK       url          url google - https://www.google.com/ [Host: ] - http=200 - 97 ms ; pattern OK
-    ( ) OK       url          url yahoo - https://www.yahoo.com/ [Host: ] - http=200 - 537 ms ; pattern OK
-    ( ) OK       url          url via_proxy_cavaliba - https://www.cavaliba.com/ [Host: ] - http=200 - 79 ms ; pattern OK
-    ( ) OK       url          url url_noenv_proxy - http://www.monip.org/ [Host: ] - http=200 - 34 ms ; pattern OK
-    ( ) OK       url          url url_auth - https://monitor.kheops.ch/kibana [Host: ] - http=200 - 246 ms ; pattern OK
-    ( ) OK       url          url url_httpcode - https://monitor.kheops.ch/kibana [Host: ] - http=401 - 148 ms ; pattern OK
-    (=) CRITICAL url          url url_patternreject : forbidden pattern found in https://monitor.kheops.ch (Host: )
-    (?) SKIPPED  module=send check=test_token1 : 
-    ( ) OK       sendfile     /opt/cmt/demo.json - 3 lines/events
-    ( ) OK       mysqldata    db_query1 - 2 lines collected
+    OK       boottime     boot : 0 days since last reboot - 4:22:08 sec.
+    OK       load         load 1/5/15 min : 0.19  0.12  0.1 (2 cpus)
+    OK       certificate  56 day(s) left for SSL certificate google.com on google.com:443 
+    OK       certificate  56 day(s) left for SSL certificate google.com on 142.250.201.174:443 
+    OK       certificate  307 day(s) left for SSL certificate duckduckgo.com on duckduckgo.com:443 
+    CRITICAL certificate  no ssl connection to duckduckgo.com:80
+    OK       certificate  143 day(s) left for SSL certificate yahoo.com on yahoo.com:443 
+    OK       cpu          cpu usage : 2.0 %
+    OK       disk         disk / - used: 44.6 % - used: 28.5 GB - free: 35.4 GB - total: 67.4 GB 
+    OK       disk         disk /boot - used: 44.6 % - used: 28.5 GB - free: 35.4 GB - total: 67.4 GB 
+    OK       folder       test_permission /opt/cmt/testdata/permission.txt OK - 1 files, 0 dirs, 0 bytes - targets 1/1
+    CRITICAL folder       folder /opt/cmt/testdata/permission.txt : incorrect permission for /opt/cmt/testdata/permission.txt: found -rw-rw-r-- , expected -rw-rw-rw-
+    OK       folder       test_permissions /opt/cmt/testdata/permissions OK - 4 files, 0 dirs, 16 bytes - targets 3/3
+    OK       folder       test_extension /opt/cmt/testdata OK - 2 files, 6 dirs, 0 bytes - targets 0/0
+    OK       folder       test_regexp /opt/cmt/testdata OK - 2 files, 6 dirs, 0 bytes - targets 0/0
+    OK       folder       test_regexp_ext /opt/cmt/testdata OK - 1 files, 6 dirs, 0 bytes - targets 0/0
+    WARNING  folder       test_wrong_target /opt/cmt/testdata : unknown target is_blabla
+    OK       folder       test_hasfile /opt/cmt/testdata OK - 7 files, 6 dirs, 11004 bytes - targets 1/1
+    OK       folder       test_age_min /opt/cmt/testdata OK - 7 files, 6 dirs, 11004 bytes - targets 1/1
+    CRITICAL folder       test_age_max /opt/cmt/testdata : some files are too old (25324485 sec)
+    OK       folder       test_files_min /opt/cmt/testdata OK - 7 files, 6 dirs, 11004 bytes - targets 1/1
+    OK       folder       test_files_max /opt/cmt/testdata OK - 7 files, 6 dirs, 11004 bytes - targets 1/1
+    CRITICAL folder       test_size_min /opt/cmt/testdata : too small (11004)
+    CRITICAL folder       test_size_max /opt/cmt/testdata : too big (11004)
+    OK       folder       test_has_recent /opt/cmt/testdata OK - 7 files, 6 dirs, 11004 bytes - targets 1/1
+    OK       folder       test_has_old /opt/cmt/testdata OK - 7 files, 6 dirs, 11004 bytes - targets 1/1
+    OK       folder       test_missing /opt/cmt/testdata/file.txt OK - 1 files, 0 dirs, 0 bytes - targets 0/0
+    OK       folder       test_nostore /opt/cmt/testdata/file.txt OK - 1 files, 0 dirs, 0 bytes [0.0 B] - targets 0/0
+    SKIPPED  folder       folder_root must run as root
+    OK       folder       folder_list /opt/cmt OK - 7 files, 1 dirs, 27593 bytes - targets 0/0
+    OK       memory       mem used 50.2 % - used 1.7 GB - avail 2.1 GB - total 4.1 GB
+    OK       mount        mount / found
+    ERROR    mount        mount /mnt not found
+    OK       ping         ping 192.168.0.1 ok
+    OK       ping         ping localhost ok
+    OK       ping         ping www.google.com ok
+    CRITICAL ping         ping www.test.com not responding
+    CRITICAL ping         ping www.averybadnammme_indeed.com not responding
+    CRITICAL process      process redis missing (redis, None)
+    CRITICAL process      process apache missing (httpd, None)
+    OK       process      process cron found (cron, None) - memory rss 3.0 MB - cpu 0.0 sec.
+    OK       process      process ssh found (sshd, None) - memory rss 5.3 MB - cpu 0.01 sec.
+    CRITICAL process      process ntp missing (ntpd, None)
+    OK       process      process mysql found (mysqld, None) - memory rss 96.0 MB - cpu 7.93 sec.
+    CRITICAL process      process php-fpm missing (php-fpm, None)
+    OK       socket       socket local redis localhost tcp/6379 - alive: yes - count: 0
+    OK       socket       socket remote www_google www.google.com tcp/443 - alive: yes - count: 0
+    OK       swap         swap used: 0.2 % /  4.5 MB - total 2.1 GB
+    OK       url          url www.cavaliba.com - https://www.cavaliba.com/ [Host: ] - http=200 - 127 ms ; pattern OK
+    OK       url          url header_check - https://www.cavaliba.com/ [Host: ] - http=200 - 64 ms ; pattern OK
+    CRITICAL url          url www_non_existing - http://www.nonexisting/ [Host: ] - timeout/no response to query
+    OK       url          url google - https://www.google.com/ [Host: ] - http=200 - 102 ms ; pattern OK
+    OK       url          url yahoo - https://www.yahoo.com/ [Host: ] - http=200 - 751 ms ; pattern OK
+    SKIPPED  send         test_token1 must be run as single check w/ stdin piped command
+    OK       mysql        mydbmaster - cx=1 cx/s=0 r/s=0 w/s=0 q/s=0 mem=275195600
+    CRITICAL mysql        mysql - can't connect with conf /opt/cmt/mysql_slave.cnf
+    OK       sendfile     /opt/cmt/demo.json - 3 lines/events
+    OK       mysqldata    user - 3 lines collected
 
-    2021/11/27 - 17:59:59 : SEVERITY=CRITICAL - 58 checks - 39 ok - 19 nok - 15 criticial - 0 error - 2 warning - 2 notice.
-
+    2022/01/23 - 16:54:44 : SEVERITY=CRITICAL - 44/60 OK (73 %) - 16 NOK : 14 criticial - 1 error - 1 warning - 0 notice.
 
 
 ## Data model / data storage

@@ -4,7 +4,18 @@ title: version
 
 # Releases
 
-## 2.2 - 2021/12/19 on-going
+
+## 2.3 - 2022/01/23
+    CLI clean : rename severity label NONE to OK
+    CLI clean : removed alert state from CLI output
+    CLI clean : mysql: send to debug instead of log for connection error
+    updated certificate module : new option (name) , simplified thresholds, new attributes reported, timeout
+    url : check for expected pattern in response header in addition to response page
+    folder : new targets : permission, uid, gid
+    
+
+
+## 2.2 - 2021/12/19
 
     feature: CLI output cosmetic
     feature: new metrology fields (severity, alert) for human display 
