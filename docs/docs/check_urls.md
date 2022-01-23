@@ -39,6 +39,7 @@ pattern:
 	
 	default: non
     a string / regexp (python re.) which MUST be present in the response body
+    new 2.3 : pattern is also looked for in response header as a test list of `key: value`
     
 pattern_reject: 
 
@@ -46,7 +47,8 @@ pattern_reject:
 	default: none	
     a string / regexp (python re.) which MUST NOT be present in the response body
     useful to check for no error message in a status page
-
+    new 2.3 : pattern is also looked for in response header as a test list of `key: value`
+    
 allow_redirects:
 	
     CMT will follow HTTP redirects
@@ -98,7 +100,7 @@ Alert message:
 
 - no response to query (timeout / no response)
 - bad http code response
-- expected pattern not found
+- expected pattern not found in response body (or response headers since v2.3)
 
 ## Output to Metrology
 

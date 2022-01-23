@@ -6,12 +6,13 @@ title: check_certificate
 
 *updated v2.3, 2022/01*
 
-**Certificate** checks the validity left of various SSL/TLS certificates.
-It opens a socket to `hostname:port` and retrieve certificate information  for `name` certificate if provided.
+**Certificate** checks the validity for various SSL/TLS certificates. It opens a socket to `hostname:port` and retrieve certificate information  for `name` certificate if provided.
 
-It computes days left before cert expiry and set a severity accordingly.
+It computes days left before certificate expiry and set a `severity` value accordingly.
 
-It sends key info to metrology server (days left, issuer, subject).
+It sends certificate informations to metrology server (days left, issuer, subject, severity).
+
+It has a timeout of 3 seconds in case of no response from remote host.
 
 
 ## Configure

@@ -34,12 +34,12 @@ This check requires additional parameters to define each FOLDER to be checked :
 		     age_min:        : seconds (file)   : all files must be older than value
 		     has_recent      : seconds - some files must be younger than value - V1.6
 		     has_old         : seconds - some files must be older than value - V1.6
-		     has_files: 
+		     has_files:      : said file must be present (all) under the given path
 		         - filename1
 		         - filename2
-		     permission: -rw-rw-rw-    : expected unix permissions
-		     uid: 1000                 : expected unix user owner of the file(s)
-		     gid: 1000                 : expected unix group owner
+		     permission:     : -rw-rw-rw-  ;  expected unix permissions
+		     uid:            : 1000 ; (int) expected unix user owner of the file(s)
+		     gid:            : 1000 ; (int) expected unix group owner
 		   ]
 
 
@@ -112,9 +112,9 @@ Targets define the desired state of a folder, folder hierarchy (recurse) or sing
 
 - `permissions` : exact unix permissions (in -rwxrwxrwx format) for the file (or files if path is folder)
 
-- `uid` : exact unix uid in numerical format for the file (or files if path is folder)
+- `uid` : exact unix uid in numerical format for the file (or files if path is a folder)
 
-- `gid` : exact unix gid in numerical format for the file (or files if path is folder)
+- `gid` : exact unix gid in numerical format for the file (or files if path is a folder)
 
 
 ## Alerts
