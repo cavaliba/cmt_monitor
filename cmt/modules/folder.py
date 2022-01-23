@@ -20,6 +20,7 @@ VALID_TARGET_LIST = [
         'age_min','age_max',
         'has_old', 'has_recent',
         'has_files',
+        'permission', 'uid', 'gid',
         ]
 
 def scanCommon(path, recursive=False):
@@ -118,6 +119,16 @@ def check(c):
         s_count = 1
         s_mintime = statinfo.st_mtime
         s_maxtime = statinfo.st_mtime
+
+        s_files.append(path)
+        s_files_detail[path] = { 
+            "size" : s_size, 
+            "mtime" : statinfo.st_mtime,
+            "uid" : statinfo.st_uid,
+            "gid" : statinfo.st_gid,
+            "mode" : stat.filemode(statinfo.st_mode),
+            }
+
 
         # option : send_content
         if send_content:
@@ -302,6 +313,40 @@ def check(c):
                 c.severity = cmt.SEVERITY_CRITICAL
                 c.add_message("folder {} : expected file not found ({})".format(path,f))
                 return c
+
+
+
+    if 'permission' in targets:
+        tgcount += 1
+        target_perm = targets['permission']
+        for f in s_files_detail:
+            fperm = s_files_detail[f]["mode"]
+            if fperm != target_perm:
+                c.severity = cmt.SEVERITY_CRITICAL
+                c.add_message("folder {} : incorrect permission for {}: found {} , expected {}".format(path,f, fperm, target_perm))
+                return c   
+
+
+    if 'uid' in targets:
+        tgcount += 1
+        target_uid = targets['uid']
+        for f in s_files_detail:
+            fuid = s_files_detail[f]["uid"]
+            if fuid != target_uid:
+                c.severity = cmt.SEVERITY_CRITICAL
+                c.add_message("folder {} : incorrect uid for {}: found {} , expected {}".format(path,f, fuid, target_uid))
+                return c   
+
+    if 'gid' in targets:
+        tgcount += 1
+        target_gid = targets['gid']
+        for f in s_files_detail:
+            fgid = s_files_detail[f]["gid"]
+            if fgid != target_gid:
+                c.severity = cmt.SEVERITY_CRITICAL
+                c.add_message("folder {} : incorrect gid for {}: found {} , expected {}".format(path,f, fgid, target_gid))
+                return c   
+
 
     c.add_message("{} {} OK - {} files, {} dirs, {} bytes - targets {}/{}".format(
         name, path, s_count, s_dirs, s_size, tgcount, tgtotal))

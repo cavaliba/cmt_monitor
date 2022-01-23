@@ -101,16 +101,6 @@ def check(c):
     }
 
 
-
-
-    # try:
-    #     cert_infos = get_certificate_infos(hostname, port, name)
-    # except ValueError:
-    #     c.severity = cmt.SEVERITY_CRITICAL
-    #     c.add_message("no certificate found for {}".format(hostdisplay))
-    #     #c.add_message("no certificate found for {}:{} - err = {}".format(hostname, port, e))
-    #     return c
-
     # certificate dates are in utc. Just reading the warning from the documentation,
     # it seems like Python's datetime modules is pretty bad when it comes to managing
     # timezones correctly. So, keep everything in terms of UTC.

@@ -37,8 +37,9 @@ This check requires additional parameters to define each FOLDER to be checked :
 		     has_files: 
 		         - filename1
 		         - filename2
-		     ()min_bytes:    : TODO (file)
-		     ()max_bytes:    : TODO
+		     permission: -rw-rw-rw-    : expected unix permissions
+		     uid: 1000                 : expected unix user owner of the file(s)
+		     gid: 1000                 : expected unix group owner
 		   ]
 
 
@@ -109,6 +110,12 @@ Targets define the desired state of a folder, folder hierarchy (recurse) or sing
 
 - `has_files`: list of exact filenames to be found ; `no_store` must be set to no.
 
+- `permissions` : exact unix permissions (in -rwxrwxrwx format) for the file (or files if path is folder)
+
+- `uid` : exact unix uid in numerical format for the file (or files if path is folder)
+
+- `gid` : exact unix gid in numerical format for the file (or files if path is folder)
+
 
 ## Alerts
 
@@ -127,6 +134,10 @@ Alert message:
 - missing young file
 - missing old file
 - expected file not found
+- expected permission not found
+- expected uid not found
+- expected gid not found
+
 
 ## Output to Metrology
 

@@ -444,6 +444,20 @@ folder:
     recursive: yes
     send_list: yes
 
+  test_permission:
+    path: /opt/cmt/testdata/permission.txt
+    recursive: no
+    target:
+      permission: -rw-rw-r--
+
+  test_permissions:
+    path: /opt/cmt/testdata/permissions
+    recursive: yes
+    target:
+      permission: -rw-rw-r--
+      uid: 1000
+      gid: 1000
+
 
 # ---------
 certificate:
