@@ -87,7 +87,10 @@ class Report():
                 ok += 1
 
         nok = ck - ok
-        percent = int(100 * ok / ck)
+        if ck ==0:
+            percent = 100
+        else:
+            percent = int(100 * ok / ck)
 
         print()
         logit("SEVERITY={} - {}/{} OK ({} %) - {} NOK : {} criticial - {} error - {} warning - {} notice.".format(

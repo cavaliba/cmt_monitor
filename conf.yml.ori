@@ -450,27 +450,30 @@ certificate:
 
   cert_google:
     hostname: google.com
+    # name: google.com
+    # port: 443
+    # warning_in: 7
+    # notice_in: 30
+    # severity_max: critical     # when expired
+  
+  cert_ip_google:
+    hostname: 142.250.201.174
     port: 443
-    alert_in: 1 week 
-    warning_in: 3 months
-    notice_in: 6 months
-    severity_max: warning
+    name: google.com
 
-  duck:
+  cert_duck:
     hostname: duckduckgo.com
     alert_in: 1 week
     severity_max: warning
 
-  broken:
+  cert_broken:
     hostname: duckduckgo.com
     port: 80
-    alert_in: 2 week
     severity_max: warning
 
   yahoo:
     hostname: yahoo.com
     port: 443
-    alert_in: 2 week
     severity_max: warning
 
 # ---------

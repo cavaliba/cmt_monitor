@@ -26,8 +26,9 @@ def check(c):
 
     #jsonfile = c.conf.get('jsonfile',"")
 
-    # must no run in cron mode, or multi module/checks mode (because read on stdin)
+    # must not run in cron mode, or multi module/checks mode (because read on stdin)
     if not (c.opt["single_module_run"] and c.opt["specific_checkname_run"]):
+        c.result_info = "must be run as single check w/ stdin piped command"
         c.result = "skip"
         return c
 

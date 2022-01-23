@@ -102,7 +102,7 @@ def get_severity_label(severity):
     elif severity == SEVERITY_NOTICE:
         return "NOTICE"
     else:
-        return "NONE"
+        return "OK"
 
 # ------------------------
 # ALERTS events (trigger)

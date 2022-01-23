@@ -235,11 +235,11 @@ class Check():
 
     def print_to_cli_skipped(self):
 
-        alert = '(?) '
+        alert = ''
         head = bcolors.WHITE  + alert + "SKIPPED" + bcolors.ENDC
-        print('------------------------------------------------------------------')
+        #print('------------------------------------------------------------------')
         print("{:12}  {:12} {} {}".format(head, self.module, self.check, self.result_info))
-        print('------------------------------------------------------------------')
+        #print('------------------------------------------------------------------')
 
         
 
@@ -260,8 +260,8 @@ class Check():
         else:
             head = bcolors.OKGREEN
 
-        head = head + alert_symbol + severity_label + bcolors.ENDC
-
+        #head = head + alert_symbol + severity_label + bcolors.ENDC
+        head = head + severity_label + bcolors.ENDC
         print("{:12} {:12} {}".format(head, self.module, self.get_message_as_str()))
 
 
@@ -276,7 +276,7 @@ class Check():
 
         alert_symbol = cmt.get_alert_symbol(self.alert)
         severity_label = cmt.get_severity_label(self.severity)
-        severity_label += ' ' * (8 - len(severity_label))
+        #severity_label += ' ' * (8 - len(severity_label))
 
         # print('------------------------------------------------------------------')
         # print(bcolors.WHITE  + self.module, self.check +  bcolors.ENDC)
@@ -307,7 +307,8 @@ class Check():
         else:
             head = bcolors.OKGREEN
 
-        head = head  + severity_label + ' ' + alert_symbol + bcolors.ENDC
+        #head = head  + severity_label + ' ' + alert_symbol + bcolors.ENDC
+        head = head  + severity_label + ' ' + bcolors.ENDC
 
         print("{} : {}".format(head, self.get_message_as_str()))
 
@@ -387,16 +388,19 @@ def perform_check(checkname, modulename):
             return "continue"
 
 
-    # ----------------------
     # create check object
-    # ----------------------
-    # TODO?, create earlier, with status run/skipped/error + message
-
     check_result = Check(module=modulename, check=checkname, conf=checkconf, opt=my_opt)
 
+    # Add tags/kv
+    check_result.add_tags()
+
+    # print header to CLI
+    if cmt.ARGS['cron'] or cmt.ARGS['short']:
+        pass
+    else:
+        check_result.print_to_cli_detail_head()
 
     # check if root privilege is required
-    # TODO : create check, result = skip (for display)
     conf_rootreq = checkconf.get('root_required', False) is True
     if conf_rootreq:
         if (os.getuid() != 0):
@@ -418,17 +422,8 @@ def perform_check(checkname, modulename):
 
     # TODO : if --available, call different function
 
-    # Add tags/kv
-    check_result.add_tags()
 
 
-
-    # Print to CLI
-    if cmt.ARGS['cron'] or cmt.ARGS['short']:
-        #check_result.print_to_cli_short()
-        pass
-    else:
-        check_result.print_to_cli_detail_head()
 
     # *********************************************************
     # **** ACTUAL CHECK IS DONE HERE ****
@@ -446,8 +441,9 @@ def perform_check(checkname, modulename):
 
     # if check skipped by module itself
     if check_result.result == "skip":
+        check_result.resul_info = check_result.message
         check_result.print_to_cli_skipped()
-        debug2("  skipped in module")
+        debug("  skipped in module")
         return "continue"
 
     # adjust severity to severity_max for this check

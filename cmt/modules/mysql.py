@@ -60,7 +60,7 @@ def check(c):
     except Exception as e:
         c.severity = cmt.SEVERITY_CRITICAL
         c.add_message("mysql - can't connect with conf {}".format(defaults_file))        
-        logit("Error {}".format(e))
+        debug("Error {}".format(e))
         return c
 
     # -------------------------------------
