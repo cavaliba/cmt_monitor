@@ -151,8 +151,8 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
     graylog_data += ',"cmt_node":"{}"'.format(check.node)
 
     graylog_data += ',"cmt_node_env":"{}"'.format(check.node_env)
-    graylog_data += ',"cmt_node_role":"{}"'.format(check.node_role)
-    graylog_data += ',"cmt_node_location":"{}"'.format(check.node_location)
+    #graylog_data += ',"cmt_node_role":"{}"'.format(check.node_role)
+    #graylog_data += ',"cmt_node_location":"{}"'.format(check.node_location)
 
     graylog_data += ',"cmt_version":"{}"'.format(check.version)
 
@@ -199,8 +199,8 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
             debug2("Build gelf data : ", str(item.name), str(item.value))
 
 
-        graylog_data += ',"cmt_alert":{}'.format(check.alert)
-        graylog_data += ',"cmt_severity":{}'.format(check.severity)
+        # graylog_data += ',"cmt_alert":{}'.format(check.alert)
+        # graylog_data += ',"cmt_severity":{}'.format(check.severity)
         graylog_data += ',"alert":"{}"'.format(cmt.get_alert_label(check.alert))
         graylog_data += ',"severity":"{}"'.format(cmt.get_severity_label(check.severity))
 
@@ -295,8 +295,8 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
     json_data += ',"cmt_node":"{}"'.format(check.node)
 
     json_data += ',"cmt_node_env":"{}"'.format(check.node_env)
-    json_data += ',"cmt_node_role":"{}"'.format(check.node_role)
-    json_data += ',"cmt_node_location":"{}"'.format(check.node_location)
+    #json_data += ',"cmt_node_role":"{}"'.format(check.node_role)
+    #json_data += ',"cmt_node_location":"{}"'.format(check.node_location)
 
     json_data += ',"cmt_version":"{}"'.format(check.version)
 
@@ -355,8 +355,8 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
             debug2("Build json data : ", str(item.name), str(value2))
 
 
-        json_data += ',"cmt_alert":{}'.format(check.alert)
-        json_data += ',"cmt_severity":{}'.format(check.severity)
+        # json_data += ',"cmt_alert":{}'.format(check.alert)
+        # json_data += ',"cmt_severity":{}'.format(check.severity)
         json_data += ',"alert":"{}"'.format(cmt.get_alert_label(check.alert))
         json_data += ',"severity":"{}"'.format(cmt.get_severity_label(check.severity))
 
@@ -464,8 +464,8 @@ def build_influxdb_message(check, metroconf, index=None):
                 influx_data += ',cmt_{}="{}"'.format(item.name, item.value)
 
     # severity, alert
-    influx_data += ',cmt_alert={}'.format(check.alert)
-    influx_data += ',cmt_severity={}'.format(check.severity)
+    # influx_data += ',cmt_alert={}'.format(check.alert)
+    # influx_data += ',cmt_severity={}'.format(check.severity)
     influx_data += ',alert="{}"'.format(cmt.get_alert_label(check.alert))
     influx_data += ',severity="{}"'.format(cmt.get_severity_label(check.severity))
 
@@ -516,8 +516,8 @@ def build_influxdb_message(check, metroconf, index=None):
         # also add severity, alert as field/value items in the influx line protocol
         if not first_item:        
             influx_data += ','
-        influx_data += 'cmt_alert={}'.format(check.alert)
-        influx_data += ',cmt_severity={}'.format(check.severity)
+        # influx_data += 'cmt_alert={}'.format(check.alert)
+        # influx_data += ',cmt_severity={}'.format(check.severity)
         influx_data += ',alert="{}"'.format(cmt.get_alert_label(check.alert))
         influx_data += ',severity="{}"'.format(cmt.get_severity_label(check.severity))
 

@@ -32,8 +32,8 @@ class Check():
         self.group = cmt.CONF['global'].get('cmt_group', 'nogroup')
         self.node = cmt.CONF['global'].get('cmt_node', 'nonode')
         self.node_env = cmt.CONF['global'].get('cmt_node_env', 'noenv')
-        self.node_role = cmt.CONF['global'].get('cmt_node_role', 'norole')
-        self.node_location = cmt.CONF['global'].get('cmt_node_location', 'nolocation')
+        #self.node_role = cmt.CONF['global'].get('cmt_node_role', 'norole')
+        #self.node_location = cmt.CONF['global'].get('cmt_node_location', 'nolocation')
         self.module = module
         self.check = check
         self.opt = opt         # opt given at init time by perform_check external creator
@@ -51,7 +51,6 @@ class Check():
         
         # fields from conf
         self.conf = conf
-
 
         # severity : 1=critical, 2=error, 3=warning, 4=notice, 5=none
         # set by modules ; shifted by severity_max configuration
@@ -74,7 +73,8 @@ class Check():
             logit("Unknown severity_max {} in ({},{}) - default to critical.".format(a,module,check) )
 
         # events/transition : NEW, ACTIVE, DOWN, NONE - computed (hysteresis, delay)
-        self.alert = 0
+        self.alert = cmt.ALERT_NONE
+        
         # set by framework after Check is performed, if pager_enable and alert ! NONE
         self.pager = False
 
@@ -139,6 +139,42 @@ class Check():
         # too early
         debug("Frequency: not allowed : f={}, delta={}".format(f, delta))
         return False
+
+
+    def reverse_severity(self):
+        ''' 
+        Inverse conditions of severity : negative check. 
+        Severity will ne not SEVERITY_NONE  only if check fails
+        '''
+
+        a = self.conf.get('reverse_severity', 'not_configured')        
+        if a == 'not_configured':
+            return
+
+        # perform inversion
+        if self.severity != cmt.SEVERITY_NONE:
+            # check failed, thus ... normal (inversion)
+            self.severity = cmt.SEVERITY_NONE
+        else:
+            # check OK, but shouldn't (inversion), set new severity
+            # get value from config
+            if a == 'critical':
+                self.severity = cmt.SEVERITY_CRITICAL
+            elif a == 'error':
+                self.severity = cmt.SEVERITY_ERROR
+            elif a == 'warning':
+                self.severity = cmt.SEVERITY_WARNING
+            elif a == 'notice':
+                self.severity = cmt.SEVERITY_NOTICE
+            elif a == 'none':
+                self.severity = cmt.SEVERITY_NONE
+            else:
+                logit("Unknown reverse_severity {} in ({}) - default to critical.".format(a,self.check) )
+
+        debug("severity = {} (from reverse_severity)".format(self.severity))
+        return
+
+
 
 
     def adjust_severity(self):
@@ -423,8 +459,6 @@ def perform_check(checkname, modulename):
     # TODO : if --available, call different function
 
 
-
-
     # *********************************************************
     # **** ACTUAL CHECK IS DONE HERE ****
     # *********************************************************
@@ -446,8 +480,12 @@ def perform_check(checkname, modulename):
         debug("  skipped in module")
         return "continue"
 
+    # reverse severity if needed (negative condition / inverse check)
+    check_result.reverse_severity()
+
     # adjust severity to severity_max for this check
     check_result.adjust_severity()
+
 
     # compute alert transition : NONE, NEW, ACTIVE, DOWN ; hysteresis
     check_result.compute_alert()

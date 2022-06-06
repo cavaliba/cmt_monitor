@@ -84,10 +84,11 @@ The complete configuration for a CMT run has 5 sections :
 	  [conf_url]           : https://.../api/  (/group_node.txt if url ends by /txt/) + ?group=group&node=node
 	  [max_execution_time] : seconds ; DEFAULT 55
 	  [load_confd]         : yes/no ; DEFAULT no
-    [http_proxy]         : http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
-    [https_proxy]        : https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
-	  [alert_delay]        : seconds of repeated NOK check before trigering an alert  ; DEFAULT 120 ; each check can override the global value
-    [tags]               : tag1 tag2[=value] ; list of tags ; no blank around optional "=value"
+      [http_proxy]         : http://[login[:pass]@proxyhost:port  ; use noenv value to skip os/env     
+      [https_proxy]        : https://[login[:pass]]@proxyhost:port  ; default to http_proxy   
+	  [alert_delay]        : seconds of repeated NOK check before trigering an alert  ; DEFAULT 120 ; 
+	                         each check can override the global value
+      [tags]               : tag1 tag2[=value] ; list of tags ; no blank around optional "=value"
 
 
 ## conf.yml : metroloy servers
@@ -187,18 +188,21 @@ Checks have options available to all checks, and options specific to the type of
 	
 	modulename1:             : one from the various supported modules    
 	
-	  checkname1:            : free string - unique id in the module scope - aoid dot/special chars in name
+	  checkname1:            : free string - unique id in the module scope - avoid dot/special chars in name
 
         [enable]           : timerange ; default yes  ; yes, no, before, after, hrange, ho, hno, 24/7, ...
-	      [enable_pager]     : timerange ; default no ; need global/pager to be enabled ; sent if alert found
-	      [alert_delay]      : min. seconds before alert  ; DEFAULT 120  ; higher precedence
-	      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
+	    [enable_pager]     : timerange ; default no ; need global/pager to be enabled ; sent if alert found
+	    [alert_delay]      : min. seconds before alert  ; DEFAULT 120  ; higher precedence
+	    [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
         [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
         [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank around optional "=value"
         [severity_max]     : critical, error, warning, notice, none  (default : critical)
-	      arg1               : specific to module (see doc for each module)
-	      arg2               : specific to module  
-	      (...)
+        [reverse_security] : criticial, error, warning, notice, none (default : absent)
+                             negate check condition and inverse computed severity
+
+	    arg1               : specific to module (see doc for each module)
+	    arg2               : specific to module  
+	    (...)
 
       checkname2:
           ...
@@ -349,24 +353,11 @@ It may be the name of the Server or Virtual Machine.
 	cmt_group: node-05-france-grignan
 
 
-
-### cmt_node_role
-*new v1.0.0*
-
-Optional
-
-
-
 ### cmt_node_env
 *new v1.0.0*
 
 Optional
 
-
-### cmt_node_location
-*new v1.0.0*
-
-Optional
 
 
 ### tags
@@ -393,6 +384,27 @@ will add the following info to outuput:
     cmt_tag_size: 4
     cmt_tag_foldertype: 'test'
 
+
+### reverse_severity
+*new v2.4*
+
+Scope: check
+
+Values: critical, error, warning, notice, none 
+
+Optional
+
+Default : no default value. Must not be present if not wanted
+
+With reverse_severity, you can perform a check or a condition which *must not* be met. 
+
+If the check fails, severity will be reversed to NONE.
+
+If the check succeeds, severity will be set to reverse_security value.
+
+Nota: severity_max is still applied after, to limit maximum severity
+
+Examples : check  that a given network port is closed, a file is absent, an URL doesn't returns a specific pattern,  a load average doen't go below a threshold, etc.
 
 
 

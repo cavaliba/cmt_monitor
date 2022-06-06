@@ -1,7 +1,7 @@
 CAVALIBA - CMT Monitor 
 ======================
 
-(c) Cavaliba.com 2020-2022  - Version 2.3 - 2022/01/23
+(c) Cavaliba.com 2020-2022  - Version 2.4 - 2022/06/06 beta
 
 
 CMT Monitor is a simple software agent to :
@@ -37,7 +37,7 @@ read the documentation
 see help
 --------
 
-    $ ./cmt.py --help
+    $ cmt --help
 
     usage: cmt [-h] [--version] [--short] [--cron] [--check CHECK] [--conf CONF]
            [--report] [--persist] [--listmodules] [--available]

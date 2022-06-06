@@ -4,6 +4,14 @@ title: version
 
 # Releases
 
+## 2.4 - beta/ongoing
+    reverse_severity option : inverse condition for severity (negative check)
+    tested on elastic 8.2 (http://127.0.0.1:9200/cmt/_doc/?pipeline=timestamp)
+    removed cmt_alert (> alert) and xmt_severuty (> severity) output fields
+    removed cmt_node_location ; use tag instead
+    removed cmt_node_role ; use tag instead    
+
+
 
 ## 2.3 - 2022/01/23
     CLI clean : rename severity label NONE to OK

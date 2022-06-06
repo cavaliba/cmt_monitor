@@ -428,6 +428,10 @@ folder:
     path: /opt/cmt/testdata/file_missing.txt
     severity_max: warning
 
+  test_missing_reversed:
+    path: /opt/cmt/testdata/file.txt
+    reverse_severity: warning
+
   test_nostore:
     path: /opt/cmt/testdata/file.txt
     recursive: yes
