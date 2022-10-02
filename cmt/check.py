@@ -29,11 +29,12 @@ class Check():
 
     def __init__(self, module="nomodule", check="noname", conf={}, opt={}):
 
+
+        # TODO : priority to local check conf{}, default to global ; add a "target" field ?
         self.group = cmt.CONF['global'].get('cmt_group', 'nogroup')
         self.node = cmt.CONF['global'].get('cmt_node', 'nonode')
         self.node_env = cmt.CONF['global'].get('cmt_node_env', 'noenv')
-        #self.node_role = cmt.CONF['global'].get('cmt_node_role', 'norole')
-        #self.node_location = cmt.CONF['global'].get('cmt_node_location', 'nolocation')
+
         self.module = module
         self.check = check
         self.opt = opt         # opt given at init time by perform_check external creator
