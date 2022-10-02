@@ -1,7 +1,6 @@
 ---
-# Cavaliba / cmt_monitor / conf.yml
-
-# CMT Version: 2.3
+# Cavaliba / cmt_monitor / conf.yml - TEMPLATE
+# CMT Version: 3.0
 
 
 # Example configuration / template 
@@ -10,11 +9,9 @@
 # --------------
 
 global:
-  cmt_group: cavaliba
-  cmt_node: vmxupm
+  cmt_group: mycompany
+  cmt_node: vm1
   cmt_node_env: dev
-  cmt_node_role: dev_cmt
-  cmt_node_location: Ladig
   enable: yes
   start_offset: 2
   enable_pager: yes
@@ -26,7 +23,8 @@ global:
   #http_proxy: http://[login[:pass]@]proxyhost:port
   #https_proxy: https://[login[:pass]@]proxyhost:port
   tags: demo os=linux os_ver=debian10
-
+  #prefix: cmt_
+  #authkey: random_string_keepsecret_ingress_filter_in_metrology_pipelines
 
 # Metrology section
 # -----------------
@@ -35,7 +33,7 @@ metrology_servers:
 
   my_graylog_udp:
     type: graylog_udp_gelf
-    host: 10.10.10.13
+    host: mygraylog.company.com
     port: 12201
     send_rawdata: yes
     rawdata_prefix : raw
@@ -43,7 +41,7 @@ metrology_servers:
   
   my_graylog_http:
     type: graylog_http_gelf
-    url: http://10.10.10.13:8080/gelf
+    url: http://mygraylog.company.com:8080/gelf
     send_rawdata: yes
     rawdata_prefix : raw
     #http_proxy: noenv
@@ -57,7 +55,7 @@ metrology_servers:
     type: elastic_http_json
     send_rawdata: yes
     rawdata_prefix : raw
-    url: http://10.10.10.51:9200/cmt/data/?pipeline=timestamp
+    url: http://myelastic.company.com:9200/cmt/data/?pipeline=timestamp
     #http_proxy: noenv
     #http_proxy: http://[login[:pass]@]proxyhost:port
     #https_proxy: https://[login[:pass]@]proxyhost:port
@@ -68,7 +66,7 @@ metrology_servers:
   # influxdb V1 & V2
   my_influxdb:
     type: influxdb
-    url: http://10.10.10.13:8086/write?db=cmt&u=cmt&p=mysecret
+    url: http://myinflux:8086/write?db=cmt&u=cmt&p=mysecret
     token: toto
     #username: cmt
     #password : mysecret
@@ -138,7 +136,6 @@ pagers:
 #      arg2               : specific to module  
 #      (...)
 
-
 load:
 
   myload:
@@ -154,7 +151,6 @@ cpu:
   mycpu:
     enable: yes
     severity_max: warning
-
 
 memory:
 
@@ -554,7 +550,7 @@ mysqldata:
     defaults_file: /opt/cmt/mysql.cnf
         #  [client]
         #  host     = 127.0.0.1
-        #  user     = root
+        #  user     = readonlylogin
         #  password = xxxxxxx
         #  port     = 3306
         #  socket   = /var/run/mysqld/mysqld.sock

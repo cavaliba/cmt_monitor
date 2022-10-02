@@ -9,8 +9,8 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - (c) cavaliba.com - Version 2.4 - 2022/06/06 beta"
-VERSION_NUMBER = "2.4"
+VERSION = "CMT - (c) cavaliba.com - Version 3.0 - 2022/10/02"
+VERSION_NUMBER = "3.0"
 
 # default ; can be overrided in configuration files
 MAX_EXECUTION_TIME = 55
@@ -104,13 +104,14 @@ def get_severity_label(severity):
     else:
         return "OK"
 
-# ------------------------
-# ALERTS events (trigger)
-# ------------------------
+# ---------------------------------------------------------------------
+# STATE/ALERTS events (trigger) ; renamed to STATE in metrology fields V3.0
+# ---------------------------------------------------------------------
 ALERT_NONE = 0
 ALERT_NEW = 1
 ALERT_ACTIVE = 2
 ALERT_DOWN = 3
+# TODO : ALERT_PREUP
 
 
 def get_alert_symbol(alert):
@@ -128,13 +129,13 @@ def get_alert_symbol(alert):
 def get_alert_label(alert):
 
     if alert == ALERT_NONE:
-        return 'NONE'
+        return 'OK'
     if alert == ALERT_NEW:
-        return 'NEW'
+        return 'ALERT_NEW'
     if alert == ALERT_ACTIVE:
-        return 'ACTIVE'
+        return 'ALERT_ACTIVE'
     if alert == ALERT_DOWN:
-        return 'DOWN'
+        return 'ALERT_DOWN'
     return 'NA'
 
 

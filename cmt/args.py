@@ -72,7 +72,8 @@ def parse_arguments(myargs):
                         action='store_true', required=False)
     parser.add_argument('--devmode', help='dev mode, no pager, no remote metrology',
                         action='store_true', required=False)
-
+    parser.add_argument('--template', help='display a conf.yml template and exit',
+                        action='store_true', required=False)
 
 
     r = parser.parse_args(myargs)

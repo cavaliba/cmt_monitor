@@ -46,6 +46,11 @@ if __name__ == "__main__":
         print(cmt.VERSION)
         sys.exit()
 
+    if cmt.ARGS["template"]:
+        conf.print_template()
+        sys.exit()
+
+
     err = args.get_invalid_modules_in_args()
     if len(err) > 0:
         print ("ERR - Unknow module(s)  : " + ','.join(err))

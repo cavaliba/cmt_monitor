@@ -319,8 +319,8 @@ def get_proxies(conf):
     Use noenv http_proxy option to ignore OS/ENV proxies  and use direct access.
     '''
     proxies = {} 
-    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
-    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_global_http_proxy = cmt.CONF['global'].get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF['global'].get('https_proxy',my_global_http_proxy) 
     my_http_proxy = conf.get('http_proxy',my_global_http_proxy)
     my_https_proxy = conf.get('https_proxy',my_global_https_proxy) 
     if my_http_proxy != "":
@@ -331,3 +331,593 @@ def get_proxies(conf):
     if my_http_proxy == "noenv":
         noenv = True
     return proxies, noenv   
+
+
+def print_template():
+    '''option --template displays a full template for conf.yml'''
+
+    template = """
+---
+# Cavaliba / cmt_monitor / conf.yml - TEMPLATE
+# CMT Version: 3.0
+
+
+# Example configuration / template 
+
+# Global section
+# --------------
+
+global:
+  cmt_group: mycompany
+  cmt_node: vm1
+  cmt_node_env: dev
+  enable: yes
+  start_offset: 2
+  enable_pager: yes
+  alert_delay: 90
+  business_hours: 08:00:00 18:00:00
+  #conf_url: http://localhost/txt/
+  max_execution_time: 55
+  load_confd: yes
+  #http_proxy: http://[login[:pass]@]proxyhost:port
+  #https_proxy: https://[login[:pass]@]proxyhost:port
+  tags: demo os=linux os_ver=debian10
+  #prefix: cmt_
+  #authkey: random_string_keepsecret_ingress_filter_in_metrology_pipelines
+
+# Metrology section
+# -----------------
+
+metrology_servers:
+
+  my_graylog_udp:
+    type: graylog_udp_gelf
+    host: mygraylog.company.com
+    port: 12201
+    send_rawdata: yes
+    rawdata_prefix : raw
+    enable: yes
+  
+  my_graylog_http:
+    type: graylog_http_gelf
+    url: http://mygraylog.company.com:8080/gelf
+    send_rawdata: yes
+    rawdata_prefix : raw
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@]proxyhost:port
+    #https_proxy: https://[login[:pass]@]proxyhost:port
+    #http_code: 202 
+    #ssl_verify: yes
+    enable: yes
+
+  my_elastic:
+    type: elastic_http_json
+    send_rawdata: yes
+    rawdata_prefix : raw
+    url: http://myelastic.company.com:9200/cmt/data/?pipeline=timestamp
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@]proxyhost:port
+    #https_proxy: https://[login[:pass]@]proxyhost:port
+    #http_code: 201
+    #ssl_verify: yes
+    enable: yes
+
+  # influxdb V1 & V2
+  my_influxdb:
+    type: influxdb
+    url: http://myinflux:8086/write?db=cmt&u=cmt&p=mysecret
+    token: toto
+    #username: cmt
+    #password : mysecret
+    # timestamp : msec, sec, nsec ; anything else, no timestamp
+    time_format: msec
+    batch: yes
+    single_measurement: yes
+    send_tags: no
+    send_rawdata: no
+    rawdata_prefix : raw      
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@]proxyhost:port
+    #https_proxy: https://[login[:pass]@]proxyhost:port 
+    #ssl_verify: yes
+    #http_code: 204
+    enable: yes
+
+
+# Pager section
+# -------------
+# type : team_channel, teams (idem), pagerduty
+# mode : managed (ratelimit, hysteresis by CMT), allnotifications
+
+pagers:
+
+  myteams:
+    type: teams 
+    mode: managed
+    url: https://outlook.office.com/webhook/xxxxx/IncomingWebhook/yyyyyyyyyyyyyyy
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@proxyhost:port
+    #https_proxy: https://[login[:pass]]@proxyhost:port 
+    #http_code: 200
+    #ssl_verify: yes
+    #rate_limit: 7200
+    enable: yes
+
+  mypagerduty:
+    type: pagerduty
+    mode: allnotifications
+    url: https://events.pagerduty.com/v2/enqueue
+    key: XXXXXXXXXXXXXXXXXXXXXXXx
+    #http_proxy: noenv
+    #http_proxy: http://[login[:pass]@proxyhost:port
+    #https_proxy: https://[login[:pass]]@proxyhost:port 
+    #ssl_verify: yes
+    #http_code: 202
+    #rate_limit: 7200
+    enable: yes
+
+
+
+# checks section
+# --------------
+
+# module_name:
+#
+#   checkname:
+#      [enable]           : timerange ; default yes
+#      [severity_max]     : critical, error, warning, notice, none
+#      [enable_pager]     : timerange ; default NO ; need global/pager to be enabled ; sent if alert found
+#      [alert_delay]      : delay before transition from normal to alert (if alert) ; seconds  ; DEFAULT 120 
+#      [frequency]        : min seconds between runs ; needs --cron in ARGS ; overrides module config
+#      [root_required]    : [yes|no(default)] -  new 1.4.0 - is root privilege manadatory for this check ?
+#      [tags]             : tag1 tag2[=value] ... ; list of tags ; no blank space aroung optional "=value"
+#      arg1               : specific to module (see doc for each module)
+#      arg2               : specific to module  
+#      (...)
+
+load:
+
+  myload:
+    enable: yes
+    severity_max: warning
+    threshold1: 6.0
+    threshold5: 4.0
+    threshold15: 2.0
+    #tags: local1 local2=43
+
+cpu:
+
+  mycpu:
+    enable: yes
+    severity_max: warning
+
+memory:
+
+  mymemory:
+    enable: yes
+    frequency: 10
+    # percent
+    threshold: 80.5
+    severity_max: warning
+
+
+boottime:
+
+  myboottime:
+    enable: yes
+    # days
+    threshold: 180
+    severity_max: warning
+
+swap:
+  myswap:
+    enable: yes
+    # percent
+    threshold: 11.3
+    severity_max: warning
+
+disk:
+
+  disk_root:
+    path: /
+    alert: 80
+    severity_max: warning
+
+  disk_boot:
+    path: /boot
+    alert: 90
+    severity_max: warning
+
+# ---------
+url:
+
+  www.cavaliba.com:
+    enabled: after 2020-01-01
+    url: https://www.cavaliba.com/
+    pattern: "Cavaliba"
+    allow_redirects: yes
+    ssl_verify: yes
+    #host: toto
+    #http_proxy: XXX
+    #https_proxy: XXX
+    severity_max: warning
+
+  www_non_existing:
+    enabled: after 2020-01-01
+    url: http://www.nonexisting/
+    severity_max: warning
+
+  google:
+    url: https://www.google.com/
+    severity_max: warning
+
+  yahoo:
+    url: https://www.yahoo.com/
+    allow_redirects: yes
+    ssl_verify: yes
+    severity_max: warning
+
+  via_proxy_cavaliba:
+    enabled: yes
+    url: https://www.cavaliba.com/
+    http_proxy: http://62.210.205.232:8080
+    severity_max: warning
+
+  url_noenv_proxy:
+    url: http://www.monip.org/
+    http_proxy: noenv
+    severity_max: warning
+
+  url_test_timeout:
+    url: http://slowwly.robertomurray.co.uk/delay/4000/url/http://google.co.uk
+    timeout: 2
+    severity_max: warning
+
+  url_authenticated:
+    url: https://www.auth-needed.com/login
+    username: mylogin
+    password: mysecret
+
+  url_httpcode401:
+    url: https://www.auth-needed.com/login
+    http_code: 401
+
+  url_patternreject:
+    url: http://www.myservice.com/status/
+    pattern_reject: 'class="error"'
+
+# ---------
+mount:
+
+  mount_root:
+    path: /
+    severity_max: warning
+
+  mount_mnt:
+    path: /mnt
+    severity_max: warning
+
+
+  mount_critical:
+    path: /critical
+    severity_max: critical
+    enable_pager: yes
+
+# ---------
+process:
+
+  redis:
+    psname: redis
+    enable_pager: no
+    severity_max: warning
+
+  apache:
+    psname: httpd
+    severity_max: warning
+
+  cron:
+    psname: cron
+    search_arg: "-f"
+    severity_max: warning
+  
+  ssh:
+    psname: sshd
+    severity_max: warning
+
+  ntp:
+    psname: ntpd
+    severity_max: warning
+
+  mysql:
+    psname: mysqld
+    severity_max: warning
+
+  php-fpm:
+    psname: php-fpm
+    enable_pager: yes
+    severity_max: warning
+
+# ---------
+ping:
+
+  ping_vm1:
+    host: 192.168.0.1
+    severity_max: warning
+
+  ping_locahost:
+    host: localhost
+    severity_max: warning
+
+  www.google.com:
+    host: www.google.com
+    severity_max: warning
+
+  wwwtest:
+    host: www.test.com    
+    severity_max: warning
+
+  badname:
+    host: www.averybadnammme_indeed.com  
+    severity_max: warning
+
+# ---------
+folder:
+
+  test_recursive100:
+    path: /opt/cmt/testdata/arbo100
+    severity_max: critical
+    recursive: yes
+
+  test_extension:
+    path: /opt/cmt/testdata
+    severity_max: warning
+    recursive: yes
+    filter_extension: ".conf .hl7"
+
+  test_regexp:
+    path: /opt/cmt/testdata
+    severity_max: warning
+    recursive: yes
+    filter_regexp: '^Makefile$'
+
+  test_regexp_no_recurse:
+    path: /opt/cmt/testdata
+    severity_max: warning
+    recursive: no
+    filter_regexp: '^Makefile$'
+
+  test_regexp_ext:
+    path: /opt/cmt/testdata
+    severity_max: warning
+    recursive: yes
+    filter_regexp: '.*.conf$'
+
+  test_wrong_target:
+    path: /opt/cmt/testdata
+    severity_max: warning
+    target:
+       is_blabla:
+
+  test_hasfile:
+    path: /opt/cmt/testdata
+    severity_max: error
+    recursive: no
+    target:
+       has_files:
+            - secret.pdf
+            #- secret2.pdf
+
+  test_age_min:
+    path: /opt/cmt/testdata
+    severity_max: error
+    target:
+       age_min: 1000
+
+  test_age_max:
+    path: /opt/cmt/testdata
+    severity_max: notice
+    target:
+       age_max: 300
+
+  test_files_min:
+    path: /opt/cmt/testdata
+    severity_max: warning
+    target:       
+       files_min: 3
+
+  test_files_max:
+    path: /opt/cmt/testdata
+    severity_max: warning
+    target:
+       files_max: 10
+
+  test_size_min:
+    path: /opt/cmt/testdata
+    severity_max: warning
+    target:
+       size_min: 100000
+       
+  test_size_max:
+    path: /opt/cmt/testdata
+    severity_max: error
+    target:
+       size_max: 10
+
+  test_has_recent:
+    path: /opt/cmt/testdata
+    target:
+       has_recent: 3600
+    severity_max: warning
+
+  test_has_old:
+    path: /opt/cmt/testdata
+    target:
+       has_old: 86400
+    severity_max: warning
+
+  test_missing:
+    path: /opt/cmt/testdata/missing
+    severity_max: warning
+
+  test_missing:
+    path: /opt/cmt/testdata/file_missing.txt
+    severity_max: warning
+
+  test_missing_reversed:
+    path: /opt/cmt/testdata/file.txt
+    reverse_severity: warning
+
+  test_nostore:
+    path: /opt/cmt/testdata/file.txt
+    recursive: yes
+    no_store: yes
+    severity_max: warning
+
+  folder_root:
+    path: /root
+    root_required: yes
+    severity_max: warning
+
+  folder_list:
+    path: /opt/cmt
+    recursive: yes
+    send_list: yes
+
+  test_permission:
+    path: /opt/cmt/testdata/permission.txt
+    recursive: no
+    target:
+      permission: -rw-rw-r--
+
+  test_permissions:
+    path: /opt/cmt/testdata/permissions
+    recursive: yes
+    target:
+      permission: -rw-rw-r--
+      uid: 1000
+      gid: 1000
+
+
+# ---------
+certificate:
+
+  cert_google:
+    hostname: google.com
+    # name: google.com
+    # port: 443
+    # warning_in: 7
+    # notice_in: 30
+    # severity_max: critical     # when expired
+  
+  cert_ip_google:
+    hostname: 142.250.201.174
+    port: 443
+    name: google.com
+
+  cert_duck:
+    hostname: duckduckgo.com
+    alert_in: 1 week
+    severity_max: warning
+
+  cert_broken:
+    hostname: duckduckgo.com
+    port: 80
+    severity_max: warning
+
+  yahoo:
+    hostname: yahoo.com
+    port: 443
+    severity_max: warning
+
+# ---------
+socket:
+
+  redis:
+    socket: local tcp 6379
+    #socket: local tcp port | remote tcp host port
+    connect: yes
+    #send: 
+    #pattern:
+    severity_max: warning
+
+  www_google:
+     socket: remote www.google.com tcp 443
+     connect: yes
+     #send: 
+     #pattern:
+     severity_max: warning
+
+
+send:
+
+  test_token1:
+    attribute: test
+    comment: "a test comment for token1 - cmt_test will be created in elastic"
+    unit: "no_unit"
+    severity_max: warning
+
+sendfile:
+
+  # [ { "user":"fred", "last-login-days":4 },
+  #   { "user":"jack", "last-login-days":7 },
+  #   { "user":"igor", "last-login-days":9 }  ]
+
+  mysendfile:
+    jsonfile: /opt/cmt/demo.json
+    frequency: 3600
+
+
+mysql:
+
+  mydb:
+    defaults_file: /opt/cmt/mysql.cnf
+        #  [client]
+        #  host     = 127.0.0.1
+        #  user     = root
+        #  password = xxxxxxx
+        #  port     = 3306
+        #  socket   = /var/run/mysqld/mysqld.sock
+    is_slave: yes
+    max_behind: 300
+    alert_delay: 300
+    severity_max: warning
+
+mysqldata:
+
+  # creates raw_myuser_username, and raw_myuser_years
+  myuser:
+    defaults_file: /opt/cmt/mysql.cnf
+        #  [client]
+        #  host     = 127.0.0.1
+        #  user     = readonlylogin
+        #  password = xxxxxxx
+        #  port     = 3306
+        #  socket   = /var/run/mysqld/mysqld.sock
+    query: select user,age from cmt_test.table1 limit 10
+    columns:
+      user: username
+      age: years
+    maxlines: 10
+    frequency: 300
+
+
+# -------------------------------------
+# timerange fields (from documentation)
+# -------------------------------------
+# yes, 24/7                    : always
+# no                           : never
+# after YYYY-MM-DD hh:mm:ss    : after time of the day
+# before YYYY-MM-DD hh:mm:ss   : before ... 
+# hrange hh:mm:ss hh:mm:ss     : time intervall
+# ho, bh, business_hours       : 8h30/18h mon>fri - see global configuration for custom time
+# nbh,hno, non_business_hours  : !(8h30/18h mon>fri)
+#
+# ------------------------------------
+# conf.d/*.yml also included with :
+# - main conf has higher priority
+# - first level lists merged
+# ------------------------------------
+
+"""
+
+    print(template)

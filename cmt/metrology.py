@@ -121,8 +121,8 @@ def get_proxies(metroconf):
     Use noenv http_proxy option to ignore OS/ENV proxies  and use direct access.
     '''
     proxies = {} 
-    my_global_http_proxy = cmt.CONF.get('http_proxy',"")
-    my_global_https_proxy = cmt.CONF.get('https_proxy',my_global_http_proxy) 
+    my_global_http_proxy = cmt.CONF['global'].get('http_proxy',"")
+    my_global_https_proxy = cmt.CONF['global'].get('https_proxy',my_global_http_proxy) 
     my_http_proxy = metroconf.get('http_proxy',my_global_http_proxy)
     my_https_proxy = metroconf.get('https_proxy',my_global_https_proxy) 
     if my_http_proxy != "":
@@ -143,34 +143,43 @@ def get_proxies(metroconf):
 def build_gelf_message(check, index=None, rawdata_prefix='raw'):
     '''Prepare a GELF JSON message suitable to be sent to a Graylog GELF server.'''
 
+    # new V3.0
+    prefix = cmt.CONF['global'].get('prefix','')
+    authkey = cmt.CONF['global'].get('authkey','')
+
+
     graylog_data = '"version":"1.1"'
-    graylog_data += ',"host":"{}_{}"'.format(check.group, check.node)
+    graylog_data += ',"host":"{}_{}"'.format(check.group, check.node)  # converted to source
+    graylog_data += ',"{}cmtversion":"{}"'.format(prefix,check.version)
+    if len(authkey)>0:
+        graylog_data += ',"{}authkey":"{}"'.format(prefix, authkey)
+
+
+    # id/key : group.node.module.check
+    #graylog_data += ',"{}id":"{}"'.format(prefix, check.get_id())   # removed in V3.0
+    graylog_data += ',"{}key":"{}"'.format(prefix, check.get_id())   # new V3.0
+    graylog_data += ',"{}env":"{}"'.format(prefix, check.node_env)
 
     # common values
-    graylog_data += ',"cmt_group":"{}"'.format(check.group)
-    graylog_data += ',"cmt_node":"{}"'.format(check.node)
+    graylog_data += ',"{}group":"{}"'.format(prefix, check.group)
+    graylog_data += ',"{}node":"{}"'.format(prefix, check.node)
+    graylog_data += ',"{}module":"{}"'.format(prefix, check.module)
+    graylog_data += ',"{}check":"{}"'.format(prefix, check.check)
+    graylog_data += ',"{}groupnode":"{}_{}"'.format(prefix, check.group, check.node)
 
-    graylog_data += ',"cmt_node_env":"{}"'.format(check.node_env)
-    #graylog_data += ',"cmt_node_role":"{}"'.format(check.node_role)
-    #graylog_data += ',"cmt_node_location":"{}"'.format(check.node_location)
-
-    graylog_data += ',"cmt_version":"{}"'.format(check.version)
-
-    graylog_data += ',"cmt_module":"{}"'.format(check.module)
-    graylog_data += ',"cmt_check":"{}"'.format(check.check)    # deprecated
-    graylog_data += ',"cmt_id":"{}"'.format(check.get_id())
 
 
     # rawdata / multi-event part
     if index is not None:
-        graylog_data += ',"cmt_raw_id":{}'.format(index)
+        graylog_data += ',"{}raw_id":{}'.format(prefix,index)
         event = check.multievent[index]
         m = "{}".format(check.check)
         for k,v in event.items():
             m = m + " ; {}={}".format(k,v)
         #QUOTES BUG : m = m + json.dumps(event)
-        graylog_data += ',"short_message":"{}"'.format(m)
-        graylog_data += ',"cmt_message":"{}"'.format(m)
+        graylog_data += ',"short_message":"{}"'.format(m) # converted to 'message' by graylog
+        if len(prefix) > 0:
+            graylog_data += ',"{}message":"{}"'.format(prefix,m)  # if prefix, no collision, new field
         for k,v in event.items():
             try:
                 float(v)
@@ -186,23 +195,25 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
         # cmt_message  : Check name + check.message + all items.alert_message
         m = "{} - ".format(check.module)
         m = m + check.get_message_as_str()
-        graylog_data += ',"short_message":"{}"'.format(m)
-        graylog_data += ',"cmt_message":"{}"'.format(m)
+        graylog_data += ',"short_message":"{}"'.format(m)  # converted to 'message' by graylog
+        if len(prefix) > 0:
+            graylog_data += ',"{}message":"{}"'.format(prefix,m)
 
         # check items key/values
         for item in check.checkitems:
             try:
                 float(item.value)
-                graylog_data += ',"cmt_{}":{}'.format(item.name, item.value)
+                graylog_data += ',"{}{}":{}'.format(prefix,item.name, item.value)
             except ValueError:
-                graylog_data += ',"cmt_{}":"{}"'.format(item.name, item.value)
+                graylog_data += ',"{}{}":"{}"'.format(prefix,item.name, item.value)
             debug2("Build gelf data : ", str(item.name), str(item.value))
 
 
         # graylog_data += ',"cmt_alert":{}'.format(check.alert)
         # graylog_data += ',"cmt_severity":{}'.format(check.severity)
-        graylog_data += ',"alert":"{}"'.format(cmt.get_alert_label(check.alert))
-        graylog_data += ',"severity":"{}"'.format(cmt.get_severity_label(check.severity))
+        # graylog_data += ',"{}alert":"{}"'.format(prefix, cmt.get_alert_label(check.alert))  # deprecated > state
+        graylog_data += ',"{}state":"{}"'.format(prefix, cmt.get_alert_label(check.alert))  # new V3.0
+        graylog_data += ',"{}severity":"{}"'.format(prefix, cmt.get_severity_label(check.severity))
 
 
     # all messages
@@ -288,33 +299,39 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
 
     '''Prepare a JSON message suitable to be sent to an Elatic server.'''
 
+    # new V3.0
+    prefix = cmt.CONF['global'].get('prefix','')
+    authkey = cmt.CONF['global'].get('authkey','')
+
+
     json_data = ''
 
     # common values
-    json_data += '"cmt_group":"{}"'.format(check.group)
-    json_data += ',"cmt_node":"{}"'.format(check.node)
+    json_data += '"{}cmtversion":"{}"'.format(prefix, check.version)
+    if len(authkey)>0:
+        json_data += ',"{}authkey":"{}"'.format(prefix, authkey)
 
-    json_data += ',"cmt_node_env":"{}"'.format(check.node_env)
-    #json_data += ',"cmt_node_role":"{}"'.format(check.node_role)
-    #json_data += ',"cmt_node_location":"{}"'.format(check.node_location)
+    json_data += ',"{}source":"{}_{}"'.format(prefix, check.group, check.node)  # match Graylog behavior
+    json_data += ',"{}groupnode":"{}_{}"'.format(prefix, check.group, check.node)
 
-    json_data += ',"cmt_version":"{}"'.format(check.version)
-
-    json_data += ',"cmt_module":"{}"'.format(check.module)
-    json_data += ',"cmt_check":"{}"'.format(check.check)    # deprecated
-    json_data += ',"cmt_id":"{}"'.format(check.get_id())
-
+    json_data += ',"{}key":"{}"'.format(prefix, check.get_id())
+    json_data += ',"{}env":"{}"'.format(prefix, check.node_env)
+    
+    json_data += ',"{}group":"{}"'.format(prefix,check.group)
+    json_data += ',"{}node":"{}"'.format(prefix,check.node)
+    json_data += ',"{}module":"{}"'.format(prefix, check.module)
+    json_data += ',"{}check":"{}"'.format(prefix, check.check)
 
     # rawadata / multi-event part
     if index is not None:
-        json_data += ',"cmt_raw_id":{}'.format(index)
+        json_data += ',"{}raw_id":{}'.format(prefix, index)
         event = check.multievent[index]
         m = "{} ".format(check.check)
         for k,v in event.items():
             m = m + "; {}={}".format(k,v)
         #QUOTES BUG : m = m + json.dumps(event)
         json_data += ',"short_message":"{}"'.format(m)
-        json_data += ',"cmt_message":"{}"'.format(m)
+        json_data += ',"{}message":"{}"'.format(prefix, m)
         for k,v in event.items():
             try:
                 float(v)
@@ -329,11 +346,10 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
         # cmt_message  : Check name + check.message + all items.alert_message
         m = "{} - ".format(check.module)
         m = m + check.get_message_as_str()
-        json_data += ',"cmt_message":"{}"'.format(m)
+        json_data += ',"{}message":"{}"'.format(prefix,m)
 
         # check items key/values
         for item in check.checkitems:
-
 
             value2 = item.value
             
@@ -348,17 +364,17 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
 
             try:
                 float(value2)
-                json_data += ',"cmt_{}":{}'.format(item.name, value2)
+                json_data += ',"{}{}":{}'.format(prefix, item.name, value2)
             except ValueError:
-                json_data += ',"cmt_{}":"{}"'.format(item.name, value2)
+                json_data += ',"{}{}":"{}"'.format(prefix, item.name, value2)
 
             debug2("Build json data : ", str(item.name), str(value2))
 
 
         # json_data += ',"cmt_alert":{}'.format(check.alert)
         # json_data += ',"cmt_severity":{}'.format(check.severity)
-        json_data += ',"alert":"{}"'.format(cmt.get_alert_label(check.alert))
-        json_data += ',"severity":"{}"'.format(cmt.get_severity_label(check.severity))
+        json_data += ',"{}state":"{}"'.format(prefix, cmt.get_alert_label(check.alert))
+        json_data += ',"{}severity":"{}"'.format(prefix, cmt.get_severity_label(check.severity))
 
     json_data = '{' + json_data + '}'
     return json_data
@@ -464,10 +480,10 @@ def build_influxdb_message(check, metroconf, index=None):
                 influx_data += ',cmt_{}="{}"'.format(item.name, item.value)
 
     # severity, alert
-    # influx_data += ',cmt_alert={}'.format(check.alert)
-    # influx_data += ',cmt_severity={}'.format(check.severity)
-    influx_data += ',alert="{}"'.format(cmt.get_alert_label(check.alert))
+    influx_data += ',alert="{}"'.format(cmt.get_alert_label(check.alert))  # deprecated in V3.0
+    influx_data += ',state="{}"'.format(cmt.get_alert_label(check.alert))
     influx_data += ',severity="{}"'.format(cmt.get_severity_label(check.severity))
+
 
 
     # field section
