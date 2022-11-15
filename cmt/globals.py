@@ -9,8 +9,8 @@ requests.packages.urllib3.disable_warnings()
 SESSION = requests.session()
 
 # -----------------
-VERSION = "CMT - (c) cavaliba.com - Version 3.0 - 2022/10/02"
-VERSION_NUMBER = "3.0"
+VERSION = "CMT - (c) cavaliba.com - Version 3.0 - 2022/11/15"
+VERSION_NUMBER = "3.0beta1"
 
 # default ; can be overrided in configuration files
 MAX_EXECUTION_TIME = 55

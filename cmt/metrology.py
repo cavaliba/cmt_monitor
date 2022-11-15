@@ -466,11 +466,14 @@ def build_influxdb_message(check, metroconf, index=None):
             continue
         # add as a tag in the influx tag section
         influx_data += ','
-        try:
-            float(item.value)
-            influx_data += 'cmt_{}={}'.format(item.name, item.value)
-        except ValueError:
-            influx_data += 'cmt_{}="{}"'.format(item.name, item.value)
+        # no quotes in tags key (forbidden = ' ', ',', '=')
+        influx_data += 'cmt_{}={}'.format(item.name, item.value)
+
+        # try:
+        #     float(item.value)
+        #     influx_data += 'cmt_{}={}'.format(item.name, item.value)
+        # except ValueError:
+        #     influx_data += 'cmt_{}="{}"'.format(item.name, item.value)
 
     # cmt conf tags
     if send_tags:
@@ -480,9 +483,9 @@ def build_influxdb_message(check, metroconf, index=None):
                 influx_data += ',cmt_{}="{}"'.format(item.name, item.value)
 
     # severity, alert
-    influx_data += ',alert="{}"'.format(cmt.get_alert_label(check.alert))  # deprecated in V3.0
-    influx_data += ',state="{}"'.format(cmt.get_alert_label(check.alert))
-    influx_data += ',severity="{}"'.format(cmt.get_severity_label(check.severity))
+    #influx_data += ',alert={}'.format(cmt.get_alert_label(check.alert))  # deprecated in V3.0
+    influx_data += ',state={}'.format(cmt.get_alert_label(check.alert))
+    influx_data += ',severity={}'.format(cmt.get_severity_label(check.severity))
 
 
 
@@ -530,12 +533,12 @@ def build_influxdb_message(check, metroconf, index=None):
             first_item = False
 
         # also add severity, alert as field/value items in the influx line protocol
-        if not first_item:        
-            influx_data += ','
+        #if not first_item:        
+        #    influx_data += ','
         # influx_data += 'cmt_alert={}'.format(check.alert)
         # influx_data += ',cmt_severity={}'.format(check.severity)
-        influx_data += ',alert="{}"'.format(cmt.get_alert_label(check.alert))
-        influx_data += ',severity="{}"'.format(cmt.get_severity_label(check.severity))
+        influx_data += ',alert={}'.format(cmt.get_alert_label(check.alert))
+        influx_data += ',severity={}'.format(cmt.get_severity_label(check.severity))
 
 
     # timestamp section
