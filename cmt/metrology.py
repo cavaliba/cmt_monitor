@@ -144,7 +144,7 @@ def build_gelf_message(check, index=None, rawdata_prefix='raw'):
     '''Prepare a GELF JSON message suitable to be sent to a Graylog GELF server.'''
 
     # new V3.0
-    prefix = cmt.CONF['global'].get('prefix','')
+    prefix = cmt.CONF['global'].get('prefix','cmt_')
     authkey = cmt.CONF['global'].get('authkey','')
 
 
@@ -300,7 +300,7 @@ def build_json_message(check, index=None, rawdata_prefix='raw'):
     '''Prepare a JSON message suitable to be sent to an Elatic server.'''
 
     # new V3.0
-    prefix = cmt.CONF['global'].get('prefix','')
+    prefix = cmt.CONF['global'].get('prefix','cmt_')
     authkey = cmt.CONF['global'].get('authkey','')
 
 
@@ -438,6 +438,8 @@ def build_influxdb_message(check, metroconf, index=None):
     single_measurement = metroconf.get('single_measurement',True) is True
     send_tags = metroconf.get('send_tags',False) is True
 
+    prefix = cmt.CONF['global'].get('prefix','cmt_')
+
     influx_data = ''
 
     # measurement section
@@ -445,19 +447,21 @@ def build_influxdb_message(check, metroconf, index=None):
     # cmt,cmt_module=XX,cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
     # cmt_{module},cmt_group=XX,cmt_node=XX,cmt_check=XX,cmt_node_env=XX k=v,k=v
     if single_measurement:
-        influx_data += 'cmt,cmt_module=' + check.module
+        influx_data += 'cmt,{}module={}'.format(prefix,check.module)
     else:
-        influx_data += 'cmt_' + check.module
+        influx_data += prefix + check.module
 
     # tag section
     # ------------
 
     # global tags
-    influx_data += ',cmt_group={},cmt_node={},cmt_check={},cmt_node_env={}'.format(
-        check.group,
-        check.node,
-        check.check,
-        check.node_env)
+
+    influx_data += ',{}group={},{}node={},{}check={},{}env={},{}key={}'.format(
+        prefix, check.group,
+        prefix, check.node,
+        prefix, check.check,
+        prefix, check.node_env,
+        prefix, check.get_id())
 
     # none datapoint checkitems tags
     for item in check.checkitems:
@@ -467,34 +471,28 @@ def build_influxdb_message(check, metroconf, index=None):
         # add as a tag in the influx tag section
         influx_data += ','
         # no quotes in tags key (forbidden = ' ', ',', '=')
-        influx_data += 'cmt_{}={}'.format(item.name, item.value)
-
-        # try:
-        #     float(item.value)
-        #     influx_data += 'cmt_{}={}'.format(item.name, item.value)
-        # except ValueError:
-        #     influx_data += 'cmt_{}="{}"'.format(item.name, item.value)
+        influx_data += '{}{}={}'.format(prefix,item.name, item.value)
 
     # cmt conf tags
     if send_tags:
         for item in check.checkitems:                
             if item.name.startswith('tag_'):
                 #float(item.value)
-                influx_data += ',cmt_{}="{}"'.format(item.name, item.value)
+                influx_data += ',{}{}={}'.format(prefix,item.name, item.value)
 
     # severity, alert
-    #influx_data += ',alert={}'.format(cmt.get_alert_label(check.alert))  # deprecated in V3.0
     influx_data += ',state={}'.format(cmt.get_alert_label(check.alert))
     influx_data += ',severity={}'.format(cmt.get_severity_label(check.severity))
-
 
 
     # field section
     # ------------
 
+    first_item = True
+
     # rawdata multi-event part
     if index is not None:
-        influx_data += ' cmt_raw_id={}'.format(index)
+        influx_data += ' {}raw_id={}'.format(prefix,index)
         event = check.multievent[index]
         for k,v in event.items():
             try:
@@ -506,7 +504,6 @@ def build_influxdb_message(check, metroconf, index=None):
     # main / standard event
     else:
         influx_data += ' '
-        first_item = True
 
         for item in check.checkitems:
 
@@ -524,20 +521,20 @@ def build_influxdb_message(check, metroconf, index=None):
             if not first_item:        
                 influx_data += ','
 
+            # double-quote permitted for key values only
             try:
                 float(item.value)
-                influx_data += 'cmt_{}={}'.format(item.name, item.value)
+                influx_data += '{}{}={}'.format(prefix, item.name, item.value)
             except ValueError:
-                influx_data += 'cmt_{}="{}"'.format(item.name, item.value)
+                influx_data += '{}{}="{}"'.format(prefix, item.name, item.value)
 
             first_item = False
 
         # also add severity, alert as field/value items in the influx line protocol
-        #if not first_item:        
-        #    influx_data += ','
-        # influx_data += 'cmt_alert={}'.format(check.alert)
-        # influx_data += ',cmt_severity={}'.format(check.severity)
-        influx_data += ',alert={}'.format(cmt.get_alert_label(check.alert))
+        if not first_item:        
+            influx_data += ','
+
+        influx_data += 'state={}'.format(cmt.get_alert_label(check.alert))
         influx_data += ',severity={}'.format(cmt.get_severity_label(check.severity))
 
 

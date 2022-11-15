@@ -34,6 +34,7 @@ This check can be used from a remote server to monitor various URL and Webservic
 			[http_code]       : expected code ; default 200
 			[pattern]         : pattern expected in response (default none) 
 			[pattern_reject]  : pattern to NOT find in response (default none)
+			[obfuscate_url]   : param(default)|full|no  : hide part of the url in output data
 
 pattern: 
 	
@@ -90,7 +91,13 @@ http_code
     expected http_code in response
     useful to check non-200 responses like redirects 30X, forbidden 40X, webservice specials 20X, etc.
 
+obfuscate_url
 
+    new in 3.0
+    values : param|full|no
+    default : param
+    if param, hide params in the URL field output (might be sensitive data)
+    if full, URL is completely removed
 
 ## Alerts
 

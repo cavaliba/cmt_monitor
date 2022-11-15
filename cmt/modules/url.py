@@ -1,12 +1,23 @@
+## url.py module for CMT 
 
 import time
 import re
 import requests
+from urllib.parse import urljoin, urlparse
 
 import globals as cmt
 from checkitem import CheckItem
 
 requests.packages.urllib3.disable_warnings()
+
+
+def obfuscate_param(url):
+    # http://example.com/info?a=5&b=6 >> http://example.com/info
+    return urljoin(url, urlparse(url).path)  
+
+def obfuscate_full(url):
+    return "<removed>"
+
 
 
 def check(c):
@@ -33,7 +44,7 @@ def check(c):
     pattern      = c.conf.get('pattern',"")
     pattern_reject  = c.conf.get('pattern_reject',"")
 
-
+    obfuscate_url = c.conf.get("obfuscate_url", "param")
 
     # default : use env proxies
     # if "http_proxy:noenv" remove env proxies
@@ -55,7 +66,13 @@ def check(c):
     ci = CheckItem('url_name',name, datapoint=False)
     c.add_item(ci)
 
-    ci = CheckItem('url',url, datapoint=False)
+    if obfuscate_url =="param":
+        url2 = obfuscate_param(url) 
+    elif obfuscate_url == "full":
+        url2 = obfuscate_full(url)
+    else:        
+        url2 = url
+    ci = CheckItem('url',url2, datapoint=False)
     c.add_item(ci)
 
 

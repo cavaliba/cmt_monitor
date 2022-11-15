@@ -1,6 +1,6 @@
 ---
 # Cavaliba / cmt_monitor / conf.yml - TEMPLATE
-# CMT Version: 3.0
+# CMT Version: 3.0beta2
 
 
 # Example configuration / template 
@@ -202,6 +202,7 @@ url:
     #http_proxy: XXX
     #https_proxy: XXX
     severity_max: warning
+    #obfuscate_url: param|full|no
 
   www_non_existing:
     enabled: after 2020-01-01
@@ -570,6 +571,7 @@ mysqldata:
 # after YYYY-MM-DD hh:mm:ss    : after time of the day
 # before YYYY-MM-DD hh:mm:ss   : before ... 
 # hrange hh:mm:ss hh:mm:ss     : time intervall
+# nohrange hh:mm:ss hh:mm:ss   : exclude time intervall
 # ho, bh, business_hours       : 8h30/18h mon>fri - see global configuration for custom time
 # nbh,hno, non_business_hours  : !(8h30/18h mon>fri)
 #

@@ -75,8 +75,6 @@ The complete configuration for a CMT run has 5 sections :
 	  cmt_group: cavaliba  : group name, customer name, system name
 	  cmt_node: dev_vm1    : node name (physical / virtual name / cmt instance)
 	  [cmt_node_env]       : string: prod, dev, qa, test, form, preprod, qualif ...
-	  [cmt_node_role]      : string ; appli_front_1, db_3
-	  [cmt_node_location]  : string, geographical position
 	  [enable]             : timerange ; DEFAULT = yes; master switch (no inheritance below)
 	  [start_offset]       : int, seconds ; in cron mode, start is delayed by this or a calculated offset in seconds
 	  [enable_pager]       : timerange ; DEFAULT = no ; master switch (no inheritance)
@@ -89,6 +87,7 @@ The complete configuration for a CMT run has 5 sections :
 	  [alert_delay]        : seconds of repeated NOK check before trigering an alert  ; DEFAULT 120 ; 
 	                         each check can override the global value
       [tags]               : tag1 tag2[=value] ; list of tags ; no blank around optional "=value"
+      [prefix]             : default "cmt_" ; prefix for all output fields in GELF/INFLUX
 
 
 ## conf.yml : metroloy servers
@@ -314,6 +313,7 @@ when run from crontab, the CMT process kills itself after this amount of time. A
 		# after YYYY-MM-DD hh:mm:ss    : after time of the day
 		# before YYYY-MM-DD hh:mm:ss   : before ... 
 		# hrange hh:mm:ss hh:mm:ss     : time intervall
+		# nohrange hh:mm:ss hh:mm:ss   : exclude time intervall
 		# ho, bh, business_hours       : 8h30/18h mon>fri - see global configuration for custom time
 		# nbh,hno, non_business_hours  : !(8h30/18h mon>fri)
 

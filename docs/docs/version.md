@@ -4,7 +4,26 @@ title: version
 
 # Releases
 
-## 2.4 - beta/ongoing
+## 3.0beta2 - 2022/11/15
+
+    bug: influx output has double ,,
+    bug: remove quotes in influx output
+    bug : http_proxy in global CONF
+    conf: global : prefix option (default 'cmt_') for GELF and INFLUX
+    conf: global : add authkey option to authenticate message in metrology servers
+    conf: timerange option : nohrange : exclude a time range (opposite of hrange)
+    output: rename output field : node_env to env
+    output: rename output field : id to key
+    output: remove cmt_message (=> short_message) in graylog 
+    output: rename field : alert to state
+    output: updated field source is group.node variable (graylg/elastic)
+    output: add field groupnode == group.node
+    option: conf --template  to display a full configuration example
+    module URL : obfuscate_url option (default: param) ; values : param|full|no
+
+
+
+## 2.4 - 2022/06
     reverse_severity option : inverse condition for severity (negative check)
     tested on elastic 8.2 (http://127.0.0.1:9200/cmt/_doc/?pipeline=timestamp)
     removed cmt_alert (> alert) and xmt_severuty (> severity) output fields

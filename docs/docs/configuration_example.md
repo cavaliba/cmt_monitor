@@ -9,7 +9,7 @@ title: configuration example
 
       ---
       # Cavaliba / cmt_monitor / conf.yml
-      # CMT Version: 2.3
+      # CMT Version: 3.0
       # Example configuration / template 
 
       # Global section
@@ -19,12 +19,12 @@ title: configuration example
         cmt_group: cavaliba
         cmt_node: vmxupm
         cmt_node_env: dev
-        cmt_node_role: dev_cmt
-        cmt_node_location: Ladig
         enable: yes
         start_offset: 2
         enable_pager: yes
         alert_delay: 90
+        prefix: "cmt_"
+        # prefix: ""
         business_hours: 08:00:00 18:00:00
         #conf_url: http://localhost/txt/
         max_execution_time: 55
@@ -256,6 +256,7 @@ title: configuration example
         url_patternreject:
           url: http://www.myservice.com/status/
           pattern_reject: 'class="error"'
+          
 
       # ---------
       mount:
@@ -576,6 +577,7 @@ title: configuration example
       # after YYYY-MM-DD hh:mm:ss    : after time of the day
       # before YYYY-MM-DD hh:mm:ss   : before ... 
       # hrange hh:mm:ss hh:mm:ss     : time intervall
+      # nohrange hh:mm:ss hh:mm:ss   : time intervall
       # ho, bh, business_hours       : 8h30/18h mon>fri - see global configuration for custom time
       # nbh,hno, non_business_hours  : !(8h30/18h mon>fri)
       #

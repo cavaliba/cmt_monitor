@@ -284,6 +284,13 @@ def is_timeswitch_on(myconfig):
             return True
         return False
 
+    if action == "nohrange":
+        mynow = datetime.datetime.today().strftime("%H:%M:%S")
+        if mynow >= myarray[0] and mynow <= myarray[1]:
+            return False
+        return True
+
+
     if action == "ho" or action == "bho" or action == "8/5" or action =="business_hours":
 
         business_hours = cmt.CONF['global'].get('business_hours', '08:30:00 17:30:00')
@@ -362,7 +369,8 @@ global:
   #http_proxy: http://[login[:pass]@]proxyhost:port
   #https_proxy: https://[login[:pass]@]proxyhost:port
   tags: demo os=linux os_ver=debian10
-  #prefix: cmt_
+  prefix: cmt_   
+  #prefix: ""
   #authkey: random_string_keepsecret_ingress_filter_in_metrology_pipelines
 
 # Metrology section
@@ -585,6 +593,21 @@ url:
   url_patternreject:
     url: http://www.myservice.com/status/
     pattern_reject: 'class="error"'
+
+  url_parameter:
+    url: http://www.myservice.com/info?a=5&b=6
+
+  url_parameter2:
+    url: http://www.myservice.com/info?a=5&b=6
+    obfuscate_url: param
+
+  url_parameter3:
+    url: http://www.myservice.com/info?a=5&b=6
+    obfuscate_url: full
+
+  url_parameter4:
+    url: http://www.myservice.com/info?a=5&b=6
+    obfuscate_url: no
 
 # ---------
 mount:
@@ -909,6 +932,7 @@ mysqldata:
 # after YYYY-MM-DD hh:mm:ss    : after time of the day
 # before YYYY-MM-DD hh:mm:ss   : before ... 
 # hrange hh:mm:ss hh:mm:ss     : time intervall
+# nohrange hh:mm:ss hh:mm:ss   : exclude time intervall
 # ho, bh, business_hours       : 8h30/18h mon>fri - see global configuration for custom time
 # nbh,hno, non_business_hours  : !(8h30/18h mon>fri)
 #
